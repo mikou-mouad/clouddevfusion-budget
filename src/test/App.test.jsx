@@ -82,7 +82,7 @@ describe("dashboard math matches the underlying rows (black-box check)", () => {
       const statusText = cells[4].textContent.trim();
       const amount = eurToNumber(amountText);
       if (statusText !== "Lost") expected += amount;
-      if (statusText === "Paid") actual += amount;
+      if (statusText !== "Lost" && statusText !== "Pipeline") actual += amount;
     }
 
     await goToTab(user, "Dashboard");
@@ -109,7 +109,7 @@ describe("dashboard math matches the underlying rows (black-box check)", () => {
       const amount = eurToNumber(cells[4].textContent);
       const statusText = cells[3].textContent.trim();
       if (statusText !== "Lost") expected += amount;
-      if (statusText === "Paid") actual += amount;
+      if (statusText !== "Lost" && statusText !== "Pipeline") actual += amount;
     }
     expect(expected).toBeGreaterThan(0);
     expect(actual).toBeGreaterThan(0);
@@ -474,7 +474,7 @@ describe("Dashboard period filter", () => {
     // Independently compute what 2027-only Actual/Expected revenue should be, straight from the Revenue table
     await goToTab(user, "Revenue");
     const rows = screen.getAllByRole("row").slice(2);
-    let actual2027 = 0, expected2027 = 0;
+    let actual2027 = 0, expected2027 = 0, matched2027Rows = 0;
     for (const row of rows) {
       const cells = within(row).queryAllByRole("cell");
       if (cells.length < 6) continue;
@@ -482,13 +482,18 @@ describe("Dashboard period filter", () => {
       const statusText = cells[4].textContent.trim();
       const amount = eurToNumber(cells[5].textContent);
       if (dateText.includes("2027")) {
+        matched2027Rows++;
         if (statusText !== "Lost") expected2027 += amount;
         if (statusText === "Paid") actual2027 += amount;
       }
     }
-    expect(expected2027).toBeGreaterThan(0); // sanity check the seed data actually has 2027 entries
+    // Both 2027 sessions (Cloud Intro 2, parts 1 & 2) have no priced amount yet in the
+    // source spreadsheet — confirm the test is actually looking at real rows, not that
+    // the year is empty entirely.
+    expect(matched2027Rows).toBeGreaterThan(0);
+    expect(expected2027).toBe(0);
 
-    // Now select year=2027 on the Dashboard and confirm the KPI matches
+    // Now select year=2027 on the Dashboard and confirm the KPI matches (i.e. shows 0, not a fabricated figure)
     await goToTab(user, "Dashboard");
     const yearSelect = screen.getAllByRole("combobox")[0];
     await user.selectOptions(yearSelect, "2027");
@@ -561,5 +566,56 @@ describe("Revenue vs. overhead expense separation", () => {
     const projectFilter = screen.getByPlaceholderText("Filter…");
     await user.type(projectFilter, "Teams Sub");
     expect(screen.getByText(/2 of \d+ entries/)).toBeInTheDocument(); // two Teams Sub months
+  });
+});
+
+describe("No fabricated figures for genuinely unpriced pipeline sessions", () => {
+  it("shows 0 for Cloud Intro 2 sessions, matching the blank source spreadsheet (not an invented amount)", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Revenue");
+
+    const row1 = rowFor("Efrei - Cloud Intro 2 (1/2)");
+    const row2 = rowFor("Efrei - Cloud Intro 2 (2/2)");
+    expect(row1).toBeTruthy();
+    expect(row2).toBeTruthy();
+    expect(within(row1).getByText("0 €")).toBeInTheDocument();
+    expect(within(row2).getByText("0 €")).toBeInTheDocument();
+
+    // and no Trainer Fee expense should exist for them either, since the source has none
+    await goToTab(user, "Expenses");
+    const projectFilter = screen.getByPlaceholderText("Filter…");
+    await user.type(projectFilter, "Cloud Intro 2");
+    expect(screen.getByText(/0 of \d+ entries/)).toBeInTheDocument();
+  });
+});
+
+describe("Actual matches the source spreadsheet's own Dashboard totals", () => {
+  it("shows Actual Revenue/Expenses matching the file's Total Revenue (20931.90) and Total Costs (20493.36) exactly", async () => {
+    await renderReady();
+    // Dashboard is the default landing tab already
+    const revenueCards = screen.getAllByText(/^Revenue$/).map((el) => el.closest(".kpi-card")).filter(Boolean);
+    const expenseCards = screen.getAllByText(/^Expenses$/).map((el) => el.closest(".kpi-card")).filter(Boolean);
+    const shownRevenue = eurToNumber(within(revenueCards[0]).getByText(/€/, { selector: ".kpi-actual" }).textContent);
+    const shownExpenses = eurToNumber(within(expenseCards[0]).getByText(/€/, { selector: ".kpi-actual" }).textContent);
+
+    // allow a couple of euros of rounding slack since the UI rounds to whole euros
+    expect(Math.abs(shownRevenue - 20931.9)).toBeLessThanOrEqual(2);
+    expect(Math.abs(shownExpenses - 20493.36)).toBeLessThanOrEqual(2);
+  });
+
+  it("shows Expected Revenue/Expenses as a literal sum of every row (Lost included), matching the file's Expected Revenue (43121.90) / Expected TCost (38843.36) totals plus the EFREI pipeline additions", async () => {
+    await renderReady();
+    const revenueCards = screen.getAllByText(/^Revenue$/).map((el) => el.closest(".kpi-card")).filter(Boolean);
+    const expenseCards = screen.getAllByText(/^Expenses$/).map((el) => el.closest(".kpi-card")).filter(Boolean);
+    const expectedRevenueText = within(revenueCards[0]).getByText(/if everything closes/i).textContent;
+    const expectedExpensesText = within(expenseCards[0]).getByText(/if everything closes/i).textContent;
+    const shownExpectedRevenue = eurToNumber(expectedRevenueText);
+    const shownExpectedExpenses = eurToNumber(expectedExpensesText);
+
+    // Bilan 2026 file totals (43121.90 / 38843.36) + EFREI pipeline additions still in the app
+    // (Cloud Intro 3: +2212 revenue / +2000 trainer fee; Cloud Intro 2 sessions and AZ104/DP700 add 0)
+    expect(Math.abs(shownExpectedRevenue - (43121.90 + 2212))).toBeLessThanOrEqual(2);
+    expect(Math.abs(shownExpectedExpenses - (38843.36 + 2000))).toBeLessThanOrEqual(2);
   });
 });
