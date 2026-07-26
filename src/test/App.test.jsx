@@ -472,3 +472,70 @@ describe("History panel", () => {
     expect(screen.getByText("Restored Project")).toBeInTheDocument();
   });
 });
+
+describe("Dashboard period filter", () => {
+  it("defaults to All time", async () => {
+    await renderReady();
+    expect(screen.getByText("All time", { selector: "strong" })).toBeInTheDocument();
+  });
+
+  it("filtering to 2027 shows only 2027 projects' totals, independently verified against the Revenue tab", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+
+    // Independently compute what 2027-only Actual/Expected revenue should be, straight from the Revenue table
+    await goToTab(user, "Revenue");
+    const rows = screen.getAllByRole("row").slice(2);
+    let actual2027 = 0, expected2027 = 0;
+    for (const row of rows) {
+      const cells = within(row).queryAllByRole("cell");
+      if (cells.length < 6) continue;
+      const dateText = cells[3].textContent;
+      const statusText = cells[4].textContent.trim();
+      const amount = eurToNumber(cells[5].textContent);
+      if (dateText.includes("2027")) {
+        if (statusText !== "Lost") expected2027 += amount;
+        if (statusText === "Paid") actual2027 += amount;
+      }
+    }
+    expect(expected2027).toBeGreaterThan(0); // sanity check the seed data actually has 2027 entries
+
+    // Now select year=2027 on the Dashboard and confirm the KPI matches
+    await goToTab(user, "Dashboard");
+    const yearSelect = screen.getAllByRole("combobox")[0];
+    await user.selectOptions(yearSelect, "2027");
+
+    expect(screen.getByText("2027", { selector: "strong" })).toBeInTheDocument(); // subtitle reflects the period
+    const revenueCards = screen.getAllByText(/^Revenue$/).map((el) => el.closest(".kpi-card")).filter(Boolean);
+    const shownActual = eurToNumber(within(revenueCards[0]).getByText(/€/, { selector: ".kpi-actual" }).textContent);
+    expect(Math.abs(shownActual - actual2027)).toBeLessThanOrEqual(2);
+  });
+
+  it("narrowing to a specific month within a year filters further, and Reset returns to All time", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Dashboard");
+
+    const yearSelect = screen.getAllByRole("combobox")[0];
+    await user.selectOptions(yearSelect, "2027");
+
+    // a month selector should now appear
+    const selects = screen.getAllByRole("combobox");
+    expect(selects.length).toBe(2);
+    await user.selectOptions(selects[1], "01");
+    expect(screen.getByText(/Jan 2027/i)).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /Reset to all time/i }));
+    expect(screen.getByText("All time", { selector: "strong" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Reset to all time/i })).not.toBeInTheDocument();
+  });
+
+  it("excludes undated pipeline projects from a specific period and shows a note about it", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Dashboard");
+    const yearSelect = screen.getAllByRole("combobox")[0];
+    await user.selectOptions(yearSelect, "2026");
+    expect(screen.getByText(/pipeline project.*without a date/i)).toBeInTheDocument();
+  });
+});

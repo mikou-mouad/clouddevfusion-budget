@@ -219,12 +219,12 @@ function KpiCard({ icon: Icon, label, actual, expected, tone }) {
   );
 }
 
-function Select({ value, onChange, options }) {
+function Select({ value, onChange, options, labelFor }) {
   return (
     <div className="select-wrap">
       <select value={value} onChange={(e) => onChange(e.target.value)}>
         {options.map((o) => (
-          <option key={o} value={o}>{o}</option>
+          <option key={o} value={o}>{labelFor ? labelFor(o) : o}</option>
         ))}
       </select>
       <ChevronDown size={13} className="select-chevron" />
@@ -682,19 +682,52 @@ function PlanningTab({ projects }) {
 /* ---------------------------------------------------------------
    Dashboard Tab
 --------------------------------------------------------------- */
+const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+function availableYears(projects, expenses) {
+  const years = new Set();
+  projects.forEach((p) => { if (p.startDate) years.add(p.startDate.slice(0, 4)); });
+  expenses.forEach((e) => { if (e.date) years.add(e.date.slice(0, 4)); });
+  return Array.from(years).sort();
+}
+
+function matchesPeriod(dateStr, year, month) {
+  if (year === "all") return true; // no period filter active
+  if (!dateStr) return false; // undated items can't belong to a specific period
+  if (dateStr.slice(0, 4) !== year) return false;
+  if (month !== "all" && dateStr.slice(5, 7) !== month) return false;
+  return true;
+}
+
 function DashboardTab({ projects, expenses }) {
   const notLost = (arr) => arr.filter((x) => x.status !== "Lost");
+  const years = useMemo(() => availableYears(projects, expenses), [projects, expenses]);
+  const [year, setYear] = useState("all");
+  const [month, setMonth] = useState("all");
 
-  const actualRevenue = projects.filter((p) => p.status === "Paid").reduce((s, p) => s + (p.expectedAmount || 0), 0);
-  const expectedRevenue = notLost(projects).reduce((s, p) => s + (p.expectedAmount || 0), 0);
-  const actualExpenses = expenses.filter((e) => e.status === "Paid").reduce((s, e) => s + (e.expectedAmount || 0), 0);
-  const expectedExpenses = notLost(expenses).reduce((s, e) => s + (e.expectedAmount || 0), 0);
+  const periodProjects = useMemo(
+    () => (year === "all" ? projects : projects.filter((p) => matchesPeriod(p.startDate, year, month))),
+    [projects, year, month]
+  );
+  const periodExpenses = useMemo(
+    () => (year === "all" ? expenses : expenses.filter((e) => matchesPeriod(e.date, year, month))),
+    [expenses, year, month]
+  );
+  const excludedUndated = year === "all" ? 0 : projects.filter((p) => !p.startDate).length;
+
+  const periodLabel =
+    year === "all" ? "All time" : month === "all" ? year : `${MONTH_NAMES[parseInt(month, 10) - 1]} ${year}`;
+
+  const actualRevenue = periodProjects.filter((p) => p.status === "Paid").reduce((s, p) => s + (p.expectedAmount || 0), 0);
+  const expectedRevenue = notLost(periodProjects).reduce((s, p) => s + (p.expectedAmount || 0), 0);
+  const actualExpenses = periodExpenses.filter((e) => e.status === "Paid").reduce((s, e) => s + (e.expectedAmount || 0), 0);
+  const expectedExpenses = notLost(periodExpenses).reduce((s, e) => s + (e.expectedAmount || 0), 0);
   const actualProfit = actualRevenue - actualExpenses;
   const expectedProfit = expectedRevenue - expectedExpenses;
 
   const monthly = useMemo(() => {
     const map = {};
-    projects.forEach((p) => {
+    periodProjects.forEach((p) => {
       const k = monthKey(p.startDate);
       if (!map[k]) map[k] = { month: k, actual: 0, expected: 0 };
       if (p.status !== "Lost") map[k].expected += p.expectedAmount || 0;
@@ -704,23 +737,23 @@ function DashboardTab({ projects, expenses }) {
       .filter((m) => m.month !== "unscheduled")
       .sort((a, b) => a.month.localeCompare(b.month))
       .map((m) => ({ ...m, label: new Date(m.month + "-01").toLocaleDateString("en-GB", { month: "short", year: "2-digit" }) }));
-  }, [projects]);
+  }, [periodProjects]);
 
   const byCategory = useMemo(() => {
     const map = {};
-    expenses.forEach((e) => {
+    periodExpenses.forEach((e) => {
       if (e.status === "Lost") return;
       map[e.category] = (map[e.category] || 0) + (e.expectedAmount || 0);
     });
     return Object.entries(map).map(([name, value]) => ({ name, value }));
-  }, [expenses]);
+  }, [periodExpenses]);
 
   const statusFunnel = useMemo(() => {
     const map = {};
     STATUS_ORDER.forEach((s) => (map[s] = 0));
-    projects.forEach((p) => { map[p.status] = (map[p.status] || 0) + (p.expectedAmount || 0); });
+    periodProjects.forEach((p) => { map[p.status] = (map[p.status] || 0) + (p.expectedAmount || 0); });
     return STATUS_ORDER.map((s) => ({ status: s, value: map[s] }));
-  }, [projects]);
+  }, [periodProjects]);
 
   const PIE_COLORS = ["#1F6E4A", "#C68A2E", "#3E7CB1", "#B3402F", "#7A5FB5", "#6B7A72", "#9AA39C", "#D9895A"];
 
@@ -729,9 +762,29 @@ function DashboardTab({ projects, expenses }) {
       <div className="panel-header">
         <div>
           <h2>Dashboard</h2>
-          <p className="sub">Where the business actually stands, and where it lands if every open deal closes.</p>
+          <p className="sub">Where the business actually stands, and where it lands if every open deal closes — showing <strong>{periodLabel}</strong>.</p>
+        </div>
+        <div className="period-picker">
+          <Select
+            value={year}
+            onChange={(v) => { setYear(v); setMonth("all"); }}
+            options={["all", ...years]}
+            labelFor={(v) => (v === "all" ? "All time" : v)}
+          />
+          {year !== "all" && (
+            <Select
+              value={month}
+              onChange={setMonth}
+              options={["all", ...Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, "0"))]}
+              labelFor={(v) => (v === "all" ? "Whole year" : MONTH_NAMES[parseInt(v, 10) - 1])}
+            />
+          )}
+          {year !== "all" && <button className="link-btn" onClick={() => { setYear("all"); setMonth("all"); }}>Reset to all time</button>}
         </div>
       </div>
+      {excludedUndated > 0 && (
+        <div className="period-note">{excludedUndated} pipeline project{excludedUndated > 1 ? "s" : ""} without a date {excludedUndated > 1 ? "aren't" : "isn't"} shown for this period.</div>
+      )}
 
       <div className="ledger-hero">
         <div className="ledger-col">
@@ -1049,6 +1102,8 @@ html, body, #root { height: 100%; margin: 0; }
 .app-body { padding: 26px 28px 36px 28px; }
 
 .panel-header { display:flex; align-items:flex-end; justify-content:space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+.period-picker { display:flex; align-items:center; gap: 8px; flex-wrap: wrap; }
+.period-note { font-size: 12px; color: #9AA39C; margin: -12px 0 16px 0; }
 .panel-header h2 { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 600; margin: 0 0 4px 0; }
 .panel-header .sub { margin: 0; font-size: 13px; color: #6B7A72; max-width: 480px; }
 
