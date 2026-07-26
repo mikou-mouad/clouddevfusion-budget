@@ -527,3 +527,39 @@ describe("Dashboard period filter", () => {
     expect(screen.getByText(/pipeline project.*without a date/i)).toBeInTheDocument();
   });
 });
+
+describe("Revenue vs. overhead expense separation", () => {
+  it("does not list pure-overhead cost items (Teams Sub, FZ - Avril & Mai, etc.) in the Revenue tab", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Revenue");
+
+    for (const overheadName of ["Teams Sub", "FZ - Avril & Mai", "Ichrak - Mars", "Pearson AZ-500", "Amine - Avril & Mai"]) {
+      expect(screen.queryByText(overheadName)).not.toBeInTheDocument();
+    }
+    // a genuine revenue project should still be there
+    expect(screen.getByText("Efrei - Cloud Intro")).toBeInTheDocument();
+  });
+
+  it("shows the real historical name (not a generic label) for standalone overhead expenses", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Expenses");
+
+    expect(screen.getAllByText("Teams Sub").length).toBeGreaterThan(0);
+    expect(screen.getByText("FZ - Avril & Mai")).toBeInTheDocument();
+    // and it should NOT be flattened to the generic placeholder
+    const genericLabelCount = screen.queryAllByText("General / Recurring").length;
+    expect(genericLabelCount).toBe(0);
+  });
+
+  it("still counts overhead costs in expense totals even though they're not linked to a revenue project", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Expenses");
+
+    const projectFilter = screen.getByPlaceholderText("Filter…");
+    await user.type(projectFilter, "Teams Sub");
+    expect(screen.getByText(/2 of \d+ entries/)).toBeInTheDocument(); // two Teams Sub months
+  });
+});
