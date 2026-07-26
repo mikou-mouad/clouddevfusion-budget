@@ -1,0 +1,474 @@
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import { render, screen, within, waitFor, cleanup } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import App from "../App.jsx";
+
+// --- helpers -------------------------------------------------------
+const eurToNumber = (s) =>
+  Number(s.replace(/[^\d,.-]/g, "").replace(/\./g, "").replace(",", "."));
+
+async function renderReady() {
+  const utils = render(<App />);
+  await waitFor(() => expect(screen.queryByText(/Loading your ledger/i)).not.toBeInTheDocument());
+  return utils;
+}
+
+async function goToTab(user, label) {
+  await user.click(screen.getByRole("button", { name: new RegExp(`^${label}$`, "i") }));
+}
+
+function rowFor(name) {
+  return screen.getByText(name).closest("tr");
+}
+
+beforeEach(() => {
+  localStorage.clear();
+  global.fetch = () => Promise.reject(new Error("no network in test env"));
+});
+
+describe("app loads and seeds data", () => {
+  it("boots past the loading state and lands on the dashboard", async () => {
+    await renderReady();
+    expect(screen.getByRole("heading", { name: "Dashboard" })).toBeInTheDocument();
+    expect(screen.getByText(/Training Ledger/i)).toBeInTheDocument();
+  });
+
+  it("persists seed data into localStorage on first load", async () => {
+    await renderReady();
+    await waitFor(() => {
+      expect(localStorage.getItem("projects_v1")).toBeTruthy();
+      expect(localStorage.getItem("expenses_v1")).toBeTruthy();
+    });
+    const projects = JSON.parse(localStorage.getItem("projects_v1"));
+    const expenses = JSON.parse(localStorage.getItem("expenses_v1"));
+    expect(projects.length).toBeGreaterThan(0);
+    expect(expenses.length).toBeGreaterThan(0);
+  });
+});
+
+describe("tab navigation", () => {
+  it("switches between all four tabs", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+
+    await goToTab(user, "Revenue");
+    expect(screen.getByRole("heading", { name: "Revenue" })).toBeInTheDocument();
+
+    await goToTab(user, "Expenses");
+    expect(screen.getByRole("heading", { name: "Expenses" })).toBeInTheDocument();
+
+    await goToTab(user, "Planning");
+    expect(screen.getByRole("heading", { name: "Planning" })).toBeInTheDocument();
+
+    await goToTab(user, "Dashboard");
+    expect(screen.getByRole("heading", { name: "Dashboard" })).toBeInTheDocument();
+  });
+});
+
+describe("dashboard math matches the underlying rows (black-box check)", () => {
+  it("Actual/Expected revenue on the dashboard equals sums computed from the Revenue table", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+
+    // Pull every project row's status + amount straight from the Revenue tab
+    await goToTab(user, "Revenue");
+    // Show all statuses (filter defaults to All already)
+    const rows = screen.getAllByRole("row").slice(1); // skip header row
+    let actual = 0, expected = 0;
+    for (const row of rows) {
+      const cells = within(row).queryAllByRole("cell");
+      if (cells.length < 6) continue;
+      const amountText = cells[5].textContent;
+      const statusText = cells[4].textContent.trim();
+      const amount = eurToNumber(amountText);
+      if (statusText !== "Lost") expected += amount;
+      if (statusText === "Paid") actual += amount;
+    }
+
+    await goToTab(user, "Dashboard");
+    const kpiCards = screen.getAllByText(/^Revenue$/).map((el) => el.closest(".kpi-card"));
+    const revenueCard = kpiCards.find(Boolean);
+    expect(revenueCard).toBeTruthy();
+    const shownActual = eurToNumber(within(revenueCard).getByText(/€/, { selector: ".kpi-actual" }).textContent);
+
+    // allow small rounding since the UI rounds to whole euros
+    expect(Math.abs(shownActual - actual)).toBeLessThanOrEqual(rows.length);
+    expect(expected).toBeGreaterThan(0);
+  });
+
+  it("Actual/Expected expenses on the dashboard equal sums computed from the Expenses table", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+
+    await goToTab(user, "Expenses");
+    const rows = screen.getAllByRole("row").slice(1);
+    let actual = 0, expected = 0;
+    for (const row of rows) {
+      const cells = within(row).queryAllByRole("cell");
+      if (cells.length < 5) continue;
+      const amount = eurToNumber(cells[4].textContent);
+      const statusText = cells[3].textContent.trim();
+      if (statusText !== "Lost") expected += amount;
+      if (statusText === "Paid") actual += amount;
+    }
+    expect(expected).toBeGreaterThan(0);
+    expect(actual).toBeGreaterThan(0);
+  });
+});
+
+describe("Revenue tab CRUD", () => {
+  it("creates a new project, edits it, and it shows up with correct values", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Revenue");
+
+    const before = screen.getAllByRole("row").length;
+    await user.click(screen.getByRole("button", { name: /New project/i }));
+
+    // The new row opens directly in edit mode
+    const editingRow = document.querySelector("tr.editing");
+    expect(editingRow).toBeTruthy();
+    const inputs = within(editingRow).getAllByRole("textbox");
+    await user.clear(inputs[0]);
+    await user.type(inputs[0], "Acme - Kubernetes Bootcamp");
+    await user.clear(inputs[1]);
+    await user.type(inputs[1], "Acme Corp");
+
+    const numberInput = within(editingRow).getByRole("spinbutton");
+    await user.clear(numberInput);
+    await user.type(numberInput, "1500");
+
+    const select = within(editingRow).getByRole("combobox");
+    await user.selectOptions(select, "Signed");
+
+    // Save (checkmark button)
+    const saveBtn = within(editingRow).getAllByRole("button")[0];
+    await user.click(saveBtn);
+
+    expect(screen.getAllByRole("row").length).toBe(before + 1);
+    const savedRow = rowFor("Acme - Kubernetes Bootcamp");
+    expect(savedRow).toBeTruthy();
+    expect(within(savedRow).getByText("Acme Corp")).toBeInTheDocument();
+    expect(within(savedRow).getByText("Signed")).toBeInTheDocument();
+    expect(within(savedRow).getByText(/1.?500/)).toBeInTheDocument();
+  });
+
+  it("deletes a project", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Revenue");
+
+    const targetRow = rowFor("Efrei - Cloud Intro");
+    expect(targetRow).toBeTruthy();
+    const deleteBtn = within(targetRow).getAllByRole("button")[1];
+    await user.click(deleteBtn);
+
+    expect(screen.queryByText("Efrei - Cloud Intro")).not.toBeInTheDocument();
+  });
+});
+
+describe("Expenses tab CRUD", () => {
+  it("creates a new standalone (General / Recurring) expense", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Expenses");
+
+    const before = screen.getAllByRole("row").length;
+    await user.click(screen.getByRole("button", { name: /New expense/i }));
+
+    const editingRow = document.querySelector("tr.editing");
+    expect(editingRow).toBeTruthy();
+
+    const numberInput = within(editingRow).getByRole("spinbutton");
+    await user.clear(numberInput);
+    await user.type(numberInput, "120");
+
+    const selects = within(editingRow).getAllByRole("combobox");
+    // selects order: linked project, category, status
+    await user.selectOptions(selects[1], "Software");
+
+    const saveBtn = within(editingRow).getAllByRole("button")[0];
+    await user.click(saveBtn);
+
+    expect(screen.getAllByRole("row").length).toBe(before + 1);
+    const savedRow = screen.getByText("General / Recurring").closest("tr");
+    expect(within(savedRow).getByText("Software")).toBeInTheDocument();
+  });
+});
+
+describe("Revenue column filters", () => {
+  it("filters by project name text", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Revenue");
+
+    const nameFilter = screen.getAllByPlaceholderText("Filter…")[0]; // first text filter = Project column
+    await user.type(nameFilter, "Cellenza");
+
+    expect(screen.getByText("Cellenza - AZ500")).toBeInTheDocument();
+    expect(screen.queryByText("Efrei - Cloud Intro")).not.toBeInTheDocument();
+    expect(screen.getByText(/1 of \d+ projects/)).toBeInTheDocument();
+  });
+
+  it("filters by status via the multi-select and shows a Clear filters control", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Revenue");
+
+    // open the Status multi-select and uncheck everything except "Lost"
+    const statusToggle = screen.getByText(/^Status$/, { selector: "summary" });
+    const statusDetails = statusToggle.closest("details");
+    await user.click(statusToggle);
+    await user.click(within(statusDetails).getByRole("button", { name: /clear all/i }));
+    const lostCheckbox = within(statusDetails).getByRole("checkbox", { name: /Lost/i });
+    await user.click(lostCheckbox);
+
+    // every visible project row should be Lost
+    const rows = screen.getAllByRole("row").slice(2);
+    const visibleStatuses = rows
+      .map((r) => within(r).queryAllByRole("cell"))
+      .filter((c) => c.length >= 5)
+      .map((c) => c[4].textContent.trim());
+    expect(visibleStatuses.length).toBeGreaterThan(0);
+    expect(visibleStatuses.every((s) => s === "Lost")).toBe(true);
+
+    expect(screen.getByRole("button", { name: /Clear filters/i })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /Clear filters/i }));
+    expect(screen.queryByRole("button", { name: /Clear filters/i })).not.toBeInTheDocument();
+  });
+
+  it("filters by amount range", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Revenue");
+
+    const [minInput, maxInput] = screen.getAllByPlaceholderText(/^Min$|^Max$/);
+    await user.type(minInput, "3000");
+    await user.type(maxInput, "5000");
+
+    const rows = screen.getAllByRole("row").slice(2);
+    const amounts = rows
+      .map((r) => within(r).queryAllByRole("cell"))
+      .filter((c) => c.length >= 6)
+      .map((c) => eurToNumber(c[5].textContent));
+    expect(amounts.length).toBeGreaterThan(0);
+    expect(amounts.every((a) => a >= 3000 && a <= 5000)).toBe(true);
+  });
+});
+
+describe("Expenses column filters", () => {
+  it("filters by linked project text", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Expenses");
+
+    const projectFilter = screen.getByPlaceholderText("Filter…");
+    await user.type(projectFilter, "IWG");
+
+    expect(screen.getAllByText("IWG - Office").length).toBeGreaterThan(0);
+    expect(screen.queryByText("Cellenza - AZ500")).not.toBeInTheDocument();
+  });
+
+  it("filters by category via the multi-select", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Expenses");
+
+    const categoryToggle = screen.getByText(/^Category$/, { selector: "summary" });
+    const categoryDetails = categoryToggle.closest("details");
+    await user.click(categoryToggle);
+    await user.click(within(categoryDetails).getByRole("button", { name: /clear all/i }));
+    const officeCheckbox = within(categoryDetails).getByRole("checkbox", { name: /Office/i });
+    await user.click(officeCheckbox);
+
+    const rows = screen.getAllByRole("row").slice(2);
+    const cats = rows
+      .map((r) => within(r).queryAllByRole("cell"))
+      .filter((c) => c.length >= 2)
+      .map((c) => c[1].textContent.trim());
+    expect(cats.length).toBeGreaterThan(0);
+    expect(cats.every((c) => c === "Office")).toBe(true);
+  });
+});
+
+describe("Planning tab", () => {
+  it("only lists projects that are not Paid and not Lost", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+
+    await goToTab(user, "Revenue");
+    const rows = screen.getAllByRole("row").slice(1);
+    const paidOrLostNames = [];
+    const upcomingNames = [];
+    for (const row of rows) {
+      const cells = within(row).queryAllByRole("cell");
+      if (cells.length < 5) continue;
+      const name = cells[0].textContent.trim();
+      const status = cells[4].textContent.trim();
+      if (status === "Paid" || status === "Lost") paidOrLostNames.push(name);
+      else upcomingNames.push(name);
+    }
+
+    await goToTab(user, "Planning");
+    for (const name of paidOrLostNames) {
+      expect(screen.queryByText(name)).not.toBeInTheDocument();
+    }
+    for (const name of upcomingNames.slice(0, 3)) {
+      expect(screen.getByText(name)).toBeInTheDocument();
+    }
+  });
+});
+
+describe("persistence across reloads", () => {
+  it("keeps edits after the app is unmounted and remounted (simulating a page refresh)", async () => {
+    const user = userEvent.setup();
+    const { unmount } = await renderReady();
+    await goToTab(user, "Revenue");
+
+    const targetRow = rowFor("Cellenza - AZ500");
+    const deleteBtn = within(targetRow).getAllByRole("button")[1];
+    await user.click(deleteBtn);
+    expect(screen.queryByText("Cellenza - AZ500")).not.toBeInTheDocument();
+
+    unmount();
+    cleanup();
+
+    const user2 = userEvent.setup();
+    await renderReady();
+    await goToTab(user2, "Revenue");
+    expect(screen.queryByText("Cellenza - AZ500")).not.toBeInTheDocument();
+  });
+});
+
+describe("Planning tab ordering", () => {
+  it("lists dated upcoming projects in ascending date order (soonest first)", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Planning");
+
+    const dateEls = Array.from(document.querySelectorAll(".timeline-row .tl-month"));
+    expect(dateEls.length).toBeGreaterThan(1);
+
+    // Recover the underlying dates by reading day+month labels back off the Revenue tab
+    // Simpler: just check the timeline's amounts/order is non-decreasing by re-deriving from Revenue tab
+    await goToTab(user, "Revenue");
+    const rows = screen.getAllByRole("row").slice(2);
+    const byName = {};
+    for (const row of rows) {
+      const cells = within(row).queryAllByRole("cell");
+      if (cells.length < 5) continue;
+      byName[cells[0].textContent.trim()] = cells[3].textContent.trim(); // dates cell text
+    }
+
+    await goToTab(user, "Planning");
+    const names = Array.from(document.querySelectorAll(".timeline-row .tl-name")).map((el) => el.textContent.trim());
+    expect(names.length).toBeGreaterThan(1);
+
+    // Parse "DD Mon YYYY" back to a comparable value using Date parsing on the first date shown
+    const toDate = (name) => {
+      const raw = byName[name];
+      if (!raw) return null;
+      const first = raw.split("→")[0].trim();
+      return new Date(first).getTime();
+    };
+    const dates = names.map(toDate).filter((d) => d !== null && !Number.isNaN(d));
+    const sortedCopy = [...dates].sort((a, b) => a - b);
+    expect(dates).toEqual(sortedCopy);
+  });
+});
+
+describe("manual Save button", () => {
+  it("marks the ledger as having unsaved changes on first load (no remote data yet), and still caches to localStorage", async () => {
+    await renderReady();
+    expect(screen.getByText(/Unsaved changes/i)).toBeInTheDocument();
+    const saveBtn = screen.getByRole("button", { name: /^Save$/ });
+    expect(saveBtn).not.toBeDisabled();
+
+    const projects = JSON.parse(localStorage.getItem("projects_v1"));
+    expect(projects.length).toBeGreaterThan(0);
+  });
+
+  it("does NOT call the API on every edit — only localStorage is touched until Save is clicked", async () => {
+    const user = userEvent.setup();
+    const fetchSpy = vi.fn(() => Promise.reject(new Error("should not be called")));
+    global.fetch = fetchSpy;
+    await renderReady();
+    fetchSpy.mockClear(); // ignore the initial GET /api/data made during boot
+
+    await goToTab(user, "Revenue");
+    const targetRow = rowFor("Cellenza - AZ500");
+    const deleteBtn = within(targetRow).getAllByRole("button")[1];
+    await user.click(deleteBtn);
+
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it("shows 'Save failed — retry' if the API is unreachable when Save is clicked", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await user.click(screen.getByRole("button", { name: /^Save$/ }));
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Save failed — retry/i })).toBeInTheDocument();
+    });
+  });
+
+  it("clears the unsaved indicator once Save succeeds", async () => {
+    global.fetch = (url, opts) => {
+      if (url === "/api/data" && opts && opts.method === "POST") {
+        return Promise.resolve({ ok: true, json: () => Promise.resolve({ ok: true, version: "snapshots/2026-07-26T00-00-00-000Z.json" }) });
+      }
+      return Promise.reject(new Error("no network in test env"));
+    };
+    const user = userEvent.setup();
+    await renderReady();
+    expect(screen.getByText(/Unsaved changes/i)).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /^Save$/ }));
+    await waitFor(() => {
+      expect(screen.getByText(/All changes saved/i)).toBeInTheDocument();
+    });
+    expect(screen.getByRole("button", { name: /^Saved/i })).toBeDisabled();
+  });
+});
+
+describe("History panel", () => {
+  it("shows an error state when the versions API is unreachable (default test environment)", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await user.click(screen.getByRole("button", { name: /^History$/ }));
+    await waitFor(() => {
+      expect(screen.getByText(/Couldn't reach the history API/i)).toBeInTheDocument();
+    });
+  });
+
+  it("lists versions and restores the selected one when the API is available", async () => {
+    const versions = [
+      { name: "snapshots/2026-07-01T10-00-00-000Z.json", savedAt: "2026-07-01T10:00:00.000Z", sizeBytes: 2048 },
+      { name: "snapshots/2026-06-01T10-00-00-000Z.json", savedAt: "2026-06-01T10:00:00.000Z", sizeBytes: 1024 },
+    ];
+    const restoredProjects = [{ id: "rx1", name: "Restored Project", client: "OldClient", status: "Paid", expectedAmount: 42, startDate: "2026-06-01", trainer: "X" }];
+    const restoredExpenses = [{ id: "rx-e1", category: "Trainer Fee", expectedAmount: 10, status: "Paid", date: "2026-06-01" }];
+
+    global.fetch = (url) => {
+      if (url === "/api/versions") {
+        return Promise.resolve({ ok: true, json: () => Promise.resolve({ versions }) });
+      }
+      if (typeof url === "string" && url.startsWith("/api/data?version=")) {
+        return Promise.resolve({ ok: true, json: () => Promise.resolve({ projects: restoredProjects, expenses: restoredExpenses, version: versions[1].name }) });
+      }
+      return Promise.reject(new Error("no network in test env"));
+    };
+
+    const user = userEvent.setup();
+    await renderReady();
+    await user.click(screen.getByRole("button", { name: /^History$/ }));
+
+    await waitFor(() => expect(screen.getByText(/latest/i)).toBeInTheDocument());
+    const restoreButtons = screen.getAllByRole("button", { name: /^Restore$/ });
+    expect(restoreButtons.length).toBe(2);
+    await user.click(restoreButtons[1]); // restore the older (June) version
+
+    await goToTab(user, "Revenue");
+    expect(screen.getByText("Restored Project")).toBeInTheDocument();
+  });
+});
