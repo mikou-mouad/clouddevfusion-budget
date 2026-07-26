@@ -203,7 +203,7 @@ describe("Revenue column filters", () => {
     await goToTab(user, "Revenue");
 
     const nameFilter = screen.getAllByPlaceholderText("Filter…")[0]; // first text filter = Project column
-    await user.type(nameFilter, "Cellenza");
+    await user.type(nameFilter, "AZ500");
 
     expect(screen.getByText("Cellenza - AZ500")).toBeInTheDocument();
     expect(screen.queryByText("Efrei - Cloud Intro")).not.toBeInTheDocument();
@@ -346,34 +346,22 @@ describe("Planning tab ordering", () => {
     await renderReady();
     await goToTab(user, "Planning");
 
-    const dateEls = Array.from(document.querySelectorAll(".timeline-row .tl-month"));
-    expect(dateEls.length).toBeGreaterThan(1);
+    const rows = Array.from(document.querySelectorAll(".timeline-row"));
+    expect(rows.length).toBeGreaterThan(1);
 
-    // Recover the underlying dates by reading day+month labels back off the Revenue tab
-    // Simpler: just check the timeline's amounts/order is non-decreasing by re-deriving from Revenue tab
-    await goToTab(user, "Revenue");
-    const rows = screen.getAllByRole("row").slice(2);
-    const byName = {};
-    for (const row of rows) {
-      const cells = within(row).queryAllByRole("cell");
-      if (cells.length < 5) continue;
-      byName[cells[0].textContent.trim()] = cells[3].textContent.trim(); // dates cell text
-    }
+    // Read the day/month/year straight off each timeline row's own date badge and
+    // meta line, rather than cross-referencing by project name (which isn't unique —
+    // e.g. "FastLane MD-102" and "Teams Sub" each appear more than once in the data).
+    const currentYear = new Date().getFullYear();
+    const timestamps = rows.map((row) => {
+      const day = row.querySelector(".tl-day").textContent.trim();
+      const monthYear = row.querySelector(".tl-month").textContent.trim(); // e.g. "May 26"
+      return new Date(`${day} ${monthYear}`).getTime();
+    });
 
-    await goToTab(user, "Planning");
-    const names = Array.from(document.querySelectorAll(".timeline-row .tl-name")).map((el) => el.textContent.trim());
-    expect(names.length).toBeGreaterThan(1);
-
-    // Parse "DD Mon YYYY" back to a comparable value using Date parsing on the first date shown
-    const toDate = (name) => {
-      const raw = byName[name];
-      if (!raw) return null;
-      const first = raw.split("→")[0].trim();
-      return new Date(first).getTime();
-    };
-    const dates = names.map(toDate).filter((d) => d !== null && !Number.isNaN(d));
-    const sortedCopy = [...dates].sort((a, b) => a - b);
-    expect(dates).toEqual(sortedCopy);
+    expect(timestamps.every((t) => !Number.isNaN(t))).toBe(true);
+    const sortedCopy = [...timestamps].sort((a, b) => a - b);
+    expect(timestamps).toEqual(sortedCopy);
   });
 });
 
