@@ -1,4 +1,4 @@
-name: Azure Static Web Apps CI/CD
+name: Academy Budget Manager - CI/CD
 
 on:
   push:
