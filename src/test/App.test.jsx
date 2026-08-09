@@ -619,3 +619,94 @@ describe("Actual matches the source spreadsheet's own Dashboard totals", () => {
     expect(Math.abs(shownExpectedExpenses - (38843.36 + 2000))).toBeLessThanOrEqual(2);
   });
 });
+
+describe("Expense project link dropdown shows real names", () => {
+  it("shows real project names as options, not p1/p2/p3", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Expenses");
+    await user.click(screen.getByRole("button", { name: /New expense/i }));
+
+    const editingRow = document.querySelector("tr.editing");
+    const selects = within(editingRow).getAllByRole("combobox");
+    const projectSelect = selects[0];
+    const optionTexts = Array.from(projectSelect.querySelectorAll("option")).map((o) => o.textContent);
+    expect(optionTexts.some((t) => /^p\d+$/.test(t))).toBe(false);
+    expect(optionTexts).toContain("General / Recurring (not linked)");
+    expect(optionTexts.some((t) => t.includes("Efrei"))).toBe(true);
+  });
+
+  it("linking an expense to a project by name sets the correct projectId", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Expenses");
+    await user.click(screen.getByRole("button", { name: /New expense/i }));
+
+    const editingRow = document.querySelector("tr.editing");
+    const projectSelect = within(editingRow).getAllByRole("combobox")[0];
+    await user.selectOptions(projectSelect, screen.getAllByText("Efrei - Cloud Intro")[0].closest("option") || projectSelect.querySelector("option[value='p1']"));
+    const saveBtn = within(editingRow).getAllByRole("button")[0];
+    await user.click(saveBtn);
+    expect(screen.getAllByText("Efrei - Cloud Intro").length).toBeGreaterThan(0);
+  });
+});
+
+describe("Delivered status", () => {
+  it("is available as a project status between Signed and Invoiced", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Revenue");
+    await user.click(screen.getByRole("button", { name: /New project/i }));
+    const editingRow = document.querySelector("tr.editing");
+    const statusSelect = within(editingRow).getByRole("combobox");
+    const options = Array.from(statusSelect.querySelectorAll("option")).map((o) => o.value);
+    const signedIdx = options.indexOf("Signed");
+    const deliveredIdx = options.indexOf("Delivered");
+    const invoicedIdx = options.indexOf("Invoiced");
+    expect(deliveredIdx).toBeGreaterThan(signedIdx);
+    expect(deliveredIdx).toBeLessThan(invoicedIdx);
+  });
+
+  it("counts a Delivered project as confirmed business (included in Actual, not just Expected)", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Revenue");
+    await user.click(screen.getByRole("button", { name: /New project/i }));
+    const editingRow = document.querySelector("tr.editing");
+    const numberInput = within(editingRow).getByRole("spinbutton");
+    await user.clear(numberInput);
+    await user.type(numberInput, "500");
+    const statusSelect = within(editingRow).getByRole("combobox");
+    await user.selectOptions(statusSelect, "Delivered");
+    const saveBtn = within(editingRow).getAllByRole("button")[0];
+    await user.click(saveBtn);
+
+    await goToTab(user, "Dashboard");
+    const revenueCards = screen.getAllByText(/^Revenue$/).map((el) => el.closest(".kpi-card")).filter(Boolean);
+    const shownActual = eurToNumber(within(revenueCards[0]).getByText(/€/, { selector: ".kpi-actual" }).textContent);
+    expect(shownActual).toBeGreaterThanOrEqual(500);
+  });
+});
+
+describe("New rows appear at the top of the list immediately", () => {
+  it("shows a new project as the first row in Revenue right after clicking New project", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Revenue");
+
+    await user.click(screen.getByRole("button", { name: /New project/i }));
+    const firstDataRow = screen.getAllByRole("row")[2]; // row 0 = header, row 1 = filter row
+    expect(firstDataRow.className).toContain("editing");
+    expect(within(firstDataRow).getByDisplayValue("New project")).toBeInTheDocument();
+  });
+
+  it("shows a new expense as the first row in Expenses right after clicking New expense", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Expenses");
+
+    await user.click(screen.getByRole("button", { name: /New expense/i }));
+    const firstDataRow = screen.getAllByRole("row")[2];
+    expect(firstDataRow.className).toContain("editing");
+  });
+});

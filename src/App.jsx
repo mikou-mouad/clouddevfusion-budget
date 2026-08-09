@@ -15,11 +15,12 @@ const SEED_PROJECTS_ALL = [{"id": "p1", "client": "Efrei", "contact": "Julien", 
 
 const SEED_EXPENSES = [{"id": "e1", "projectId": "p1", "projectName": "Efrei - Cloud Intro", "category": "Trainer Fee", "date": "2026-03-09", "status": "Paid", "expectedAmount": 2150, "notes": ""}, {"id": "e2", "projectId": "p1", "projectName": "Efrei - Cloud Intro", "category": "Commission", "date": "2026-03-09", "status": "Paid", "expectedAmount": 307.5, "notes": ""}, {"id": "e3", "projectId": null, "projectName": "IWG - Office", "category": "Office", "date": "2026-01-01", "status": "Paid", "expectedAmount": 278.58, "notes": ""}, {"id": "e4", "projectId": "p2", "projectName": "Efrei - DP600 - Aug (1/2)", "category": "Trainer Fee", "date": "2026-07-06", "status": "Signed", "expectedAmount": 860, "notes": ""}, {"id": "e5", "projectId": "p2", "projectName": "Efrei - DP600 - Aug (1/2)", "category": "Commission", "date": "2026-07-06", "status": "Signed", "expectedAmount": 158, "notes": ""}, {"id": "e6", "projectId": "p3", "projectName": "Efrei - DP600 - Aug (2/2)", "category": "Trainer Fee", "date": "2026-08-31", "status": "Signed", "expectedAmount": 1290, "notes": ""}, {"id": "e7", "projectId": "p3", "projectName": "Efrei - DP600 - Aug (2/2)", "category": "Commission", "date": "2026-08-31", "status": "Signed", "expectedAmount": 237, "notes": ""}, {"id": "e8", "projectId": "p4", "projectName": "Efrei - DP600 - Sep", "category": "Trainer Fee", "date": "2026-08-31", "status": "Signed", "expectedAmount": 2150, "notes": ""}, {"id": "e9", "projectId": "p4", "projectName": "Efrei - DP600 - Sep", "category": "Commission", "date": "2026-08-31", "status": "Signed", "expectedAmount": 395, "notes": ""}, {"id": "e10", "projectId": "p5", "projectName": "Crossthink  - Apr - Week 1", "category": "Trainer Fee", "date": "2026-03-30", "status": "Lost", "expectedAmount": 4000, "notes": ""}, {"id": "e11", "projectId": "p5", "projectName": "Crossthink  - Apr - Week 1", "category": "Commission", "date": "2026-03-30", "status": "Lost", "expectedAmount": 375, "notes": ""}, {"id": "e12", "projectId": "p6", "projectName": "Crossthink  - Apr - Week 2 & 3", "category": "Trainer Fee", "date": "2026-04-07", "status": "Lost", "expectedAmount": 4950, "notes": ""}, {"id": "e13", "projectId": "p6", "projectName": "Crossthink  - Apr - Week 2 & 3", "category": "Commission", "date": "2026-04-07", "status": "Lost", "expectedAmount": 1800, "notes": ""}, {"id": "e14", "projectId": "p7", "projectName": "Crossthink  - Apr - Week 4", "category": "Trainer Fee", "date": "2026-04-20", "status": "Lost", "expectedAmount": 4000, "notes": ""}, {"id": "e15", "projectId": "p7", "projectName": "Crossthink  - Apr - Week 4", "category": "Commission", "date": "2026-04-20", "status": "Lost", "expectedAmount": 375, "notes": ""}, {"id": "e16", "projectId": "p8", "projectName": "FastLane - AZ204", "category": "Trainer Fee", "date": "2026-05-18", "status": "Lost", "expectedAmount": 1750, "notes": ""}, {"id": "e17", "projectId": "p9", "projectName": "FastLane - AZ700", "category": "Trainer Fee", "date": "2026-04-07", "status": "Lost", "expectedAmount": 1000, "notes": ""}, {"id": "e18", "projectId": "p9", "projectName": "FastLane - AZ700", "category": "Other Cost", "date": "2026-04-07", "status": "Lost", "expectedAmount": 100, "notes": ""}, {"id": "e19", "projectId": "p10", "projectName": "Cellenza - AZ500", "category": "Trainer Fee", "date": "2026-03-16", "status": "Paid", "expectedAmount": 2800, "notes": ""}, {"id": "e20", "projectId": null, "projectName": "Ichrak - Janvier", "category": "Salary", "date": "2026-01-01", "status": "Paid", "expectedAmount": 200, "notes": ""}, {"id": "e21", "projectId": null, "projectName": "Ichrak - Fevrier", "category": "Salary", "date": "2026-02-01", "status": "Paid", "expectedAmount": 300, "notes": ""}, {"id": "e22", "projectId": null, "projectName": "IWG - Office", "category": "Office", "date": "2026-02-01", "status": "Paid", "expectedAmount": 69.2, "notes": ""}, {"id": "e23", "projectId": null, "projectName": "Pearson AZ-500", "category": "Certification", "date": "2026-02-27", "status": "Paid", "expectedAmount": 37.8, "notes": ""}, {"id": "e24", "projectId": null, "projectName": "Pearson AZ-204", "category": "Certification", "date": "2026-03-01", "status": "Paid", "expectedAmount": 37.8, "notes": ""}, {"id": "e25", "projectId": null, "projectName": "Eni - Certification Formateur", "category": "Certification", "date": "2026-03-06", "status": "Paid", "expectedAmount": 420, "notes": ""}, {"id": "e26", "projectId": null, "projectName": "Eni - Devis Habilitation (3 certifs)", "category": "Certification", "date": "2026-03-12", "status": "Paid", "expectedAmount": 630, "notes": ""}, {"id": "e27", "projectId": "p12", "projectName": "Cellenza - Custom", "category": "Trainer Fee", "date": "2026-05-19", "status": "Invoiced", "expectedAmount": 3500, "notes": ""}, {"id": "e28", "projectId": "p13", "projectName": "FastLane MD-102", "category": "Trainer Fee", "date": "2026-05-18", "status": "Invoiced", "expectedAmount": 1250, "notes": ""}, {"id": "e29", "projectId": "p13", "projectName": "FastLane MD-102", "category": "Other Cost", "date": "2026-05-18", "status": "Invoiced", "expectedAmount": 100, "notes": ""}, {"id": "e30", "projectId": null, "projectName": "Ichrak - Mars", "category": "Salary", "date": "2026-03-01", "status": "Paid", "expectedAmount": 280, "notes": ""}, {"id": "e31", "projectId": null, "projectName": "FZ - Avril & Mai", "category": "Salary", "date": "2026-04-01", "status": "Invoiced", "expectedAmount": 200, "notes": ""}, {"id": "e32", "projectId": null, "projectName": "Teams Sub", "category": "Software", "date": "2026-04-01", "status": "Paid", "expectedAmount": 6.24, "notes": ""}, {"id": "e33", "projectId": null, "projectName": "WebSite + Intranet Dev ", "category": "Salary", "date": "2026-02-02", "status": "Paid", "expectedAmount": 1200, "notes": ""}, {"id": "e34", "projectId": null, "projectName": "Amine - Avril & Mai", "category": "Salary", "date": "2026-04-01", "status": "Paid", "expectedAmount": 380, "notes": ""}, {"id": "e35", "projectId": "p14", "projectName": "FastLane MD-102", "category": "Trainer Fee", "date": "2026-06-01", "status": "Scheduled", "expectedAmount": 1250, "notes": ""}, {"id": "e36", "projectId": null, "projectName": "Teams Sub", "category": "Software", "date": "2026-05-01", "status": "Paid", "expectedAmount": 6.24, "notes": ""}, {"id": "e37", "projectId": "p17", "projectName": "Efrei - Cloud Intro 3", "category": "Trainer Fee", "date": null, "status": "Pipeline", "expectedAmount": 2000, "notes": ""}];
 
-const STATUS_ORDER = ["Pipeline", "Scheduled", "Signed", "Invoiced", "Paid", "Lost"];
+const STATUS_ORDER = ["Pipeline", "Scheduled", "Signed", "Delivered", "Invoiced", "Paid", "Lost"];
 const STATUS_COLORS = {
   Pipeline: "#9AA39C",
   Scheduled: "#C68A2E",
   Signed: "#3E7CB1",
+  Delivered: "#4C8C6E",
   Invoiced: "#7A5FB5",
   Paid: "#1F6E4A",
   Lost: "#B3402F",
@@ -322,7 +323,11 @@ function RevenueTab({ projects, setProjects }) {
     if (filters.amountMax !== "" && (p.expectedAmount || 0) > parseFloat(filters.amountMax)) return false;
     return true;
   });
-  const sorted = [...filtered].sort((a, b) => (b.startDate || "0000").localeCompare(a.startDate || "0000"));
+  const sorted = [...filtered].sort((a, b) => {
+    if (a.id === editingId) return -1;
+    if (b.id === editingId) return 1;
+    return (b.startDate || "0000").localeCompare(a.startDate || "0000");
+  });
   const total = filtered.reduce((s, p) => s + (p.expectedAmount || 0), 0);
   const isFiltered = JSON.stringify([...filters.statuses].sort()) !== JSON.stringify([...STATUS_ORDER].sort())
     || filters.name || filters.client || filters.trainer || filters.dateFrom || filters.dateTo || filters.amountMin !== "" || filters.amountMax !== "";
@@ -457,7 +462,11 @@ function ExpensesTab({ expenses, setExpenses, projects }) {
     if (filters.amountMax !== "" && (e.expectedAmount || 0) > parseFloat(filters.amountMax)) return false;
     return true;
   });
-  const sorted = [...filtered].sort((a, b) => (b.date || "0000").localeCompare(a.date || "0000"));
+  const sorted = [...filtered].sort((a, b) => {
+    if (a.id === editingId) return -1;
+    if (b.id === editingId) return 1;
+    return (b.date || "0000").localeCompare(a.date || "0000");
+  });
   const total = filtered.reduce((s, e) => s + (e.expectedAmount || 0), 0);
   const isFiltered = filters.categories.size !== EXPENSE_CATEGORIES.length || filters.statuses.size !== STATUS_ORDER.length
     || filters.project || filters.dateFrom || filters.dateTo || filters.amountMin !== "" || filters.amountMax !== "";
@@ -524,6 +533,7 @@ function ExpensesTab({ expenses, setExpenses, projects }) {
                             }
                           }}
                           options={["none", ...projects.map((p) => p.id)]}
+                          labelFor={(v) => (v === "none" ? "General / Recurring (not linked)" : (projects.find((p) => p.id === v)?.name || v))}
                         />
                       </td>
                       <td><Select value={draft.category} onChange={(v) => setDraft({ ...draft, category: v })} options={EXPENSE_CATEGORIES} /></td>
