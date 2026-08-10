@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { render, screen, within, waitFor, cleanup } from "@testing-library/react";
+import { render, screen, within, waitFor, cleanup, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "../App.jsx";
 
@@ -30,7 +30,7 @@ describe("app loads and seeds data", () => {
   it("boots past the loading state and lands on the dashboard", async () => {
     await renderReady();
     expect(screen.getByRole("heading", { name: "Dashboard" })).toBeInTheDocument();
-    expect(screen.getByText(/Training Ledger/i)).toBeInTheDocument();
+    expect(screen.getByText(/Planning & Budget/i)).toBeInTheDocument();
   });
 
   it("persists seed data into localStorage on first load", async () => {
@@ -77,9 +77,9 @@ describe("dashboard math matches the underlying rows (black-box check)", () => {
     let actual = 0, expected = 0;
     for (const row of rows) {
       const cells = within(row).queryAllByRole("cell");
-      if (cells.length < 7) continue;
-      const amountText = cells[6].textContent;
-      const statusText = cells[5].textContent.trim();
+      if (cells.length < 8) continue;
+      const amountText = cells[7].textContent;
+      const statusText = cells[6].textContent.trim();
       const amount = eurToNumber(amountText);
       expected += amount; // Expected = literal unconditional sum, Lost included
       if (statusText !== "Lost") actual += amount;
@@ -105,9 +105,9 @@ describe("dashboard math matches the underlying rows (black-box check)", () => {
     let actual = 0, expected = 0;
     for (const row of rows) {
       const cells = within(row).queryAllByRole("cell");
-      if (cells.length < 5) continue;
-      const amount = eurToNumber(cells[4].textContent);
-      const statusText = cells[3].textContent.trim();
+      if (cells.length < 6) continue;
+      const amount = eurToNumber(cells[5].textContent);
+      const statusText = cells[4].textContent.trim();
       expected += amount; // Expected = literal unconditional sum, Lost included
       if (statusText !== "Lost") actual += amount;
     }
@@ -227,8 +227,8 @@ describe("Revenue column filters", () => {
     const rows = screen.getAllByRole("row").slice(2);
     const visibleStatuses = rows
       .map((r) => within(r).queryAllByRole("cell"))
-      .filter((c) => c.length >= 6)
-      .map((c) => c[5].textContent.trim());
+      .filter((c) => c.length >= 7)
+      .map((c) => c[6].textContent.trim());
     expect(visibleStatuses.length).toBeGreaterThan(0);
     expect(visibleStatuses.every((s) => s === "Lost")).toBe(true);
 
@@ -249,8 +249,8 @@ describe("Revenue column filters", () => {
     const rows = screen.getAllByRole("row").slice(2);
     const amounts = rows
       .map((r) => within(r).queryAllByRole("cell"))
-      .filter((c) => c.length >= 7)
-      .map((c) => eurToNumber(c[6].textContent));
+      .filter((c) => c.length >= 8)
+      .map((c) => eurToNumber(c[7].textContent));
     expect(amounts.length).toBeGreaterThan(0);
     expect(amounts.every((a) => a >= 3000 && a <= 5000)).toBe(true);
   });
@@ -284,8 +284,8 @@ describe("Expenses column filters", () => {
     const rows = screen.getAllByRole("row").slice(2);
     const cats = rows
       .map((r) => within(r).queryAllByRole("cell"))
-      .filter((c) => c.length >= 2)
-      .map((c) => c[1].textContent.trim());
+      .filter((c) => c.length >= 3)
+      .map((c) => c[2].textContent.trim());
     expect(cats.length).toBeGreaterThan(0);
     expect(cats.every((c) => c === "Office")).toBe(true);
   });
@@ -303,8 +303,8 @@ describe("Planning tab", () => {
     for (const row of rows) {
       const cells = within(row).queryAllByRole("cell");
       if (cells.length < 8) continue;
-      const name = cells[0].textContent.trim();
-      const status = cells[5].textContent.trim();
+      const name = cells[1].textContent.trim();
+      const status = cells[6].textContent.trim();
       if (status === "Paid" || status === "Lost") paidOrLostNames.push(name);
       else upcomingNames.push(name);
     }
@@ -350,7 +350,7 @@ describe("Planning tab ordering", () => {
     expect(rows.length).toBeGreaterThan(1);
 
     // Read the day/month/year straight off each timeline row's own date badge and
-    // meta line, rather than cross-referencing by project name (which isn't unique —
+    // meta line, rather than cross-referencing by project name (which isn't unique -
     // e.g. "FastLane MD-102" and "Teams Sub" each appear more than once in the data).
     const currentYear = new Date().getFullYear();
     const timestamps = rows.map((row) => {
@@ -376,7 +376,7 @@ describe("manual Save button", () => {
     expect(projects.length).toBeGreaterThan(0);
   });
 
-  it("does NOT call the API on every edit — only localStorage is touched until Save is clicked", async () => {
+  it("does NOT call the API on every edit - only localStorage is touched until Save is clicked", async () => {
     const user = userEvent.setup();
     const fetchSpy = vi.fn(() => Promise.reject(new Error("should not be called")));
     global.fetch = fetchSpy;
@@ -391,12 +391,12 @@ describe("manual Save button", () => {
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
-  it("shows 'Save failed — retry' if the API is unreachable when Save is clicked", async () => {
+  it("shows 'Save failed, retry' if the API is unreachable when Save is clicked", async () => {
     const user = userEvent.setup();
     await renderReady();
     await user.click(screen.getByRole("button", { name: /^Save$/ }));
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: /Save failed — retry/i })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /Save failed, retry/i })).toBeInTheDocument();
     });
   });
 
@@ -477,10 +477,10 @@ describe("Dashboard period filter", () => {
     let actual2027 = 0, expected2027 = 0, matched2027Rows = 0;
     for (const row of rows) {
       const cells = within(row).queryAllByRole("cell");
-      if (cells.length < 7) continue;
-      const dateText = cells[4].textContent;
-      const statusText = cells[5].textContent.trim();
-      const amount = eurToNumber(cells[6].textContent);
+      if (cells.length < 8) continue;
+      const dateText = cells[5].textContent;
+      const statusText = cells[6].textContent.trim();
+      const amount = eurToNumber(cells[7].textContent);
       if (dateText.includes("2027")) {
         matched2027Rows++;
         if (statusText !== "Lost") expected2027 += amount;
@@ -488,7 +488,7 @@ describe("Dashboard period filter", () => {
       }
     }
     // Both 2027 sessions (Cloud Intro 2, parts 1 & 2) have no priced amount yet in the
-    // source spreadsheet — confirm the test is actually looking at real rows, not that
+    // source spreadsheet - confirm the test is actually looking at real rows, not that
     // the year is empty entirely.
     expect(matched2027Rows).toBeGreaterThan(0);
     expect(expected2027).toBe(0);
@@ -601,7 +601,7 @@ describe("Actual matches the source spreadsheet's own Dashboard totals", () => {
 
     // Bilan 2026 file total (20931.90/20493.36) + Cloud Intro 3 (2212/2000), which used to be
     // "Pipeline" (excluded from Actual) but now defaults to "Signed" since Pipeline no longer
-    // exists as a status — this is an intentional consequence of simplifying to 5 statuses.
+    // exists as a status - this is an intentional consequence of simplifying to 5 statuses.
     expect(Math.abs(shownRevenue - (20931.9 + 2212))).toBeLessThanOrEqual(2);
     expect(Math.abs(shownExpenses - (20493.36 + 2000))).toBeLessThanOrEqual(2);
   });
@@ -849,5 +849,115 @@ describe("Expenses Client/Internal/Recurring toggle", () => {
     expect(screen.getAllByText("Teams Sub").length).toBeGreaterThan(0);
     expect(screen.queryByText("Efrei - Cloud Intro")).not.toBeInTheDocument();
     expect(screen.queryByText("Pearson AZ-500")).not.toBeInTheDocument();
+  });
+});
+
+describe("Action buttons are on the left of each row", () => {
+  it("Revenue: Edit/Delete buttons are in the first cell of the row", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Revenue");
+
+    const row = rowFor("Efrei - Cloud Intro");
+    const firstCell = within(row).getAllByRole("cell")[0];
+    expect(within(firstCell).getByRole("button", { name: "Edit" })).toBeInTheDocument();
+    expect(within(firstCell).getByRole("button", { name: "Delete" })).toBeInTheDocument();
+  });
+
+  it("Expenses: Edit/Delete buttons are in the first cell of the row", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Expenses");
+
+    const rows = screen.getAllByRole("row").slice(2);
+    const dataRow = rows.find((r) => within(r).queryAllByRole("cell").length >= 6);
+    const firstCell = within(dataRow).getAllByRole("cell")[0];
+    expect(within(firstCell).getByRole("button", { name: "Edit" })).toBeInTheDocument();
+    expect(within(firstCell).getByRole("button", { name: "Delete" })).toBeInTheDocument();
+  });
+});
+
+describe("Non-contiguous session dates on a single project", () => {
+  it("lets you add extra dates to a project without creating a second project or duplicating revenue", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Revenue");
+
+    const before = screen.getAllByRole("row").length;
+    await user.click(screen.getByRole("button", { name: /New project/i }));
+    const editingRow = document.querySelector("tr.editing");
+
+    const startDateInput = editingRow.querySelector('input[type="date"]');
+    fireEvent.change(startDateInput, { target: { value: "2026-09-01" } });
+
+    const extraDateInput = editingRow.querySelector(".extra-dates-add input");
+    fireEvent.change(extraDateInput, { target: { value: "2026-09-15" } });
+    await user.click(within(editingRow).getByRole("button", { name: "Add date" }));
+
+    // the chip for the added date should now be visible
+    expect(within(editingRow).getByText(/15 Sept? 2026/)).toBeInTheDocument();
+
+    const numberInput = within(editingRow).getByRole("spinbutton");
+    await user.clear(numberInput);
+    await user.type(numberInput, "1000");
+    await user.click(within(editingRow).getByRole("button", { name: "Save" }));
+
+    // still just ONE new row, not two
+    expect(screen.getAllByRole("row").length).toBe(before + 1);
+    const savedRow = screen.getByText("New project", { selector: ".proj-name" }).closest("tr");
+    expect(within(savedRow).getByText(/\+1 more date/)).toBeInTheDocument();
+  });
+
+  it("shows both the primary date and extra dates as separate entries in Planning, tagging the extra one", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Revenue");
+
+    await user.click(screen.getByRole("button", { name: /New project/i }));
+    const editingRow = document.querySelector("tr.editing");
+    const nameInput = within(editingRow).getAllByRole("textbox")[0];
+    await user.clear(nameInput);
+    await user.type(nameInput, "Scattered Training");
+
+    const startDateInput = editingRow.querySelector('input[type="date"]');
+    fireEvent.change(startDateInput, { target: { value: "2026-09-01" } });
+    const extraDateInput = editingRow.querySelector(".extra-dates-add input");
+    fireEvent.change(extraDateInput, { target: { value: "2026-09-20" } });
+    await user.click(within(editingRow).getByRole("button", { name: "Add date" }));
+
+    const statusSelect = within(editingRow).getByRole("combobox");
+    await user.selectOptions(statusSelect, "Signed");
+    await user.click(within(editingRow).getByRole("button", { name: "Save" }));
+
+    await goToTab(user, "Planning");
+    const occurrences = screen.getAllByText("Scattered Training");
+    expect(occurrences.length).toBe(2); // one row for each date, same project
+    expect(screen.getByText("Extra session")).toBeInTheDocument();
+  });
+});
+
+describe("New expense stays visible when created from a filtered scope", () => {
+  it("switches to All when clicking New expense from the Client or Internal view, so the new row isn't hidden", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Expenses");
+    await user.click(screen.getByRole("button", { name: "Internal" }));
+
+    await user.click(screen.getByRole("button", { name: /New expense/i }));
+    const editingRow = document.querySelector("tr.editing");
+    expect(editingRow).toBeTruthy(); // must exist and be visible, not filtered out
+    expect(screen.getByRole("button", { name: "All" }).className).toContain("active");
+  });
+
+  it("does NOT switch view when creating a new expense from Recurring (already the right scope)", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Expenses");
+    await user.click(screen.getByRole("button", { name: "Recurring" }));
+
+    await user.click(screen.getByRole("button", { name: /New expense/i }));
+    const editingRow = document.querySelector("tr.editing");
+    expect(editingRow).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Recurring" }).className).toContain("active");
   });
 });

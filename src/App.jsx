@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 
 /* ---------------------------------------------------------------
-   SEED DATA — imported from the user's existing tracking sheet
+   SEED DATA - imported from the user's existing tracking sheet
 --------------------------------------------------------------- */
 const SEED_PROJECTS_ALL = [{"id": "p1", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Ahmed Tahri", "topic": "Training", "name": "Efrei - Cloud Intro", "startDate": "2026-03-09", "endDate": "2026-03-13", "status": "Paid", "expectedAmount": 2765, "notes": ""}, {"id": "p2", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Ahmed Tahri", "topic": "Training", "name": "Efrei - DP600 - Aug (1/2)", "startDate": "2026-07-06", "endDate": "2026-07-07", "status": "Signed", "expectedAmount": 1176, "notes": ""}, {"id": "p3", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Ahmed Tahri", "topic": "Training", "name": "Efrei - DP600 - Aug (2/2)", "startDate": "2026-08-31", "endDate": "2026-09-02", "status": "Signed", "expectedAmount": 1764, "notes": ""}, {"id": "p4", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Monaim Touinsi", "topic": "Training", "name": "Efrei - DP600 - Sep", "startDate": "2026-08-31", "endDate": "2026-09-04", "status": "Signed", "expectedAmount": 2940, "notes": ""}, {"id": "p5", "type": "revenue", "client": "Crossthink ", "contact": "Arnaud ", "source": "Ilyes & Alexis", "trainer": "Ahmed Tahri", "topic": "Training", "name": "Crossthink  - Apr - Week 1", "startDate": "2026-03-30", "endDate": "2026-04-03", "status": "Lost", "expectedAmount": 4750, "notes": ""}, {"id": "p6", "type": "revenue", "client": "Crossthink ", "contact": "Arnaud ", "source": "Ilyes & Alexis", "trainer": "Salahedine Bejaoui", "topic": "Training", "name": "Crossthink  - Apr - Week 2 & 3", "startDate": "2026-04-07", "endDate": "2026-04-17", "status": "Lost", "expectedAmount": 8550, "notes": ""}, {"id": "p7", "type": "revenue", "client": "Crossthink ", "contact": "Arnaud ", "source": "Ilyes & Alexis", "trainer": "Mouad MIKOU", "topic": "Training", "name": "Crossthink  - Apr - Week 4", "startDate": "2026-04-20", "endDate": "2026-04-24", "status": "Lost", "expectedAmount": 4750, "notes": ""}, {"id": "p8", "type": "revenue", "client": "FastLane", "contact": "Sarah Medjeber", "source": "N/A", "trainer": "Monaim Touinsi", "topic": "Training", "name": "FastLane - AZ204", "startDate": "2026-05-18", "endDate": "2026-05-22", "status": "Lost", "expectedAmount": 2300, "notes": ""}, {"id": "p9", "type": "revenue", "client": "FastLane", "contact": "Sarah Medjeber", "source": "N/A", "trainer": "Youssef ElGandouli", "topic": "Training", "name": "FastLane - AZ700", "startDate": "2026-04-07", "endDate": "2026-04-10", "status": "Lost", "expectedAmount": 1840, "notes": ""}, {"id": "p10", "type": "revenue", "client": "Cellenza", "contact": "Alain\u00a0GIANSILY", "source": "N/A", "trainer": "Mouad MIKOU", "topic": "Training", "name": "Cellenza - AZ500", "startDate": "2026-03-16", "endDate": "2026-03-19", "status": "Paid", "expectedAmount": 3000, "notes": ""}, {"id": "p11", "type": "internal", "client": "Pearson Vue", "contact": "N/A", "source": "N/A", "trainer": "N/A", "topic": "Certification", "name": "Pearson AZ-500", "startDate": "2026-02-27", "endDate": "2026-02-27", "status": "Paid", "expectedAmount": 0, "notes": ""}, {"id": "p12", "type": "internal", "client": "Pearson Vue", "contact": "N/A", "source": "N/A", "trainer": "N/A", "topic": "Certification", "name": "Pearson AZ-204", "startDate": "2026-03-01", "endDate": "2026-03-01", "status": "Paid", "expectedAmount": 0, "notes": ""}, {"id": "p13", "type": "internal", "client": "Eni Editions", "contact": "Vanessa Dallerac", "source": "N/A", "trainer": "N/A", "topic": "Certification", "name": "Eni - Certification Formateur", "startDate": "2026-03-06", "endDate": "2026-03-06", "status": "Paid", "expectedAmount": 0, "notes": ""}, {"id": "p14", "type": "internal", "client": "Eni Editions", "contact": "Vanessa Dallerac", "source": "N/A", "trainer": "N/A", "topic": "Certification", "name": "Eni - Devis Habilitation (3 certifs)", "startDate": "2026-03-12", "endDate": "2026-03-12", "status": "Paid", "expectedAmount": 0, "notes": ""}, {"id": "p15", "type": "revenue", "client": "IWG", "contact": "N/A", "source": "N/A", "trainer": "N/A", "topic": "Office", "name": "IWG - Office - Retour Caution", "startDate": "2026-03-12", "endDate": "2026-03-12", "status": "Paid", "expectedAmount": 186.9, "notes": ""}, {"id": "p16", "type": "revenue", "client": "Cellenza", "contact": "Alain\u00a0GIANSILY", "source": "N/A", "trainer": "Ahmed Tahri", "topic": "Training", "name": "Cellenza - Custom", "startDate": "2026-05-19", "endDate": "2026-05-20", "status": "Invoiced", "expectedAmount": 4500, "notes": ""}, {"id": "p17", "type": "revenue", "client": "FastLane", "contact": "Sarah Medjeber", "source": "N/A", "trainer": "Youssef ElGandouli", "topic": "Training", "name": "FastLane MD-102", "startDate": "2026-05-18", "endDate": "2026-05-22", "status": "Invoiced", "expectedAmount": 2300, "notes": ""}, {"id": "p18", "type": "revenue", "client": "FastLane", "contact": "Sarah Medjeber", "source": "N/A", "trainer": "Youssef ElGandouli", "topic": "Training", "name": "FastLane MD-102", "startDate": "2026-06-01", "endDate": "2026-06-05", "status": "Signed", "expectedAmount": 2300, "notes": ""}, {"id": "p19", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Oussama EDDAI", "topic": "Training", "name": "Efrei - Cloud Intro 2 (1/2)", "startDate": "2027-01-04", "endDate": "2027-01-05", "status": "Signed", "expectedAmount": 0, "notes": ""}, {"id": "p20", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Oussama EDDAI", "topic": "Training", "name": "Efrei - Cloud Intro 2 (2/2)", "startDate": "2027-01-12", "endDate": "2027-01-13", "status": "Signed", "expectedAmount": 0, "notes": ""}, {"id": "p21", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Oussama EDDAI or Monaim", "topic": "Training", "name": "Efrei - Cloud Intro 3", "startDate": null, "endDate": null, "status": "Signed", "expectedAmount": 2212, "notes": ""}, {"id": "p22", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": null, "topic": "Training", "name": "Efrei -  AZ104 - 1", "startDate": null, "endDate": null, "status": "Signed", "expectedAmount": 0, "notes": ""}, {"id": "p23", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": null, "topic": "Training", "name": "Efrei -  AZ104 - 2", "startDate": null, "endDate": null, "status": "Signed", "expectedAmount": 0, "notes": ""}, {"id": "p24", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": null, "topic": "Training", "name": "Efrei - DP700 - 1", "startDate": null, "endDate": null, "status": "Signed", "expectedAmount": 0, "notes": ""}, {"id": "p25", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": null, "topic": "Training", "name": "Efrei - DP700 - 2", "startDate": null, "endDate": null, "status": "Signed", "expectedAmount": 0, "notes": ""}];
 
@@ -17,27 +17,27 @@ const SEED_EXPENSES = [{"id": "e1", "projectId": "p1", "projectName": "Efrei - C
 
 const STATUS_ORDER = ["Signed", "Delivered", "Invoiced", "Paid", "Lost"];
 const STATUS_COLORS = {
-  Signed: "#3E7CB1",
-  Delivered: "#4C8C6E",
-  Invoiced: "#7A5FB5",
-  Paid: "#1F6E4A",
-  Lost: "#B3402F",
+  Signed: "#6FA8D8",
+  Delivered: "#5FBF95",
+  Invoiced: "#9B85D1",
+  Paid: "#34A87A",
+  Lost: "#E0695A",
 };
 const EXPENSE_CATEGORIES = ["Trainer Fee", "Commission", "Certification", "Other Cost", "Office", "Salary", "Software", "Travel", "Other"];
 
 const fmt = (n) =>
   new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(n || 0);
 const fmtDate = (d) => {
-  if (!d) return "—";
+  if (!d) return "-";
   const dt = new Date(d + "T00:00:00");
-  if (isNaN(dt)) return "—";
+  if (isNaN(dt)) return "-";
   return dt.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
 };
 const monthKey = (d) => (d ? d.slice(0, 7) : "unscheduled");
 const uid = (p) => p + Math.random().toString(36).slice(2, 9);
 
 /* ---------------------------------------------------------------
-   Storage — the source of truth is a shared Azure Function
+   Storage - the source of truth is a shared Azure Function
    (/api/data, backed by Blob Storage) so data survives across
    devices/browsers once deployed. Every save creates a brand new
    snapshot blob rather than overwriting one, so history is kept
@@ -192,6 +192,37 @@ function Select({ value, onChange, options, labelFor }) {
 }
 
 /** Multi-select checkbox dropdown, used for column filters (Status / Category). */
+/** Lets a single project (one payment) have extra, non-contiguous session dates
+ *  beyond its primary start/end range — e.g. a training split across scattered days. */
+function ExtraDatesEditor({ dates, onChange }) {
+  const [draftDate, setDraftDate] = useState("");
+  const add = () => {
+    if (!draftDate || dates.includes(draftDate)) return;
+    onChange([...dates, draftDate].sort());
+    setDraftDate("");
+  };
+  const remove = (d) => onChange(dates.filter((x) => x !== d));
+
+  return (
+    <div className="extra-dates-editor">
+      {dates.length > 0 && (
+        <div className="extra-dates-list">
+          {dates.map((d) => (
+            <span className="extra-date-chip" key={d}>
+              {fmtDate(d)}
+              <button type="button" onClick={() => remove(d)} aria-label={`Remove ${d}`}><X size={10} /></button>
+            </span>
+          ))}
+        </div>
+      )}
+      <div className="extra-dates-add">
+        <input type="date" value={draftDate} onChange={(e) => setDraftDate(e.target.value)} />
+        <button type="button" className="icon-btn" onClick={add} aria-label="Add date"><Plus size={12} /></button>
+      </div>
+    </div>
+  );
+}
+
 function MultiSelectFilter({ label, options, selected, onChange, colorFor }) {
   const allSelected = selected.size === options.length;
   const toggle = (opt) => {
@@ -265,8 +296,8 @@ function HistoryPanel({ onRestore }) {
             <button className="icon-btn" onClick={() => setOpen(false)}><X size={12} /></button>
           </div>
           {loading && <div className="history-empty">Loading versions…</div>}
-          {error && <div className="history-empty">Couldn't reach the history API — is the app deployed with the Storage Account connected?</div>}
-          {versions && versions.length === 0 && <div className="history-empty">No saved versions yet — your first save will show up here.</div>}
+          {error && <div className="history-empty">Couldn't reach the history API. Is the app deployed with the Storage Account connected?</div>}
+          {versions && versions.length === 0 && <div className="history-empty">No saved versions yet. Your first save will show up here.</div>}
           {versions && versions.map((v, i) => (
             <div className="history-row" key={v.name}>
               <div>
@@ -301,7 +332,7 @@ function RevenueTab({ projects, setProjects }) {
 
   const startEdit = (p) => { setEditingId(p.id); setDraft({ ...p }); };
   const startNew = () => {
-    const p = { id: uid("p"), type: typeView === "internal" ? "internal" : "revenue", client: "", contact: "", source: "", trainer: "", topic: "Training", name: "New project", startDate: null, endDate: null, status: "Signed", expectedAmount: 0, notes: "" };
+    const p = { id: uid("p"), type: typeView === "internal" ? "internal" : "revenue", client: "", contact: "", source: "", trainer: "", topic: "Training", name: "New project", startDate: null, endDate: null, extraDates: [], status: "Signed", expectedAmount: 0, notes: "" };
     setProjects([p, ...projects]);
     startEdit(p);
   };
@@ -338,15 +369,15 @@ function RevenueTab({ projects, setProjects }) {
       <div className="panel-header">
         <div>
           <h2>Revenue</h2>
-          <p className="sub">Client engagements that bring in money. Your own trainings/certifications live under "Internal" — no client, but still worth tracking.</p>
+          <p className="sub">Client engagements that bring in money. Your own trainings/certifications live under "Internal" (no client, but still worth tracking).</p>
         </div>
         <button className="btn-primary" onClick={startNew}><Plus size={15} /> New project</button>
       </div>
 
       <div className="type-toggle">
+        <button className={typeView === "all" ? "active" : ""} onClick={() => setTypeView("all")}>All</button>
         <button className={typeView === "revenue" ? "active" : ""} onClick={() => setTypeView("revenue")}>Client</button>
         <button className={typeView === "internal" ? "active" : ""} onClick={() => setTypeView("internal")}>Internal</button>
-        <button className={typeView === "all" ? "active" : ""} onClick={() => setTypeView("all")}>All</button>
       </div>
 
       <div className="toolbar">
@@ -358,9 +389,10 @@ function RevenueTab({ projects, setProjects }) {
         <table>
           <thead>
             <tr>
-              <th>Project</th><th>Client</th><th>Contact</th><th>Trainer</th><th>Dates</th><th>Status</th><th className="num">Amount</th><th></th>
+              <th></th><th>Project</th><th>Client</th><th>Contact</th><th>Trainer</th><th>Dates</th><th>Status</th><th className="num">Amount</th>
             </tr>
             <tr className="filter-row">
+              <th></th>
               <th><input className="col-filter" placeholder="Filter…" value={filters.name} onChange={(e) => setF({ name: e.target.value })} /></th>
               <th><input className="col-filter" placeholder="Filter…" value={filters.client} onChange={(e) => setF({ client: e.target.value })} /></th>
               <th><input className="col-filter" placeholder="Filter…" value={filters.contact} onChange={(e) => setF({ contact: e.target.value })} /></th>
@@ -380,7 +412,6 @@ function RevenueTab({ projects, setProjects }) {
                   <input className="col-filter num-input" type="number" placeholder="Max" value={filters.amountMax} onChange={(e) => setF({ amountMax: e.target.value })} />
                 </div>
               </th>
-              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -390,6 +421,10 @@ function RevenueTab({ projects, setProjects }) {
                 <tr key={p.id} className={isEdit ? "editing" : ""}>
                   {isEdit ? (
                     <>
+                      <td className="actions">
+                        <button className="icon-btn ok" onClick={save} aria-label="Save"><Check size={14} /></button>
+                        <button className="icon-btn" onClick={() => { setEditingId(null); }} aria-label="Cancel"><X size={14} /></button>
+                      </td>
                       <td>
                         <input value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} />
                         <div className="inline-type-toggle">
@@ -403,27 +438,34 @@ function RevenueTab({ projects, setProjects }) {
                       <td className="date-cell">
                         <input type="date" value={draft.startDate || ""} onChange={(e) => setDraft({ ...draft, startDate: e.target.value || null })} />
                         <input type="date" value={draft.endDate || ""} onChange={(e) => setDraft({ ...draft, endDate: e.target.value || null })} />
+                        <ExtraDatesEditor
+                          dates={draft.extraDates || []}
+                          onChange={(next) => setDraft({ ...draft, extraDates: next })}
+                        />
                       </td>
                       <td><Select value={draft.status} onChange={(v) => setDraft({ ...draft, status: v })} options={STATUS_ORDER} /></td>
                       <td className="num"><input className="num-input" type="number" value={draft.expectedAmount} onChange={(e) => setDraft({ ...draft, expectedAmount: parseFloat(e.target.value) || 0 })} /></td>
-                      <td className="actions">
-                        <button className="icon-btn ok" onClick={save} aria-label="Save"><Check size={14} /></button>
-                        <button className="icon-btn" onClick={() => { setEditingId(null); }} aria-label="Cancel"><X size={14} /></button>
-                      </td>
                     </>
                   ) : (
                     <>
-                      <td className="proj-name">{p.name}{p.type === "internal" && <span className="type-tag">Internal</span>}</td>
-                      <td>{p.client}</td>
-                      <td>{p.contact || "—"}</td>
-                      <td>{p.trainer || "—"}</td>
-                      <td className="date-cell">{fmtDate(p.startDate)}{p.endDate && p.endDate !== p.startDate ? ` → ${fmtDate(p.endDate)}` : ""}</td>
-                      <td><Badge status={p.status} /></td>
-                      <td className="num strong">{fmt(p.expectedAmount)}</td>
                       <td className="actions">
                         <button className="icon-btn" onClick={() => startEdit(p)} aria-label="Edit"><Pencil size={13} /></button>
                         <button className="icon-btn danger" onClick={() => remove(p.id)} aria-label="Delete"><Trash2 size={13} /></button>
                       </td>
+                      <td className="proj-name">{p.name}{p.type === "internal" && <span className="type-tag">Internal</span>}</td>
+                      <td>{p.client}</td>
+                      <td>{p.contact || "-"}</td>
+                      <td>{p.trainer || "-"}</td>
+                      <td className="date-cell">
+                        {fmtDate(p.startDate)}{p.endDate && p.endDate !== p.startDate ? ` → ${fmtDate(p.endDate)}` : ""}
+                        {p.extraDates && p.extraDates.length > 0 && (
+                          <span className="extra-dates-tag" title={p.extraDates.map(fmtDate).join(", ")}>
+                            +{p.extraDates.length} more date{p.extraDates.length > 1 ? "s" : ""}
+                          </span>
+                        )}
+                      </td>
+                      <td><Badge status={p.status} /></td>
+                      <td className="num strong">{fmt(p.expectedAmount)}</td>
                     </>
                   )}
                 </tr>
@@ -469,6 +511,10 @@ function ExpensesTab({ expenses, setExpenses, projects }) {
     const e = { id: uid("e"), projectId: null, projectName: "", category: "Other Cost", date: null, status: "Signed", expectedAmount: 0, notes: "" };
     setExpenses([e, ...expenses]);
     startEdit(e);
+    // a brand new expense isn't linked to any project yet, so it only matches
+    // the "All" or "Recurring" scope. Switch to "All" so it's never invisible
+    // right after creation.
+    if (typeView === "revenue" || typeView === "internal") setTypeView("all");
   };
   const save = () => {
     setExpenses(expenses.map((e) => (e.id === editingId ? draft : e)));
@@ -523,9 +569,10 @@ function ExpensesTab({ expenses, setExpenses, projects }) {
         <table>
           <thead>
             <tr>
-              <th>Linked project</th><th>Category</th><th>Date</th><th>Status</th><th className="num">Amount</th><th></th>
+              <th></th><th>Linked project</th><th>Category</th><th>Date</th><th>Status</th><th className="num">Amount</th>
             </tr>
             <tr className="filter-row">
+              <th></th>
               <th><input className="col-filter" placeholder="Filter…" value={filters.project} onChange={(e) => setF({ project: e.target.value })} /></th>
               <th>
                 <MultiSelectFilter label="Category" options={EXPENSE_CATEGORIES} selected={filters.categories} onChange={(s) => setF({ categories: s })} />
@@ -545,7 +592,6 @@ function ExpensesTab({ expenses, setExpenses, projects }) {
                   <input className="col-filter num-input" type="number" placeholder="Max" value={filters.amountMax} onChange={(e) => setF({ amountMax: e.target.value })} />
                 </div>
               </th>
-              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -555,6 +601,10 @@ function ExpensesTab({ expenses, setExpenses, projects }) {
                 <tr key={e.id} className={isEdit ? "editing" : ""}>
                   {isEdit ? (
                     <>
+                      <td className="actions">
+                        <button className="icon-btn ok" onClick={save} aria-label="Save"><Check size={14} /></button>
+                        <button className="icon-btn" onClick={() => setEditingId(null)} aria-label="Cancel"><X size={14} /></button>
+                      </td>
                       <td>
                         <Select
                           value={draft.projectId || "none"}
@@ -573,22 +623,18 @@ function ExpensesTab({ expenses, setExpenses, projects }) {
                       <td><input type="date" value={draft.date || ""} onChange={(ev) => setDraft({ ...draft, date: ev.target.value || null })} /></td>
                       <td><Select value={draft.status} onChange={(v) => setDraft({ ...draft, status: v })} options={STATUS_ORDER} /></td>
                       <td className="num"><input className="num-input" type="number" value={draft.expectedAmount} onChange={(ev) => setDraft({ ...draft, expectedAmount: parseFloat(ev.target.value) || 0 })} /></td>
-                      <td className="actions">
-                        <button className="icon-btn ok" onClick={save} aria-label="Save"><Check size={14} /></button>
-                        <button className="icon-btn" onClick={() => setEditingId(null)} aria-label="Cancel"><X size={14} /></button>
-                      </td>
                     </>
                   ) : (
                     <>
+                      <td className="actions">
+                        <button className="icon-btn" onClick={() => startEdit(e)} aria-label="Edit"><Pencil size={13} /></button>
+                        <button className="icon-btn danger" onClick={() => remove(e.id)} aria-label="Delete"><Trash2 size={13} /></button>
+                      </td>
                       <td className="proj-name">{e.projectId ? e.projectName : e.projectName ? <span className="unlinked-name">{e.projectName}</span> : <em>General / Recurring</em>}</td>
                       <td><span className="cat-pill">{e.category}</span></td>
                       <td className="date-cell">{fmtDate(e.date)}</td>
                       <td><Badge status={e.status} /></td>
                       <td className="num strong neg">{fmt(e.expectedAmount)}</td>
-                      <td className="actions">
-                        <button className="icon-btn" onClick={() => startEdit(e)} aria-label="Edit"><Pencil size={13} /></button>
-                        <button className="icon-btn danger" onClick={() => remove(e.id)} aria-label="Delete"><Trash2 size={13} /></button>
-                      </td>
                     </>
                   )}
                 </tr>
@@ -605,20 +651,33 @@ function ExpensesTab({ expenses, setExpenses, projects }) {
 }
 
 /* ---------------------------------------------------------------
-   Planning Tab — upcoming projects
+   Planning Tab - upcoming projects
 --------------------------------------------------------------- */
 function PlanningTab({ projects }) {
   const [sortDir, setSortDir] = useState("asc");
   const today = new Date().toISOString().slice(0, 10);
-  const upcoming = projects
-    .filter((p) => p.status !== "Paid" && p.status !== "Lost")
-    .sort((a, b) => {
-      const cmp = (a.startDate || "9999").localeCompare(b.startDate || "9999");
-      return sortDir === "asc" ? cmp : -cmp;
-    });
+  const upcomingProjects = projects.filter((p) => p.status !== "Paid" && p.status !== "Lost");
 
-  const dated = upcoming.filter((p) => p.startDate);
-  const undated = upcoming.filter((p) => !p.startDate);
+  // Flatten each project into one entry per session date (its primary startDate, plus any
+  // extra non-contiguous dates) so a single-payment training with scattered sessions still
+  // shows every date on the planning timeline, without splitting the underlying project/revenue.
+  const sessions = [];
+  upcomingProjects.forEach((p) => {
+    const allDates = [p.startDate, ...(p.extraDates || [])].filter(Boolean);
+    if (allDates.length === 0) {
+      sessions.push({ ...p, sessionDate: null, sessionKey: p.id });
+    } else {
+      allDates.forEach((d) => sessions.push({ ...p, sessionDate: d, sessionKey: `${p.id}-${d}` }));
+    }
+  });
+
+  const upcoming = sessions.sort((a, b) => {
+    const cmp = (a.sessionDate || "9999").localeCompare(b.sessionDate || "9999");
+    return sortDir === "asc" ? cmp : -cmp;
+  });
+
+  const dated = upcoming.filter((p) => p.sessionDate);
+  const undated = upcoming.filter((p) => !p.sessionDate);
 
   const daysUntil = (d) => {
     const diff = Math.ceil((new Date(d) - new Date(today)) / 86400000);
@@ -627,38 +686,39 @@ function PlanningTab({ projects }) {
     return `in ${diff} day${diff > 1 ? "s" : ""}`;
   };
 
-  const totalValue = upcoming.reduce((s, p) => s + (p.expectedAmount || 0), 0);
+  const totalValue = upcomingProjects.reduce((s, p) => s + (p.expectedAmount || 0), 0);
 
   return (
     <div className="panel">
       <div className="panel-header">
         <div>
           <h2>Planning</h2>
-          <p className="sub">Everything not yet paid or lost, ordered by date — so you can see what's coming and organise around it.</p>
+          <p className="sub">Everything not yet paid or lost, ordered by date, so you can see what's coming and organise around it.</p>
         </div>
         <div className="planning-controls">
           <button className="link-btn sort-toggle" onClick={() => setSortDir(sortDir === "asc" ? "desc" : "asc")}>
             {sortDir === "asc" ? "Soonest first ↑" : "Furthest first ↓"}
           </button>
-          <div className="toolbar-total">{upcoming.length} upcoming · <strong>{fmt(totalValue)}</strong> at stake</div>
+          <div className="toolbar-total">{upcomingProjects.length} upcoming · <strong>{fmt(totalValue)}</strong> at stake</div>
         </div>
       </div>
 
       <div className="timeline">
         {dated.map((p) => (
-          <div className="timeline-row" key={p.id}>
+          <div className="timeline-row" key={p.sessionKey}>
             <div className="timeline-date">
-              <div className="tl-day">{new Date(p.startDate + "T00:00:00").getDate()}</div>
-              <div className="tl-month">{new Date(p.startDate + "T00:00:00").toLocaleDateString("en-GB", { month: "short", year: "2-digit" })}</div>
+              <div className="tl-day">{new Date(p.sessionDate + "T00:00:00").getDate()}</div>
+              <div className="tl-month">{new Date(p.sessionDate + "T00:00:00").toLocaleDateString("en-GB", { month: "short", year: "2-digit" })}</div>
             </div>
             <div className="timeline-line" />
             <div className="timeline-content">
               <div className="tl-top">
                 <span className="tl-name">{p.name}</span>
                 {p.type === "internal" && <span className="type-tag">Internal</span>}
+                {p.sessionDate !== p.startDate && <span className="type-tag session-tag">Extra session</span>}
                 <Badge status={p.status} />
               </div>
-              <div className="tl-meta">{p.client} · {p.trainer || "trainer TBD"} · {daysUntil(p.startDate)}</div>
+              <div className="tl-meta">{p.client} · {p.trainer || "trainer TBD"} · {daysUntil(p.sessionDate)}</div>
             </div>
             <div className="tl-amount">{fmt(p.expectedAmount)}</div>
           </div>
@@ -670,7 +730,7 @@ function PlanningTab({ projects }) {
           <div className="section-divider">Not scheduled yet</div>
           <div className="pipeline-grid">
             {undated.map((p) => (
-              <div className="pipeline-card" key={p.id}>
+              <div className="pipeline-card" key={p.sessionKey}>
                 <div className="tl-top"><span className="tl-name">{p.name}</span>{p.type === "internal" && <span className="type-tag">Internal</span>}<Badge status={p.status} /></div>
                 <div className="tl-meta">{p.client} · {p.trainer || "trainer TBD"}</div>
                 <div className="tl-amount">{fmt(p.expectedAmount)}</div>
@@ -764,14 +824,14 @@ function DashboardTab({ projects, expenses }) {
     return STATUS_ORDER.map((s) => ({ status: s, value: map[s] }));
   }, [periodProjects]);
 
-  const PIE_COLORS = ["#1F6E4A", "#C68A2E", "#3E7CB1", "#B3402F", "#7A5FB5", "#6B7A72", "#9AA39C", "#D9895A"];
+  const PIE_COLORS = ["#34A87A", "#D9A24A", "#6FA8D8", "#E0695A", "#9B85D1", "#9B9BA3", "#9AA39C", "#E0A578"];
 
   return (
     <div className="panel">
       <div className="panel-header">
         <div>
           <h2>Dashboard</h2>
-          <p className="sub">Where the business actually stands, and where it lands if every open deal closes — showing <strong>{periodLabel}</strong>.</p>
+          <p className="sub">Where the business actually stands, and where it lands if every open deal closes, showing <strong>{periodLabel}</strong>.</p>
         </div>
         <div className="period-picker">
           <Select
@@ -797,8 +857,8 @@ function DashboardTab({ projects, expenses }) {
 
       <div className="ledger-hero">
         <div className="ledger-col">
-          <div className="ledger-tag">ACTUAL — confirmed business (Scheduled, Signed, Invoiced &amp; Paid)</div>
-          <div className="ledger-figure" style={{ color: actualProfit >= 0 ? "#1F6E4A" : "#B3402F" }}>{fmt(actualProfit)}</div>
+          <div className="ledger-tag">ACTUAL: confirmed business (Scheduled, Signed, Invoiced &amp; Paid)</div>
+          <div className="ledger-figure" style={{ color: actualProfit >= 0 ? "#34A87A" : "#E0695A" }}>{fmt(actualProfit)}</div>
           <div className="ledger-sub-row">
             <span><Wallet size={13} /> Revenue {fmt(actualRevenue)}</span>
             <span><Receipt size={13} /> Expenses {fmt(actualExpenses)}</span>
@@ -806,8 +866,8 @@ function DashboardTab({ projects, expenses }) {
         </div>
         <div className="ledger-stitch"><span>VS</span></div>
         <div className="ledger-col">
-          <div className="ledger-tag">EXPECTED — every row's target, exactly as in the file</div>
-          <div className="ledger-figure" style={{ color: expectedProfit >= 0 ? "#C68A2E" : "#B3402F" }}>{fmt(expectedProfit)}</div>
+          <div className="ledger-tag">EXPECTED: every row's target, exactly as in the file</div>
+          <div className="ledger-figure" style={{ color: expectedProfit >= 0 ? "#D9A24A" : "#E0695A" }}>{fmt(expectedProfit)}</div>
           <div className="ledger-sub-row">
             <span><Wallet size={13} /> Revenue {fmt(expectedRevenue)}</span>
             <span><Receipt size={13} /> Expenses {fmt(expectedExpenses)}</span>
@@ -816,23 +876,23 @@ function DashboardTab({ projects, expenses }) {
       </div>
 
       <div className="kpi-grid">
-        <KpiCard icon={TrendingUp} label="Revenue" actual={actualRevenue} expected={expectedRevenue} tone="#1F6E4A" />
-        <KpiCard icon={TrendingDown} label="Expenses" actual={actualExpenses} expected={expectedExpenses} tone="#B3402F" />
-        <KpiCard icon={Clock3} label="Profit" actual={actualProfit} expected={expectedProfit} tone="#3E7CB1" />
+        <KpiCard icon={TrendingUp} label="Revenue" actual={actualRevenue} expected={expectedRevenue} tone="#34A87A" />
+        <KpiCard icon={TrendingDown} label="Expenses" actual={actualExpenses} expected={expectedExpenses} tone="#E0695A" />
+        <KpiCard icon={Clock3} label="Profit" actual={actualProfit} expected={expectedProfit} tone="#6FA8D8" />
       </div>
 
       <div className="chart-grid">
         <div className="chart-card">
-          <h3>Revenue by month — actual vs expected</h3>
+          <h3>Revenue by month: actual vs expected</h3>
           <ResponsiveContainer width="100%" height={240}>
             <BarChart data={monthly} margin={{ top: 8, right: 8, left: -18, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E4E1D6" vertical={false} />
-              <XAxis dataKey="label" tick={{ fontSize: 11, fill: "#6B7A72" }} axisLine={{ stroke: "#E4E1D6" }} tickLine={false} />
-              <YAxis tick={{ fontSize: 11, fill: "#6B7A72" }} axisLine={false} tickLine={false} width={60} tickFormatter={(v) => `€${v}`} />
-              <Tooltip formatter={(v) => fmt(v)} contentStyle={{ borderRadius: 8, border: "1px solid #E4E1D6", fontSize: 12 }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#2E2E34" vertical={false} />
+              <XAxis dataKey="label" tick={{ fontSize: 11, fill: "#9B9BA3" }} axisLine={{ stroke: "#2E2E34" }} tickLine={false} />
+              <YAxis tick={{ fontSize: 11, fill: "#9B9BA3" }} axisLine={false} tickLine={false} width={60} tickFormatter={(v) => `€${v}`} />
+              <Tooltip formatter={(v) => fmt(v)} contentStyle={{ borderRadius: 8, border: "1px solid #2E2E34", background: "#1C1C20", color: "#F1F0ED", fontSize: 12 }} />
               <Legend wrapperStyle={{ fontSize: 12 }} />
               <Bar dataKey="expected" name="Expected" fill="#C68A2E" radius={[4, 4, 0, 0]} opacity={0.55} />
-              <Bar dataKey="actual" name="Actual" fill="#1F6E4A" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="actual" name="Actual" fill="#34A87A" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -844,7 +904,7 @@ function DashboardTab({ projects, expenses }) {
               <Pie data={byCategory} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={50} outerRadius={85} paddingAngle={2}>
                 {byCategory.map((entry, i) => <Cell key={entry.name} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
               </Pie>
-              <Tooltip formatter={(v) => fmt(v)} contentStyle={{ borderRadius: 8, border: "1px solid #E4E1D6", fontSize: 12 }} />
+              <Tooltip formatter={(v) => fmt(v)} contentStyle={{ borderRadius: 8, border: "1px solid #2E2E34", background: "#1C1C20", color: "#F1F0ED", fontSize: 12 }} />
               <Legend wrapperStyle={{ fontSize: 11 }} layout="vertical" verticalAlign="middle" align="right" />
             </PieChart>
           </ResponsiveContainer>
@@ -855,10 +915,10 @@ function DashboardTab({ projects, expenses }) {
         <h3>Pipeline by status</h3>
         <ResponsiveContainer width="100%" height={180}>
           <BarChart data={statusFunnel} layout="vertical" margin={{ top: 4, right: 24, left: 8, bottom: 4 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#E4E1D6" horizontal={false} />
-            <XAxis type="number" tick={{ fontSize: 11, fill: "#6B7A72" }} axisLine={{ stroke: "#E4E1D6" }} tickLine={false} tickFormatter={(v) => `€${v}`} />
-            <YAxis type="category" dataKey="status" tick={{ fontSize: 12, fill: "#14231F" }} axisLine={false} tickLine={false} width={80} />
-            <Tooltip formatter={(v) => fmt(v)} contentStyle={{ borderRadius: 8, border: "1px solid #E4E1D6", fontSize: 12 }} />
+            <CartesianGrid strokeDasharray="3 3" stroke="#2E2E34" horizontal={false} />
+            <XAxis type="number" tick={{ fontSize: 11, fill: "#9B9BA3" }} axisLine={{ stroke: "#2E2E34" }} tickLine={false} tickFormatter={(v) => `€${v}`} />
+            <YAxis type="category" dataKey="status" tick={{ fontSize: 12, fill: "#F1F0ED" }} axisLine={false} tickLine={false} width={80} />
+            <Tooltip formatter={(v) => fmt(v)} contentStyle={{ borderRadius: 8, border: "1px solid #2E2E34", background: "#1C1C20", color: "#F1F0ED", fontSize: 12 }} />
             <Bar dataKey="value" radius={[0, 4, 4, 0]}>
               {statusFunnel.map((entry) => <Cell key={entry.status} fill={STATUS_COLORS[entry.status]} />)}
             </Bar>
@@ -898,7 +958,7 @@ export default function App() {
         setCurrentVersion(version);
         setDirty(false);
       } else {
-        // seed data, or an unsaved local cache from last time — keep it locally and
+        // seed data, or an unsaved local cache from last time - keep it locally and
         // let the person hit Save when they're ready, rather than pushing automatically
         writeLocalCache(initP, initE);
         setDirty(true);
@@ -957,16 +1017,16 @@ export default function App() {
     { key: "planning", label: "Planning", icon: CalendarClock },
   ];
 
-  const saveLabel = saveState === "saving" ? "Saving…" : saveState === "error" ? "Save failed — retry" : dirty ? "Save" : "Saved ✓";
+  const saveLabel = saveState === "saving" ? "Saving…" : saveState === "error" ? "Save failed, retry" : dirty ? "Save" : "Saved ✓";
 
   return (
     <div className="app-shell">
       <div className="app-header">
         <div className="header-top">
           <div className="brand">
-            <div className="brand-mark">TL</div>
+            <img className="brand-mark" src="https://www.academy.clouddevfusion.com/assets/cdfL.png" alt="CloudDevFusion" />
             <div>
-              <div className="brand-title">Training Ledger</div>
+              <div className="brand-title">Planning & Budget</div>
               <div className="brand-sub">Projects · Revenue · Expenses · Planning</div>
             </div>
           </div>
@@ -1032,15 +1092,15 @@ html, body, #root { height: 100%; margin: 0; }
 
 .app-shell {
   font-family: 'Inter', system-ui, sans-serif;
-  background: #EFEEE5;
-  color: #14231F;
+  background: #131316;
+  color: #F1F0ED;
   min-height: 100vh;
 }
 .loading-shell { display:flex; align-items:center; justify-content:center; min-height: 400px; }
-.loader { font-family: 'Fraunces', serif; font-size: 18px; color: #6B7A72; }
+.loader { font-family: 'Fraunces', serif; font-size: 18px; color: #9B9BA3; }
 
 .app-header {
-  background: #14231F;
+  background: #131316;
   color: #EFEEE5;
   padding: 20px 28px 0 28px;
 }
@@ -1048,39 +1108,39 @@ html, body, #root { height: 100%; margin: 0; }
 .header-actions { display:flex; gap: 8px; margin-top: 2px; align-items: center; }
 .dirty-pill {
   font-size: 11px; font-weight: 600; padding: 5px 10px; border-radius: 20px;
-  border: 1px solid #3A4A44; white-space: nowrap;
+  border: 1px solid #3B3B42; white-space: nowrap;
 }
 .dirty-pill.clean { color: #4CA97A; border-color: #4CA97A55; }
 .dirty-pill.dirty { color: #C68A2E; border-color: #C68A2E55; }
 .save-btn { padding: 8px 16px; font-size: 12.5px; }
 .save-btn:disabled { opacity: 0.55; cursor: default; }
-.save-btn.save-error { background: #B3402F; }
-.save-btn.save-error:hover { background: #94331F; }
+.save-btn.save-error { background: #C25644; }
+.save-btn.save-error:hover { background: #A8493A; }
 
 .history-wrap { position: relative; }
 .history-panel {
   position: absolute; top: calc(100% + 6px); right: 0; z-index: 30;
-  background: #fff; border: 1px solid #E4E1D6; border-radius: 10px;
+  background: #1C1C20; border: 1px solid #2E2E34; border-radius: 10px;
   width: 260px; max-height: 320px; overflow-y: auto;
-  box-shadow: 0 10px 28px rgba(20,35,31,0.18); color: #14231F;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.35); color: #F1F0ED;
 }
 .history-head {
   display:flex; align-items:center; justify-content:space-between;
-  padding: 10px 12px; font-size: 12px; font-weight: 700; color: #6B7A72;
-  text-transform: uppercase; letter-spacing: 0.4px; border-bottom: 1px solid #EFEEE5;
-  position: sticky; top: 0; background: #fff;
+  padding: 10px 12px; font-size: 12px; font-weight: 700; color: #9B9BA3;
+  text-transform: uppercase; letter-spacing: 0.4px; border-bottom: 1px solid #2E2E34;
+  position: sticky; top: 0; background: #1C1C20;
 }
 .history-empty { padding: 16px 12px; font-size: 12.5px; color: #9AA39C; }
 .history-row {
   display:flex; align-items:center; justify-content:space-between; gap: 10px;
-  padding: 10px 12px; border-bottom: 1px solid #FAF9F4; font-size: 12.5px;
+  padding: 10px 12px; border-bottom: 1px solid #27272C; font-size: 12.5px;
 }
 .history-row:last-child { border-bottom: none; }
 .history-date { font-weight: 600; }
-.history-latest { color: #1F6E4A; font-weight: 700; }
+.history-latest { color: #34A87A; font-weight: 700; }
 .history-size { color: #9AA39C; font-size: 11px; margin-top: 2px; }
 .ghost-btn {
-  background: transparent; border: 1px solid #3A4A44; color: #9AA39C;
+  background: transparent; border: 1px solid #3B3B42; color: #9AA39C;
   padding: 6px 12px; border-radius: 7px; font-size: 12px; font-weight: 500;
   cursor: pointer; font-family: 'Inter', sans-serif; position: relative;
 }
@@ -1088,10 +1148,8 @@ html, body, #root { height: 100%; margin: 0; }
 .file-btn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
 .brand { display:flex; align-items:center; gap: 12px; }
 .brand-mark {
-  width: 36px; height: 36px; border-radius: 8px;
-  background: #1F6E4A; color: #EFEEE5;
-  display:flex; align-items:center; justify-content:center;
-  font-family: 'Fraunces', serif; font-weight: 600; font-size: 15px;
+  width: 36px; height: 36px; border-radius: 8px; object-fit: contain;
+  background: #fff; padding: 4px;
 }
 .brand-title { font-family: 'Fraunces', serif; font-size: 19px; font-weight: 600; letter-spacing: 0.2px; }
 .brand-sub { font-size: 11.5px; color: #9AA39C; margin-top: 1px; }
@@ -1112,29 +1170,29 @@ html, body, #root { height: 100%; margin: 0; }
 
 .panel-header { display:flex; align-items:flex-end; justify-content:space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
 .period-picker { display:flex; align-items:center; gap: 8px; flex-wrap: wrap; }
-.period-note { font-size: 12px; color: #9AA39C; margin: -12px 0 16px 0; }
+.period-note { font-size: 12px; color: #9B9BA3; margin: -12px 0 16px 0; }
 .panel-header h2 { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 600; margin: 0 0 4px 0; }
-.panel-header .sub { margin: 0; font-size: 13px; color: #6B7A72; max-width: 480px; }
+.panel-header .sub { margin: 0; font-size: 13px; color: #9B9BA3; max-width: 480px; }
 
 .btn-primary {
   display:flex; align-items:center; gap: 6px;
-  background: #1F6E4A; color: #fff; border: none;
+  background: #2F8F63; color: #141416; border: none;
   padding: 9px 16px; border-radius: 8px; font-size: 13px; font-weight: 600;
   cursor: pointer; font-family: 'Inter', sans-serif;
   transition: background .15s ease;
 }
-.btn-primary:hover { background: #195A3B; }
+.btn-primary:hover { background: #279068; }
 
 /* Ledger hero */
 .ledger-hero {
   display:flex; align-items:stretch; gap: 0;
-  background: #fff; border: 1px solid #E4E1D6; border-radius: 14px;
+  background: #1C1C20; border: 1px solid #2E2E34; border-radius: 14px;
   padding: 26px 30px; margin-bottom: 22px; position: relative;
 }
 .ledger-col { flex: 1; display:flex; flex-direction: column; gap: 8px; }
-.ledger-tag { font-size: 11px; letter-spacing: 0.6px; text-transform: uppercase; color: #6B7A72; font-weight: 600; }
+.ledger-tag { font-size: 11px; letter-spacing: 0.6px; text-transform: uppercase; color: #9B9BA3; font-weight: 600; }
 .ledger-figure { font-family: 'IBM Plex Mono', monospace; font-size: 34px; font-weight: 500; }
-.ledger-sub-row { display:flex; gap: 18px; font-size: 12.5px; color: #6B7A72; }
+.ledger-sub-row { display:flex; gap: 18px; font-size: 12.5px; color: #9B9BA3; }
 .ledger-sub-row span { display:flex; align-items:center; gap: 5px; }
 .ledger-stitch {
   width: 60px; display:flex; align-items:center; justify-content:center;
@@ -1142,51 +1200,51 @@ html, body, #root { height: 100%; margin: 0; }
 }
 .ledger-stitch::before {
   content: ""; position: absolute; top: 4px; bottom: 4px; left: 50%;
-  border-left: 2px dashed #D8D4C6;
+  border-left: 2px dashed #3B3B42;
 }
 .ledger-stitch span {
-  background: #EFEEE5; border: 1px solid #D8D4C6; color: #9AA39C;
+  background: #131316; border: 1px solid #3B3B42; color: #9AA39C;
   font-size: 10px; font-weight: 700; letter-spacing: 1px;
   padding: 4px 6px; border-radius: 20px; z-index: 1; position: relative;
   font-family: 'IBM Plex Mono', monospace;
 }
 
 .kpi-grid { display:grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 22px; }
-.kpi-card { background: #fff; border: 1px solid #E4E1D6; border-radius: 12px; padding: 16px 18px; }
+.kpi-card { background: #1C1C20; border: 1px solid #2E2E34; border-radius: 12px; padding: 16px 18px; }
 .kpi-top { display:flex; align-items:center; gap: 8px; margin-bottom: 10px; }
 .kpi-icon { width: 26px; height: 26px; border-radius: 7px; display:flex; align-items:center; justify-content:center; }
-.kpi-label { font-size: 12.5px; font-weight: 600; color: #6B7A72; }
-.kpi-actual { font-family: 'IBM Plex Mono', monospace; font-size: 22px; font-weight: 500; color: #14231F; }
-.kpi-expected { font-size: 11.5px; color: #9AA39C; margin-top: 4px; display:flex; align-items:center; }
+.kpi-label { font-size: 12.5px; font-weight: 600; color: #9B9BA3; }
+.kpi-actual { font-family: 'IBM Plex Mono', monospace; font-size: 22px; font-weight: 500; color: #F1F0ED; }
+.kpi-expected { font-size: 11.5px; color: #9B9BA3; margin-top: 4px; display:flex; align-items:center; }
 
 .chart-grid { display:grid; grid-template-columns: 1.3fr 1fr; gap: 14px; margin-bottom: 14px; }
-.chart-card { background: #fff; border: 1px solid #E4E1D6; border-radius: 12px; padding: 16px 18px 6px 18px; }
-.chart-card h3 { font-size: 13.5px; font-weight: 600; margin: 0 0 6px 0; color: #14231F; }
+.chart-card { background: #1C1C20; border: 1px solid #2E2E34; border-radius: 12px; padding: 16px 18px 6px 18px; }
+.chart-card h3 { font-size: 13.5px; font-weight: 600; margin: 0 0 6px 0; color: #F1F0ED; }
 
 .toolbar { display:flex; align-items:center; justify-content:space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 10px; }
 
-.type-toggle { display:inline-flex; gap: 2px; background: #EFEEE5; border-radius: 8px; padding: 3px; margin-bottom: 14px; }
+.type-toggle { display:inline-flex; gap: 2px; background: #1C1C20; border: 1px solid #2E2E34; border-radius: 8px; padding: 3px; margin-bottom: 14px; }
 .type-toggle button {
   background: transparent; border: none; padding: 6px 14px; border-radius: 6px; font-size: 12.5px; font-weight: 600;
-  color: #6B7A72; cursor: pointer; font-family: 'Inter', sans-serif;
+  color: #9B9BA3; cursor: pointer; font-family: 'Inter', sans-serif;
 }
-.type-toggle button.active { background: #fff; color: #14231F; box-shadow: 0 1px 2px rgba(20,35,31,0.08); }
+.type-toggle button.active { background: #34A87A; color: #141416; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
 
 .inline-type-toggle { display:inline-flex; gap: 3px; margin-top: 5px; }
 .inline-type-toggle button {
-  background: #F3F1E7; border: 1px solid #E4E1D6; padding: 2px 8px; border-radius: 5px; font-size: 10.5px; font-weight: 600;
-  color: #6B7A72; cursor: pointer; font-family: 'Inter', sans-serif;
+  background: #26262B; border: 1px solid #2E2E34; padding: 2px 8px; border-radius: 5px; font-size: 10.5px; font-weight: 600;
+  color: #9B9BA3; cursor: pointer; font-family: 'Inter', sans-serif;
 }
-.inline-type-toggle button.active { background: #14231F; color: #EFEEE5; border-color: #14231F; }
+.inline-type-toggle button.active { background: #34A87A; color: #141416; border-color: #34A87A; }
 
 .type-tag {
   display: inline-block; margin-left: 8px; font-size: 10px; font-weight: 700; letter-spacing: 0.3px;
-  color: #7A5FB5; background: #7A5FB51A; border: 1px solid #7A5FB555; padding: 2px 7px; border-radius: 20px; vertical-align: middle;
+  color: #9B85D1; background: #9B85D11A; border: 1px solid #9B85D155; padding: 2px 7px; border-radius: 20px; vertical-align: middle;
 }
-.toolbar-total { font-size: 12.5px; color: #6B7A72; }
-.toolbar-total strong { color: #14231F; }
+.toolbar-total { font-size: 12.5px; color: #9B9BA3; }
+.toolbar-total strong { color: #F1F0ED; }
 .link-btn {
-  background: none; border: none; color: #3E7CB1; font-size: 12.5px; font-weight: 600;
+  background: none; border: none; color: #6FA8D8; font-size: 12.5px; font-weight: 600;
   cursor: pointer; font-family: 'Inter', sans-serif; padding: 0;
 }
 .link-btn:hover { text-decoration: underline; }
@@ -1194,10 +1252,10 @@ html, body, #root { height: 100%; margin: 0; }
 .sort-toggle { white-space: nowrap; }
 
 /* Per-column filter row */
-tr.filter-row th { padding: 7px 10px; background: #FAF9F4; border-bottom: 1px solid #E4E1D6; }
+tr.filter-row th { padding: 7px 10px; background: #1B1B1F; border-bottom: 1px solid #2E2E34; }
 .col-filter {
-  border: 1px solid #D8D4C6; border-radius: 6px; padding: 5px 8px; font-size: 12px;
-  font-family: 'Inter', sans-serif; width: 100%; color: #14231F; background: #fff;
+  border: 1px solid #3B3B42; border-radius: 6px; padding: 5px 8px; font-size: 12px;
+  font-family: 'Inter', sans-serif; width: 100%; color: #F1F0ED; background: #1C1C20;
 }
 .range-filter { display:flex; gap: 4px; }
 .range-filter input { min-width: 0; }
@@ -1206,88 +1264,104 @@ tr.filter-row th { padding: 7px 10px; background: #FAF9F4; border-bottom: 1px so
 .msf { position: relative; }
 .msf summary {
   list-style: none; cursor: pointer; display:flex; align-items:center; gap: 5px;
-  border: 1px solid #D8D4C6; border-radius: 6px; padding: 5px 9px; font-size: 12px;
-  color: #14231F; background: #fff; white-space: nowrap;
+  border: 1px solid #3B3B42; border-radius: 6px; padding: 5px 9px; font-size: 12px;
+  color: #F1F0ED; background: #1C1C20; white-space: nowrap;
 }
 .msf summary::-webkit-details-marker { display: none; }
 .msf-panel {
   position: absolute; top: calc(100% + 4px); left: 0; z-index: 20;
-  background: #fff; border: 1px solid #E4E1D6; border-radius: 8px;
-  padding: 6px; min-width: 160px; box-shadow: 0 6px 18px rgba(20,35,31,0.12);
+  background: #1C1C20; border: 1px solid #2E2E34; border-radius: 8px;
+  padding: 6px; min-width: 160px; box-shadow: 0 6px 18px rgba(0,0,0,0.35);
   display:flex; flex-direction: column; gap: 2px; max-height: 220px; overflow-y: auto;
 }
 .msf-option { display:flex; align-items:center; gap: 7px; font-size: 12.5px; padding: 5px 6px; border-radius: 5px; cursor: pointer; white-space: nowrap; }
-.msf-option:hover { background: #FAF9F4; }
+.msf-option:hover { background: #26262B; }
 .msf-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 .msf-all {
-  font-size: 11px; font-weight: 600; color: #3E7CB1; background: none; border: none;
-  text-align: left; padding: 5px 6px; cursor: pointer; border-bottom: 1px solid #EFEEE5; margin-bottom: 2px;
+  font-size: 11px; font-weight: 600; color: #6FA8D8; background: none; border: none;
+  text-align: left; padding: 5px 6px; cursor: pointer; border-bottom: 1px solid #2E2E34; margin-bottom: 2px;
 }
-.empty-row { text-align: center; color: #9AA39C; font-size: 13px; padding: 28px 0 !important; }
+.empty-row { text-align: center; color: #9B9BA3; font-size: 13px; padding: 28px 0 !important; }
 
 .select-wrap { position: relative; display:inline-flex; align-items:center; }
 .select-wrap select {
-  appearance: none; background: #fff; border: 1px solid #D8D4C6; border-radius: 7px;
-  padding: 6px 26px 6px 10px; font-size: 12.5px; color: #14231F; font-family: 'Inter', sans-serif;
+  appearance: none; background: #1C1C20; border: 1px solid #3B3B42; border-radius: 7px;
+  padding: 6px 26px 6px 10px; font-size: 12.5px; color: #F1F0ED; font-family: 'Inter', sans-serif;
   cursor: pointer;
 }
-.select-chevron { position: absolute; right: 8px; pointer-events: none; color: #9AA39C; }
+.select-chevron { position: absolute; right: 8px; pointer-events: none; color: #9B9BA3; }
 
 .badge { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 20px; white-space: nowrap; }
 
-.table-scroll { overflow-x: auto; background: #fff; border: 1px solid #E4E1D6; border-radius: 12px; }
+.table-scroll { overflow-x: auto; background: #1C1C20; border: 1px solid #2E2E34; border-radius: 12px; }
 table { width: 100%; border-collapse: collapse; font-size: 13px; }
 thead th {
   text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px;
-  color: #9AA39C; font-weight: 600; padding: 12px 14px; border-bottom: 1px solid #E4E1D6;
+  color: #9B9BA3; font-weight: 600; padding: 12px 14px; border-bottom: 1px solid #2E2E34;
 }
 th.num, td.num { text-align: right; }
-tbody td { padding: 11px 14px; border-bottom: 1px solid #EFEEE5; vertical-align: middle; }
+tbody td { padding: 11px 14px; border-bottom: 1px solid #27272C; vertical-align: middle; }
 tbody tr:last-child td { border-bottom: none; }
-tbody tr:hover { background: #FAF9F4; }
-tbody tr.editing { background: #FBF6EA; }
+tbody tr:hover { background: #1B1B1F; }
+tbody tr.editing { background: #2B2A1E; }
 .proj-name { font-weight: 600; }
-.unlinked-name { font-weight: 500; font-style: italic; color: #6B7A72; }
-.date-cell { display:flex; gap: 6px; font-size: 12.5px; color: #6B7A72; align-items:center; flex-wrap: wrap; }
+.unlinked-name { font-weight: 500; font-style: italic; color: #9B9BA3; }
+.date-cell { display:flex; gap: 6px; font-size: 12.5px; color: #9B9BA3; align-items:center; flex-wrap: wrap; }
+
+.extra-dates-editor { width: 100%; margin-top: 4px; }
+.extra-dates-list { display:flex; flex-wrap: wrap; gap: 4px; margin-bottom: 4px; }
+.extra-date-chip {
+  display:inline-flex; align-items:center; gap: 4px; background: #26262B; border: 1px solid #3B3B42;
+  color: #F1F0ED; font-size: 10.5px; padding: 2px 4px 2px 7px; border-radius: 20px;
+}
+.extra-date-chip button { background: none; border: none; color: #9B9BA3; cursor: pointer; display:flex; padding: 2px; }
+.extra-date-chip button:hover { color: #E0695A; }
+.extra-dates-add { display:flex; gap: 4px; align-items:center; }
+.extra-dates-add input { font-size: 11px; padding: 4px 6px; }
+.extra-dates-tag {
+  font-size: 10px; font-weight: 600; color: #9B9BA3; background: #26262B; border: 1px solid #3B3B42;
+  padding: 2px 7px; border-radius: 20px; margin-left: 4px; cursor: help;
+}
+.session-tag { color: #D9A24A; background: #D9A24A1A; border-color: #D9A24A55; }
 .num.strong { font-family: 'IBM Plex Mono', monospace; font-weight: 500; }
-.num.strong.neg { color: #B3402F; }
-.actions { display:flex; gap: 6px; justify-content: flex-end; }
+.num.strong.neg { color: #E0695A; }
+.actions { display:flex; gap: 6px; justify-content: flex-start; }
 .icon-btn {
-  background: transparent; border: 1px solid #E4E1D6; color: #6B7A72;
+  background: transparent; border: 1px solid #2E2E34; color: #9B9BA3;
   width: 26px; height: 26px; border-radius: 6px; display:flex; align-items:center; justify-content:center;
   cursor: pointer;
 }
-.icon-btn:hover { background: #F3F1E7; }
-.icon-btn.danger:hover { color: #B3402F; border-color: #B3402F55; }
-.icon-btn.ok { color: #1F6E4A; border-color: #1F6E4A55; }
-.cat-pill { background: #EFEEE5; padding: 3px 9px; border-radius: 6px; font-size: 11.5px; color: #14231F; }
+.icon-btn:hover { background: #26262B; }
+.icon-btn.danger:hover { color: #E0695A; border-color: #E0695A55; }
+.icon-btn.ok { color: #34A87A; border-color: #34A87A55; }
+.cat-pill { background: #26262B; padding: 3px 9px; border-radius: 6px; font-size: 11.5px; color: #F1F0ED; }
 
 input[type="text"], input[type="number"], input[type="date"], input:not([type]) {
-  border: 1px solid #D8D4C6; border-radius: 6px; padding: 6px 8px; font-size: 12.5px;
-  font-family: 'Inter', sans-serif; width: 100%; color: #14231F;
+  border: 1px solid #3B3B42; border-radius: 6px; padding: 6px 8px; font-size: 12.5px;
+  font-family: 'Inter', sans-serif; width: 100%; color: #F1F0ED; background: #1C1C20;
 }
 .num-input { text-align: right; font-family: 'IBM Plex Mono', monospace; }
 
 /* Planning timeline */
 .timeline { display:flex; flex-direction: column; }
-.timeline-row { display:flex; align-items:center; gap: 16px; padding: 14px 6px; border-bottom: 1px solid #E4E1D6; }
+.timeline-row { display:flex; align-items:center; gap: 16px; padding: 14px 6px; border-bottom: 1px solid #2E2E34; }
 .timeline-row:last-child { border-bottom: none; }
 .timeline-date { width: 52px; text-align:center; flex-shrink: 0; }
 .tl-day { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 600; line-height: 1; }
-.tl-month { font-size: 10.5px; color: #9AA39C; text-transform: uppercase; letter-spacing: 0.4px; margin-top: 2px; }
-.timeline-line { width: 2px; align-self: stretch; background: #E4E1D6; flex-shrink: 0; }
+.tl-month { font-size: 10.5px; color: #9B9BA3; text-transform: uppercase; letter-spacing: 0.4px; margin-top: 2px; }
+.timeline-line { width: 2px; align-self: stretch; background: #2E2E34; flex-shrink: 0; }
 .timeline-content { flex: 1; min-width: 0; }
 .tl-top { display:flex; align-items:center; gap: 10px; margin-bottom: 4px; }
 .tl-name { font-weight: 600; font-size: 13.5px; }
-.tl-meta { font-size: 12px; color: #6B7A72; }
+.tl-meta { font-size: 12px; color: #9B9BA3; }
 .tl-amount { font-family: 'IBM Plex Mono', monospace; font-weight: 500; font-size: 14px; flex-shrink: 0; }
 
 .section-divider {
-  font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; color: #9AA39C; font-weight: 700;
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; color: #9B9BA3; font-weight: 700;
   margin: 22px 0 12px 4px;
 }
 .pipeline-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
-.pipeline-card { background: #fff; border: 1px solid #E4E1D6; border-radius: 10px; padding: 14px; }
+.pipeline-card { background: #1C1C20; border: 1px solid #2E2E34; border-radius: 10px; padding: 14px; }
 
 @media (max-width: 780px) {
   .kpi-grid { grid-template-columns: 1fr; }
