@@ -1568,8 +1568,9 @@ tr.filter-row th { padding: 7px 10px; background: #1B1B1F; border-bottom: 1px so
   background: #1C1C20; border: 1px solid #2E2E34; border-radius: 8px;
   padding: 6px; min-width: 160px; box-shadow: 0 6px 18px rgba(0,0,0,0.35);
   display:flex; flex-direction: column; gap: 2px; max-height: 260px; overflow-y: auto;
+  color: #F1F0ED; font-family: 'Inter', sans-serif;
 }
-.msf-option { display:flex; align-items:center; gap: 7px; font-size: 12.5px; padding: 5px 6px; border-radius: 5px; cursor: pointer; white-space: nowrap; }
+.msf-option { display:flex; align-items:center; gap: 7px; font-size: 12.5px; padding: 5px 6px; border-radius: 5px; cursor: pointer; white-space: nowrap; color: #F1F0ED; }
 .msf-option:hover { background: #26262B; }
 .msf-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 .msf-all {
