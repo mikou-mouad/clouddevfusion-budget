@@ -1,10 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  Legend, Cell, PieChart, Pie
-} from "recharts";
-import {
   LayoutDashboard, TrendingUp, TrendingDown, CalendarClock, Plus, Trash2,
   Pencil, X, Check, ChevronDown, Wallet, Receipt, Clock3, Target,
   List, Calendar, ChevronLeft, ChevronRight, AlertTriangle, Copy
@@ -36,7 +32,6 @@ const fmtDate = (d) => {
   if (isNaN(dt)) return "-";
   return dt.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
 };
-const monthKey = (d) => (d ? d.slice(0, 7) : "unscheduled");
 const uid = (p) => p + Math.random().toString(36).slice(2, 9);
 
 /* ---------------------------------------------------------------
@@ -1025,37 +1020,6 @@ function DashboardTab({ projects, expenses }) {
   const actualProfit = actualRevenue - actualExpenses;
   const expectedProfit = expectedRevenue - expectedExpenses;
 
-  const monthly = useMemo(() => {
-    const map = {};
-    periodProjects.forEach((p) => {
-      const k = monthKey(p.startDate);
-      if (!map[k]) map[k] = { month: k, actual: 0, expected: 0 };
-      map[k].expected += p.expectedAmount || 0;
-      if (p.status !== "Lost") map[k].actual += p.expectedAmount || 0;
-    });
-    return Object.values(map)
-      .filter((m) => m.month !== "unscheduled")
-      .sort((a, b) => a.month.localeCompare(b.month))
-      .map((m) => ({ ...m, label: new Date(m.month + "-01").toLocaleDateString("en-GB", { month: "short", year: "2-digit" }) }));
-  }, [periodProjects]);
-
-  const byCategory = useMemo(() => {
-    const map = {};
-    periodExpenses.forEach((e) => {
-      map[e.category] = (map[e.category] || 0) + (e.expectedAmount || 0);
-    });
-    return Object.entries(map).map(([name, value]) => ({ name, value }));
-  }, [periodExpenses]);
-
-  const statusFunnel = useMemo(() => {
-    const map = {};
-    STATUS_ORDER.forEach((s) => (map[s] = 0));
-    periodProjects.forEach((p) => { map[p.status] = (map[p.status] || 0) + (p.expectedAmount || 0); });
-    return STATUS_ORDER.map((s) => ({ status: s, value: map[s] }));
-  }, [periodProjects]);
-
-  const PIE_COLORS = ["#34A87A", "#D9A24A", "#6FA8D8", "#E0695A", "#9B85D1", "#9B9BA3", "#9AA39C", "#E0A578"];
-
   return (
     <div className="panel">
       <div className="panel-header">
@@ -1106,6 +1070,12 @@ function DashboardTab({ projects, expenses }) {
         <div className="period-note">{excludedUndated} pipeline project{excludedUndated > 1 ? "s" : ""} without a date {excludedUndated > 1 ? "aren't" : "isn't"} shown for this period.</div>
       )}
 
+      <div className="kpi-grid">
+        <KpiCard icon={TrendingUp} label="Revenue" actual={actualRevenue} expected={expectedRevenue} tone="#34A87A" />
+        <KpiCard icon={TrendingDown} label="Expenses" actual={actualExpenses} expected={expectedExpenses} tone="#E0695A" />
+        <KpiCard icon={Clock3} label="Profit" actual={actualProfit} expected={expectedProfit} tone="#6FA8D8" />
+      </div>
+
       <div className="ledger-hero">
         <div className="ledger-col">
           <div className="ledger-tag">ACTUAL: confirmed business (Scheduled, Signed, Invoiced &amp; Paid)</div>
@@ -1124,57 +1094,6 @@ function DashboardTab({ projects, expenses }) {
             <span><Receipt size={13} /> Expenses {fmt(expectedExpenses)}</span>
           </div>
         </div>
-      </div>
-
-      <div className="kpi-grid">
-        <KpiCard icon={TrendingUp} label="Revenue" actual={actualRevenue} expected={expectedRevenue} tone="#34A87A" />
-        <KpiCard icon={TrendingDown} label="Expenses" actual={actualExpenses} expected={expectedExpenses} tone="#E0695A" />
-        <KpiCard icon={Clock3} label="Profit" actual={actualProfit} expected={expectedProfit} tone="#6FA8D8" />
-      </div>
-
-      <div className="chart-grid">
-        <div className="chart-card">
-          <h3>Revenue by month: actual vs expected</h3>
-          <ResponsiveContainer width="100%" height={240}>
-            <BarChart data={monthly} margin={{ top: 8, right: 8, left: -18, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#2E2E34" vertical={false} />
-              <XAxis dataKey="label" tick={{ fontSize: 11, fill: "#9B9BA3" }} axisLine={{ stroke: "#2E2E34" }} tickLine={false} />
-              <YAxis tick={{ fontSize: 11, fill: "#9B9BA3" }} axisLine={false} tickLine={false} width={60} tickFormatter={(v) => `€${v}`} />
-              <Tooltip formatter={(v) => fmt(v)} contentStyle={{ borderRadius: 8, border: "1px solid #2E2E34", background: "#1C1C20", color: "#F1F0ED", fontSize: 12 }} />
-              <Legend wrapperStyle={{ fontSize: 12 }} />
-              <Bar dataKey="expected" name="Expected" fill="#C68A2E" radius={[4, 4, 0, 0]} opacity={0.55} />
-              <Bar dataKey="actual" name="Actual" fill="#34A87A" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        <div className="chart-card">
-          <h3>Expenses by category</h3>
-          <ResponsiveContainer width="100%" height={240}>
-            <PieChart>
-              <Pie data={byCategory} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={50} outerRadius={85} paddingAngle={2}>
-                {byCategory.map((entry, i) => <Cell key={entry.name} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
-              </Pie>
-              <Tooltip formatter={(v) => fmt(v)} contentStyle={{ borderRadius: 8, border: "1px solid #2E2E34", background: "#1C1C20", color: "#F1F0ED", fontSize: 12 }} />
-              <Legend wrapperStyle={{ fontSize: 11 }} layout="vertical" verticalAlign="middle" align="right" />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      <div className="chart-card">
-        <h3>Pipeline by status</h3>
-        <ResponsiveContainer width="100%" height={180}>
-          <BarChart data={statusFunnel} layout="vertical" margin={{ top: 4, right: 24, left: 8, bottom: 4 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#2E2E34" horizontal={false} />
-            <XAxis type="number" tick={{ fontSize: 11, fill: "#9B9BA3" }} axisLine={{ stroke: "#2E2E34" }} tickLine={false} tickFormatter={(v) => `€${v}`} />
-            <YAxis type="category" dataKey="status" tick={{ fontSize: 12, fill: "#F1F0ED" }} axisLine={false} tickLine={false} width={80} />
-            <Tooltip formatter={(v) => fmt(v)} contentStyle={{ borderRadius: 8, border: "1px solid #2E2E34", background: "#1C1C20", color: "#F1F0ED", fontSize: 12 }} />
-            <Bar dataKey="value" radius={[0, 4, 4, 0]}>
-              {statusFunnel.map((entry) => <Cell key={entry.status} fill={STATUS_COLORS[entry.status]} />)}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
       </div>
     </div>
   );
