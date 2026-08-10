@@ -1198,18 +1198,34 @@ describe("Duplicate button", () => {
     expect(within(editingRow).getByDisplayValue("Efrei")).toBeInTheDocument(); // client copied over
   });
 
-  it("duplicating does not remove or modify the original row", async () => {
+  it("Cancel after Duplicate discards the copy, leaving only the original", async () => {
     const user = userEvent.setup();
     await renderReady();
     await goToTab(user, "Revenue");
 
     const originalRow = rowFor("Efrei - Cloud Intro");
+    const before = screen.getAllByRole("row").length;
     await user.click(within(originalRow).getByRole("button", { name: "Duplicate" }));
 
-    // cancel the duplicate's edit mode, then confirm both the original and the copy exist
     const editingRow = document.querySelector("tr.editing");
     await user.click(within(editingRow).getByRole("button", { name: "Cancel" }));
-    expect(screen.getAllByText("Efrei - Cloud Intro").length).toBe(2);
+
+    expect(screen.getAllByRole("row").length).toBe(before); // back to the original count
+    expect(screen.getAllByText("Efrei - Cloud Intro").length).toBe(1); // only the original remains
+  });
+
+  it("Cancel after New project discards the blank row entirely", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Revenue");
+
+    const before = screen.getAllByRole("row").length;
+    await user.click(screen.getByRole("button", { name: /New project/i }));
+    const editingRow = document.querySelector("tr.editing");
+    await user.click(within(editingRow).getByRole("button", { name: "Cancel" }));
+
+    expect(screen.getAllByRole("row").length).toBe(before);
+    expect(screen.queryByText("New project", { selector: ".proj-name" })).not.toBeInTheDocument();
   });
 
   it("duplicates an Expense into a new editable row with the same field values", async () => {
@@ -1225,5 +1241,20 @@ describe("Duplicate button", () => {
     expect(screen.getAllByRole("row").length).toBe(before + 1);
     const editingRow = document.querySelector("tr.editing");
     expect(editingRow).toBeTruthy();
+  });
+
+  it("Cancel while editing an EXISTING row (not new/duplicated) never deletes it", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Revenue");
+
+    const before = screen.getAllByRole("row").length;
+    const row = rowFor("Efrei - Cloud Intro");
+    await user.click(within(row).getByRole("button", { name: "Edit" }));
+    const editingRow = document.querySelector("tr.editing");
+    await user.click(within(editingRow).getByRole("button", { name: "Cancel" }));
+
+    expect(screen.getAllByRole("row").length).toBe(before);
+    expect(screen.getByText("Efrei - Cloud Intro")).toBeInTheDocument();
   });
 });

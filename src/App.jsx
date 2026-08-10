@@ -356,6 +356,7 @@ const EMPTY_REVENUE_FILTERS = {
 function RevenueTab({ projects, setProjects }) {
   const [editingId, setEditingId] = useState(null);
   const [draft, setDraft] = useState(null);
+  const [pendingNewId, setPendingNewId] = useState(null); // id of a just-created row not yet saved
   const [filters, setFilters] = useState(EMPTY_REVENUE_FILTERS);
   const [typeView, setTypeView] = useState("revenue"); // "revenue" | "internal" | "all"
   const setF = (patch) => setFilters((f) => ({ ...f, ...patch }));
@@ -364,16 +365,25 @@ function RevenueTab({ projects, setProjects }) {
   const startNew = () => {
     const p = { id: uid("p"), type: typeView === "internal" ? "internal" : "revenue", client: "", contact: "", source: "", trainer: "", topic: "Training", name: "New project", startDate: null, endDate: null, extraDates: [], status: "Signed", expectedAmount: 0, notes: "" };
     setProjects([p, ...projects]);
+    setPendingNewId(p.id);
     startEdit(p);
   };
   const save = () => {
     setProjects(projects.map((p) => (p.id === editingId ? draft : p)));
-    setEditingId(null); setDraft(null);
+    setEditingId(null); setDraft(null); setPendingNewId(null);
+  };
+  const cancelEdit = () => {
+    if (pendingNewId === editingId) {
+      // never actually saved - discard the row rather than leaving a stray blank/duplicate behind
+      setProjects(projects.filter((p) => p.id !== editingId));
+    }
+    setEditingId(null); setDraft(null); setPendingNewId(null);
   };
   const remove = (id) => setProjects(projects.filter((p) => p.id !== id));
   const duplicate = (p) => {
     const copy = { ...p, id: uid("p"), extraDates: [...(p.extraDates || [])] };
     setProjects([copy, ...projects]);
+    setPendingNewId(copy.id);
     startEdit(copy);
   };
 
@@ -458,7 +468,7 @@ function RevenueTab({ projects, setProjects }) {
                     <>
                       <td className="actions">
                         <button className="icon-btn ok" onClick={save} aria-label="Save"><Check size={14} /></button>
-                        <button className="icon-btn" onClick={() => { setEditingId(null); }} aria-label="Cancel"><X size={14} /></button>
+                        <button className="icon-btn" onClick={cancelEdit} aria-label="Cancel"><X size={14} /></button>
                       </td>
                       <td>
                         <input value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} />
@@ -538,6 +548,7 @@ function expenseScope(e, projects) {
 function ExpensesTab({ expenses, setExpenses, projects }) {
   const [editingId, setEditingId] = useState(null);
   const [draft, setDraft] = useState(null);
+  const [pendingNewId, setPendingNewId] = useState(null); // id of a just-created row not yet saved
   const [filters, setFilters] = useState(EMPTY_EXPENSE_FILTERS);
   const [typeView, setTypeView] = useState("all"); // "all" | "revenue" | "internal" | "recurring"
   const setF = (patch) => setFilters((f) => ({ ...f, ...patch }));
@@ -546,6 +557,7 @@ function ExpensesTab({ expenses, setExpenses, projects }) {
   const startNew = () => {
     const e = { id: uid("e"), projectId: null, projectName: "", category: "Other Cost", date: null, status: "Signed", expectedAmount: 0, notes: "" };
     setExpenses([e, ...expenses]);
+    setPendingNewId(e.id);
     startEdit(e);
     // a brand new expense isn't linked to any project yet, so it only matches
     // the "All" or "Recurring" scope. Switch to "All" so it's never invisible
@@ -554,12 +566,19 @@ function ExpensesTab({ expenses, setExpenses, projects }) {
   };
   const save = () => {
     setExpenses(expenses.map((e) => (e.id === editingId ? draft : e)));
-    setEditingId(null); setDraft(null);
+    setEditingId(null); setDraft(null); setPendingNewId(null);
+  };
+  const cancelEdit = () => {
+    if (pendingNewId === editingId) {
+      setExpenses(expenses.filter((e) => e.id !== editingId));
+    }
+    setEditingId(null); setDraft(null); setPendingNewId(null);
   };
   const remove = (id) => setExpenses(expenses.filter((e) => e.id !== id));
   const duplicate = (e) => {
     const copy = { ...e, id: uid("e") };
     setExpenses([copy, ...expenses]);
+    setPendingNewId(copy.id);
     startEdit(copy);
   };
 
@@ -644,7 +663,7 @@ function ExpensesTab({ expenses, setExpenses, projects }) {
                     <>
                       <td className="actions">
                         <button className="icon-btn ok" onClick={save} aria-label="Save"><Check size={14} /></button>
-                        <button className="icon-btn" onClick={() => setEditingId(null)} aria-label="Cancel"><X size={14} /></button>
+                        <button className="icon-btn" onClick={cancelEdit} aria-label="Cancel"><X size={14} /></button>
                       </td>
                       <td>
                         <Select
