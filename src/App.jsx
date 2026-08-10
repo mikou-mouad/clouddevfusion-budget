@@ -715,6 +715,14 @@ function PlanningTab({ projects }) {
   const today = new Date().toISOString().slice(0, 10);
   const upcomingProjects = projects.filter((p) => p.status !== "Paid" && p.status !== "Lost");
 
+  // One row per project (never split across its dates) - uses the EARLIEST of its
+  // primary + extra dates so a scattered multi-date training still sorts sensibly.
+  const toPlanningEntry = (p) => {
+    const allDates = [p.startDate, ...(p.extraDates || [])].filter(Boolean).sort();
+    return { ...p, sessionDate: allDates[0] || null, sessionKey: p.id, extraCount: Math.max(0, allDates.length - 1) };
+  };
+
+  // The calendar wants one pill per actual session date, so it keeps the full breakdown.
   const flattenToSessions = (list) => {
     const out = [];
     list.forEach((p) => {
@@ -730,13 +738,13 @@ function PlanningTab({ projects }) {
   const needsTrainerProjects = upcomingProjects.filter((p) => p.status === "Signed");
   const restProjects = upcomingProjects.filter((p) => p.status !== "Signed");
 
-  const needsTrainerSessions = flattenToSessions(needsTrainerProjects).sort((a, b) =>
+  const needsTrainerSessions = needsTrainerProjects.map(toPlanningEntry).sort((a, b) =>
     (a.sessionDate || "9999").localeCompare(b.sessionDate || "9999")
   );
 
   const allSessions = flattenToSessions(upcomingProjects); // for the calendar, which shows everything together
 
-  const restSessions = flattenToSessions(restProjects).sort((a, b) => {
+  const restSessions = restProjects.map(toPlanningEntry).sort((a, b) => {
     const cmp = (a.sessionDate || "9999").localeCompare(b.sessionDate || "9999");
     return sortDir === "asc" ? cmp : -cmp;
   });
@@ -797,7 +805,7 @@ function PlanningTab({ projects }) {
                   <div className="tl-top">
                     <span className="tl-name">{p.name}</span>
                     {p.type === "internal" && <span className="type-tag">Internal</span>}
-                    {p.sessionDate !== p.startDate && <span className="type-tag session-tag">Extra session</span>}
+                    {p.extraCount > 0 && <span className="extra-dates-tag">+{p.extraCount} more date{p.extraCount > 1 ? "s" : ""}</span>}
                     <Badge status={p.status} />
                   </div>
                   <div className="tl-meta">{p.client} · no trainer assigned{p.sessionDate ? ` · ${daysUntil(p.sessionDate)}` : ""}</div>
@@ -826,7 +834,7 @@ function PlanningTab({ projects }) {
                   <div className="tl-top">
                     <span className="tl-name">{p.name}</span>
                     {p.type === "internal" && <span className="type-tag">Internal</span>}
-                    {p.sessionDate !== p.startDate && <span className="type-tag session-tag">Extra session</span>}
+                    {p.extraCount > 0 && <span className="extra-dates-tag">+{p.extraCount} more date{p.extraCount > 1 ? "s" : ""}</span>}
                     <Badge status={p.status} />
                   </div>
                   <div className="tl-meta">{p.client} · {p.trainer || "trainer TBD"} · {daysUntil(p.sessionDate)}</div>

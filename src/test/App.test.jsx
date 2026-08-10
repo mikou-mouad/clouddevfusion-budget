@@ -927,7 +927,7 @@ describe("Non-contiguous session dates on a single project", () => {
     expect(within(savedRow).getByText(/\+1 more date/)).toBeInTheDocument();
   });
 
-  it("shows both the primary date and extra dates as separate entries in Planning, tagging the extra one", async () => {
+  it("shows a single Planning entry per project (not one per date), with a '+N more dates' indicator", async () => {
     const user = userEvent.setup();
     await renderReady();
     await goToTab(user, "Revenue");
@@ -945,13 +945,13 @@ describe("Non-contiguous session dates on a single project", () => {
     await user.click(within(editingRow).getByRole("button", { name: "Add date" }));
 
     const statusSelect = within(editingRow).getByRole("combobox");
-    await user.selectOptions(statusSelect, "Signed");
+    await user.selectOptions(statusSelect, "Delivered"); // avoid the "Signed / needs a trainer" section
     await user.click(within(editingRow).getByRole("button", { name: "Save" }));
 
     await goToTab(user, "Planning");
     const occurrences = screen.getAllByText("Scattered Training");
-    expect(occurrences.length).toBe(2); // one row for each date, same project
-    expect(screen.getByText("Extra session")).toBeInTheDocument();
+    expect(occurrences.length).toBe(1); // ONE row for the whole project, not one per date
+    expect(screen.getByText(/\+1 more date/)).toBeInTheDocument();
   });
 });
 
@@ -1150,6 +1150,31 @@ describe("Planning: needs-a-trainer priority section", () => {
     for (const name of needsTrainerNames) {
       expect(mainListNames).not.toContain(name);
     }
+  });
+
+  it("a Signed project with multiple dates appears only ONCE in the needs-trainer section, not once per date", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Revenue");
+
+    await user.click(screen.getByRole("button", { name: /New project/i }));
+    const editingRow = document.querySelector("tr.editing");
+    const nameInput = within(editingRow).getAllByRole("textbox")[0];
+    await user.clear(nameInput);
+    await user.type(nameInput, "Needs Trainer Multi Date");
+
+    const startDateInput = editingRow.querySelector('input[type="date"]');
+    fireEvent.change(startDateInput, { target: { value: "2026-09-01" } });
+    const extraDateInput = editingRow.querySelector(".extra-dates-add input");
+    fireEvent.change(extraDateInput, { target: { value: "2026-09-20" } });
+    await user.click(within(editingRow).getByRole("button", { name: "Add date" }));
+    // default status is already "Signed"
+    await user.click(within(editingRow).getByRole("button", { name: "Save" }));
+
+    await goToTab(user, "Planning");
+    const occurrences = document.querySelectorAll(".needs-trainer-row .tl-name");
+    const matching = Array.from(occurrences).filter((el) => el.textContent === "Needs Trainer Multi Date");
+    expect(matching.length).toBe(1);
   });
 });
 
