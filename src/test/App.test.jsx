@@ -1180,3 +1180,50 @@ describe("Planning: calendar view", () => {
     expect(titleToday).toBe(titleBefore);
   });
 });
+
+describe("Duplicate button", () => {
+  it("duplicates a Revenue project into a new editable row with the same field values", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Revenue");
+
+    const originalRow = rowFor("Efrei - Cloud Intro");
+    const before = screen.getAllByRole("row").length;
+    await user.click(within(originalRow).getByRole("button", { name: "Duplicate" }));
+
+    expect(screen.getAllByRole("row").length).toBe(before + 1);
+    const editingRow = document.querySelector("tr.editing");
+    expect(editingRow).toBeTruthy();
+    expect(within(editingRow).getByDisplayValue("Efrei - Cloud Intro")).toBeInTheDocument();
+    expect(within(editingRow).getByDisplayValue("Efrei")).toBeInTheDocument(); // client copied over
+  });
+
+  it("duplicating does not remove or modify the original row", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Revenue");
+
+    const originalRow = rowFor("Efrei - Cloud Intro");
+    await user.click(within(originalRow).getByRole("button", { name: "Duplicate" }));
+
+    // cancel the duplicate's edit mode, then confirm both the original and the copy exist
+    const editingRow = document.querySelector("tr.editing");
+    await user.click(within(editingRow).getByRole("button", { name: "Cancel" }));
+    expect(screen.getAllByText("Efrei - Cloud Intro").length).toBe(2);
+  });
+
+  it("duplicates an Expense into a new editable row with the same field values", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Expenses");
+
+    const rows = screen.getAllByRole("row").slice(2);
+    const targetRow = rows.find((r) => within(r).queryAllByRole("cell").length >= 6);
+    const before = screen.getAllByRole("row").length;
+    await user.click(within(targetRow).getByRole("button", { name: "Duplicate" }));
+
+    expect(screen.getAllByRole("row").length).toBe(before + 1);
+    const editingRow = document.querySelector("tr.editing");
+    expect(editingRow).toBeTruthy();
+  });
+});

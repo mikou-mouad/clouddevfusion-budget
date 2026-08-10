@@ -7,7 +7,7 @@ import {
 import {
   LayoutDashboard, TrendingUp, TrendingDown, CalendarClock, Plus, Trash2,
   Pencil, X, Check, ChevronDown, Wallet, Receipt, Clock3, Target,
-  List, Calendar, ChevronLeft, ChevronRight, AlertTriangle
+  List, Calendar, ChevronLeft, ChevronRight, AlertTriangle, Copy
 } from "lucide-react";
 
 /* ---------------------------------------------------------------
@@ -371,6 +371,11 @@ function RevenueTab({ projects, setProjects }) {
     setEditingId(null); setDraft(null);
   };
   const remove = (id) => setProjects(projects.filter((p) => p.id !== id));
+  const duplicate = (p) => {
+    const copy = { ...p, id: uid("p"), extraDates: [...(p.extraDates || [])] };
+    setProjects([copy, ...projects]);
+    startEdit(copy);
+  };
 
   const inTypeView = projects.filter((p) => typeView === "all" || (p.type || "revenue") === typeView);
   const filtered = inTypeView.filter((p) => {
@@ -480,6 +485,7 @@ function RevenueTab({ projects, setProjects }) {
                     <>
                       <td className="actions">
                         <button className="icon-btn" onClick={() => startEdit(p)} aria-label="Edit"><Pencil size={13} /></button>
+                        <button className="icon-btn" onClick={() => duplicate(p)} aria-label="Duplicate"><Copy size={13} /></button>
                         <button className="icon-btn danger" onClick={() => remove(p.id)} aria-label="Delete"><Trash2 size={13} /></button>
                       </td>
                       <td className="proj-name">{p.name}{p.type === "internal" && <span className="type-tag">Internal</span>}</td>
@@ -551,6 +557,11 @@ function ExpensesTab({ expenses, setExpenses, projects }) {
     setEditingId(null); setDraft(null);
   };
   const remove = (id) => setExpenses(expenses.filter((e) => e.id !== id));
+  const duplicate = (e) => {
+    const copy = { ...e, id: uid("e") };
+    setExpenses([copy, ...expenses]);
+    startEdit(copy);
+  };
 
   const inTypeView = expenses.filter((e) => typeView === "all" || expenseScope(e, projects) === typeView);
   const filtered = inTypeView.filter((e) => {
@@ -658,6 +669,7 @@ function ExpensesTab({ expenses, setExpenses, projects }) {
                     <>
                       <td className="actions">
                         <button className="icon-btn" onClick={() => startEdit(e)} aria-label="Edit"><Pencil size={13} /></button>
+                        <button className="icon-btn" onClick={() => duplicate(e)} aria-label="Duplicate"><Copy size={13} /></button>
                         <button className="icon-btn danger" onClick={() => remove(e.id)} aria-label="Delete"><Trash2 size={13} /></button>
                       </td>
                       <td className="proj-name">{e.projectId ? e.projectName : e.projectName ? <span className="unlinked-name">{e.projectName}</span> : <em>General / Recurring</em>}</td>
