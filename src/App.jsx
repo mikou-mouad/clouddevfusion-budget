@@ -1,23 +1,26 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { createPortal } from "react-dom";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   Legend, Cell, PieChart, Pie
 } from "recharts";
 import {
   LayoutDashboard, TrendingUp, TrendingDown, CalendarClock, Plus, Trash2,
-  Pencil, X, Check, ChevronDown, Wallet, Receipt, Clock3, Target
+  Pencil, X, Check, ChevronDown, Wallet, Receipt, Clock3, Target,
+  List, Calendar, ChevronLeft, ChevronRight, AlertTriangle
 } from "lucide-react";
 
 /* ---------------------------------------------------------------
    SEED DATA - imported from the user's existing tracking sheet
 --------------------------------------------------------------- */
-const SEED_PROJECTS_ALL = [{"id": "p1", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Ahmed Tahri", "topic": "Training", "name": "Efrei - Cloud Intro", "startDate": "2026-03-09", "endDate": "2026-03-13", "status": "Paid", "expectedAmount": 2765, "notes": ""}, {"id": "p2", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Ahmed Tahri", "topic": "Training", "name": "Efrei - DP600 - Aug (1/2)", "startDate": "2026-07-06", "endDate": "2026-07-07", "status": "Signed", "expectedAmount": 1176, "notes": ""}, {"id": "p3", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Ahmed Tahri", "topic": "Training", "name": "Efrei - DP600 - Aug (2/2)", "startDate": "2026-08-31", "endDate": "2026-09-02", "status": "Signed", "expectedAmount": 1764, "notes": ""}, {"id": "p4", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Monaim Touinsi", "topic": "Training", "name": "Efrei - DP600 - Sep", "startDate": "2026-08-31", "endDate": "2026-09-04", "status": "Signed", "expectedAmount": 2940, "notes": ""}, {"id": "p5", "type": "revenue", "client": "Crossthink ", "contact": "Arnaud ", "source": "Ilyes & Alexis", "trainer": "Ahmed Tahri", "topic": "Training", "name": "Crossthink  - Apr - Week 1", "startDate": "2026-03-30", "endDate": "2026-04-03", "status": "Lost", "expectedAmount": 4750, "notes": ""}, {"id": "p6", "type": "revenue", "client": "Crossthink ", "contact": "Arnaud ", "source": "Ilyes & Alexis", "trainer": "Salahedine Bejaoui", "topic": "Training", "name": "Crossthink  - Apr - Week 2 & 3", "startDate": "2026-04-07", "endDate": "2026-04-17", "status": "Lost", "expectedAmount": 8550, "notes": ""}, {"id": "p7", "type": "revenue", "client": "Crossthink ", "contact": "Arnaud ", "source": "Ilyes & Alexis", "trainer": "Mouad MIKOU", "topic": "Training", "name": "Crossthink  - Apr - Week 4", "startDate": "2026-04-20", "endDate": "2026-04-24", "status": "Lost", "expectedAmount": 4750, "notes": ""}, {"id": "p8", "type": "revenue", "client": "FastLane", "contact": "Sarah Medjeber", "source": "N/A", "trainer": "Monaim Touinsi", "topic": "Training", "name": "FastLane - AZ204", "startDate": "2026-05-18", "endDate": "2026-05-22", "status": "Lost", "expectedAmount": 2300, "notes": ""}, {"id": "p9", "type": "revenue", "client": "FastLane", "contact": "Sarah Medjeber", "source": "N/A", "trainer": "Youssef ElGandouli", "topic": "Training", "name": "FastLane - AZ700", "startDate": "2026-04-07", "endDate": "2026-04-10", "status": "Lost", "expectedAmount": 1840, "notes": ""}, {"id": "p10", "type": "revenue", "client": "Cellenza", "contact": "Alain\u00a0GIANSILY", "source": "N/A", "trainer": "Mouad MIKOU", "topic": "Training", "name": "Cellenza - AZ500", "startDate": "2026-03-16", "endDate": "2026-03-19", "status": "Paid", "expectedAmount": 3000, "notes": ""}, {"id": "p11", "type": "internal", "client": "Pearson Vue", "contact": "N/A", "source": "N/A", "trainer": "N/A", "topic": "Certification", "name": "Pearson AZ-500", "startDate": "2026-02-27", "endDate": "2026-02-27", "status": "Paid", "expectedAmount": 0, "notes": ""}, {"id": "p12", "type": "internal", "client": "Pearson Vue", "contact": "N/A", "source": "N/A", "trainer": "N/A", "topic": "Certification", "name": "Pearson AZ-204", "startDate": "2026-03-01", "endDate": "2026-03-01", "status": "Paid", "expectedAmount": 0, "notes": ""}, {"id": "p13", "type": "internal", "client": "Eni Editions", "contact": "Vanessa Dallerac", "source": "N/A", "trainer": "N/A", "topic": "Certification", "name": "Eni - Certification Formateur", "startDate": "2026-03-06", "endDate": "2026-03-06", "status": "Paid", "expectedAmount": 0, "notes": ""}, {"id": "p14", "type": "internal", "client": "Eni Editions", "contact": "Vanessa Dallerac", "source": "N/A", "trainer": "N/A", "topic": "Certification", "name": "Eni - Devis Habilitation (3 certifs)", "startDate": "2026-03-12", "endDate": "2026-03-12", "status": "Paid", "expectedAmount": 0, "notes": ""}, {"id": "p15", "type": "revenue", "client": "IWG", "contact": "N/A", "source": "N/A", "trainer": "N/A", "topic": "Office", "name": "IWG - Office - Retour Caution", "startDate": "2026-03-12", "endDate": "2026-03-12", "status": "Paid", "expectedAmount": 186.9, "notes": ""}, {"id": "p16", "type": "revenue", "client": "Cellenza", "contact": "Alain\u00a0GIANSILY", "source": "N/A", "trainer": "Ahmed Tahri", "topic": "Training", "name": "Cellenza - Custom", "startDate": "2026-05-19", "endDate": "2026-05-20", "status": "Invoiced", "expectedAmount": 4500, "notes": ""}, {"id": "p17", "type": "revenue", "client": "FastLane", "contact": "Sarah Medjeber", "source": "N/A", "trainer": "Youssef ElGandouli", "topic": "Training", "name": "FastLane MD-102", "startDate": "2026-05-18", "endDate": "2026-05-22", "status": "Invoiced", "expectedAmount": 2300, "notes": ""}, {"id": "p18", "type": "revenue", "client": "FastLane", "contact": "Sarah Medjeber", "source": "N/A", "trainer": "Youssef ElGandouli", "topic": "Training", "name": "FastLane MD-102", "startDate": "2026-06-01", "endDate": "2026-06-05", "status": "Signed", "expectedAmount": 2300, "notes": ""}, {"id": "p19", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Oussama EDDAI", "topic": "Training", "name": "Efrei - Cloud Intro 2 (1/2)", "startDate": "2027-01-04", "endDate": "2027-01-05", "status": "Signed", "expectedAmount": 0, "notes": ""}, {"id": "p20", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Oussama EDDAI", "topic": "Training", "name": "Efrei - Cloud Intro 2 (2/2)", "startDate": "2027-01-12", "endDate": "2027-01-13", "status": "Signed", "expectedAmount": 0, "notes": ""}, {"id": "p21", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Oussama EDDAI or Monaim", "topic": "Training", "name": "Efrei - Cloud Intro 3", "startDate": null, "endDate": null, "status": "Signed", "expectedAmount": 2212, "notes": ""}, {"id": "p22", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": null, "topic": "Training", "name": "Efrei -  AZ104 - 1", "startDate": null, "endDate": null, "status": "Signed", "expectedAmount": 0, "notes": ""}, {"id": "p23", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": null, "topic": "Training", "name": "Efrei -  AZ104 - 2", "startDate": null, "endDate": null, "status": "Signed", "expectedAmount": 0, "notes": ""}, {"id": "p24", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": null, "topic": "Training", "name": "Efrei - DP700 - 1", "startDate": null, "endDate": null, "status": "Signed", "expectedAmount": 0, "notes": ""}, {"id": "p25", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": null, "topic": "Training", "name": "Efrei - DP700 - 2", "startDate": null, "endDate": null, "status": "Signed", "expectedAmount": 0, "notes": ""}];
+const SEED_PROJECTS_ALL = [{"id": "p1", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Ahmed Tahri", "topic": "Training", "name": "Efrei - Cloud Intro", "startDate": "2026-03-09", "endDate": "2026-03-13", "status": "Paid", "expectedAmount": 2765, "notes": ""}, {"id": "p2", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Ahmed Tahri", "topic": "Training", "name": "Efrei - DP600 - Aug (1/2)", "startDate": "2026-07-06", "endDate": "2026-07-07", "status": "Scheduled", "expectedAmount": 1176, "notes": ""}, {"id": "p3", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Ahmed Tahri", "topic": "Training", "name": "Efrei - DP600 - Aug (2/2)", "startDate": "2026-08-31", "endDate": "2026-09-02", "status": "Scheduled", "expectedAmount": 1764, "notes": ""}, {"id": "p4", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Monaim Touinsi", "topic": "Training", "name": "Efrei - DP600 - Sep", "startDate": "2026-08-31", "endDate": "2026-09-04", "status": "Scheduled", "expectedAmount": 2940, "notes": ""}, {"id": "p5", "type": "revenue", "client": "Crossthink ", "contact": "Arnaud ", "source": "Ilyes & Alexis", "trainer": "Ahmed Tahri", "topic": "Training", "name": "Crossthink  - Apr - Week 1", "startDate": "2026-03-30", "endDate": "2026-04-03", "status": "Lost", "expectedAmount": 4750, "notes": ""}, {"id": "p6", "type": "revenue", "client": "Crossthink ", "contact": "Arnaud ", "source": "Ilyes & Alexis", "trainer": "Salahedine Bejaoui", "topic": "Training", "name": "Crossthink  - Apr - Week 2 & 3", "startDate": "2026-04-07", "endDate": "2026-04-17", "status": "Lost", "expectedAmount": 8550, "notes": ""}, {"id": "p7", "type": "revenue", "client": "Crossthink ", "contact": "Arnaud ", "source": "Ilyes & Alexis", "trainer": "Mouad MIKOU", "topic": "Training", "name": "Crossthink  - Apr - Week 4", "startDate": "2026-04-20", "endDate": "2026-04-24", "status": "Lost", "expectedAmount": 4750, "notes": ""}, {"id": "p8", "type": "revenue", "client": "FastLane", "contact": "Sarah Medjeber", "source": "N/A", "trainer": "Monaim Touinsi", "topic": "Training", "name": "FastLane - AZ204", "startDate": "2026-05-18", "endDate": "2026-05-22", "status": "Lost", "expectedAmount": 2300, "notes": ""}, {"id": "p9", "type": "revenue", "client": "FastLane", "contact": "Sarah Medjeber", "source": "N/A", "trainer": "Youssef ElGandouli", "topic": "Training", "name": "FastLane - AZ700", "startDate": "2026-04-07", "endDate": "2026-04-10", "status": "Lost", "expectedAmount": 1840, "notes": ""}, {"id": "p10", "type": "revenue", "client": "Cellenza", "contact": "Alain\u00a0GIANSILY", "source": "N/A", "trainer": "Mouad MIKOU", "topic": "Training", "name": "Cellenza - AZ500", "startDate": "2026-03-16", "endDate": "2026-03-19", "status": "Paid", "expectedAmount": 3000, "notes": ""}, {"id": "p11", "type": "internal", "client": "Pearson Vue", "contact": "N/A", "source": "N/A", "trainer": "N/A", "topic": "Certification", "name": "Pearson AZ-500", "startDate": "2026-02-27", "endDate": "2026-02-27", "status": "Paid", "expectedAmount": 0, "notes": ""}, {"id": "p12", "type": "internal", "client": "Pearson Vue", "contact": "N/A", "source": "N/A", "trainer": "N/A", "topic": "Certification", "name": "Pearson AZ-204", "startDate": "2026-03-01", "endDate": "2026-03-01", "status": "Paid", "expectedAmount": 0, "notes": ""}, {"id": "p13", "type": "internal", "client": "Eni Editions", "contact": "Vanessa Dallerac", "source": "N/A", "trainer": "N/A", "topic": "Certification", "name": "Eni - Certification Formateur", "startDate": "2026-03-06", "endDate": "2026-03-06", "status": "Paid", "expectedAmount": 0, "notes": ""}, {"id": "p14", "type": "internal", "client": "Eni Editions", "contact": "Vanessa Dallerac", "source": "N/A", "trainer": "N/A", "topic": "Certification", "name": "Eni - Devis Habilitation (3 certifs)", "startDate": "2026-03-12", "endDate": "2026-03-12", "status": "Paid", "expectedAmount": 0, "notes": ""}, {"id": "p15", "type": "revenue", "client": "IWG", "contact": "N/A", "source": "N/A", "trainer": "N/A", "topic": "Office", "name": "IWG - Office - Retour Caution", "startDate": "2026-03-12", "endDate": "2026-03-12", "status": "Paid", "expectedAmount": 186.9, "notes": ""}, {"id": "p16", "type": "revenue", "client": "Cellenza", "contact": "Alain\u00a0GIANSILY", "source": "N/A", "trainer": "Ahmed Tahri", "topic": "Training", "name": "Cellenza - Custom", "startDate": "2026-05-19", "endDate": "2026-05-20", "status": "Invoiced", "expectedAmount": 4500, "notes": ""}, {"id": "p17", "type": "revenue", "client": "FastLane", "contact": "Sarah Medjeber", "source": "N/A", "trainer": "Youssef ElGandouli", "topic": "Training", "name": "FastLane MD-102", "startDate": "2026-05-18", "endDate": "2026-05-22", "status": "Invoiced", "expectedAmount": 2300, "notes": ""}, {"id": "p18", "type": "revenue", "client": "FastLane", "contact": "Sarah Medjeber", "source": "N/A", "trainer": "Youssef ElGandouli", "topic": "Training", "name": "FastLane MD-102", "startDate": "2026-06-01", "endDate": "2026-06-05", "status": "Scheduled", "expectedAmount": 2300, "notes": ""}, {"id": "p19", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Oussama EDDAI", "topic": "Training", "name": "Efrei - Cloud Intro 2 (1/2)", "startDate": "2027-01-04", "endDate": "2027-01-05", "status": "Scheduled", "expectedAmount": 0, "notes": ""}, {"id": "p20", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Oussama EDDAI", "topic": "Training", "name": "Efrei - Cloud Intro 2 (2/2)", "startDate": "2027-01-12", "endDate": "2027-01-13", "status": "Scheduled", "expectedAmount": 0, "notes": ""}, {"id": "p21", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Oussama EDDAI or Monaim", "topic": "Training", "name": "Efrei - Cloud Intro 3", "startDate": null, "endDate": null, "status": "Scheduled", "expectedAmount": 2212, "notes": ""}, {"id": "p22", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": null, "topic": "Training", "name": "Efrei -  AZ104 - 1", "startDate": null, "endDate": null, "status": "Signed", "expectedAmount": 0, "notes": ""}, {"id": "p23", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": null, "topic": "Training", "name": "Efrei -  AZ104 - 2", "startDate": null, "endDate": null, "status": "Signed", "expectedAmount": 0, "notes": ""}, {"id": "p24", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": null, "topic": "Training", "name": "Efrei - DP700 - 1", "startDate": null, "endDate": null, "status": "Signed", "expectedAmount": 0, "notes": ""}, {"id": "p25", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": null, "topic": "Training", "name": "Efrei - DP700 - 2", "startDate": null, "endDate": null, "status": "Signed", "expectedAmount": 0, "notes": ""}];
 
 const SEED_EXPENSES = [{"id": "e1", "projectId": "p1", "projectName": "Efrei - Cloud Intro", "category": "Trainer Fee", "date": "2026-03-09", "status": "Paid", "expectedAmount": 2150, "notes": ""}, {"id": "e2", "projectId": "p1", "projectName": "Efrei - Cloud Intro", "category": "Commission", "date": "2026-03-09", "status": "Paid", "expectedAmount": 307.5, "notes": ""}, {"id": "e3", "projectId": null, "projectName": "IWG - Office", "category": "Office", "date": "2026-01-01", "status": "Paid", "expectedAmount": 278.58, "notes": ""}, {"id": "e4", "projectId": "p2", "projectName": "Efrei - DP600 - Aug (1/2)", "category": "Trainer Fee", "date": "2026-07-06", "status": "Signed", "expectedAmount": 860, "notes": ""}, {"id": "e5", "projectId": "p2", "projectName": "Efrei - DP600 - Aug (1/2)", "category": "Commission", "date": "2026-07-06", "status": "Signed", "expectedAmount": 158, "notes": ""}, {"id": "e6", "projectId": "p3", "projectName": "Efrei - DP600 - Aug (2/2)", "category": "Trainer Fee", "date": "2026-08-31", "status": "Signed", "expectedAmount": 1290, "notes": ""}, {"id": "e7", "projectId": "p3", "projectName": "Efrei - DP600 - Aug (2/2)", "category": "Commission", "date": "2026-08-31", "status": "Signed", "expectedAmount": 237, "notes": ""}, {"id": "e8", "projectId": "p4", "projectName": "Efrei - DP600 - Sep", "category": "Trainer Fee", "date": "2026-08-31", "status": "Signed", "expectedAmount": 2150, "notes": ""}, {"id": "e9", "projectId": "p4", "projectName": "Efrei - DP600 - Sep", "category": "Commission", "date": "2026-08-31", "status": "Signed", "expectedAmount": 395, "notes": ""}, {"id": "e10", "projectId": "p5", "projectName": "Crossthink  - Apr - Week 1", "category": "Trainer Fee", "date": "2026-03-30", "status": "Lost", "expectedAmount": 4000, "notes": ""}, {"id": "e11", "projectId": "p5", "projectName": "Crossthink  - Apr - Week 1", "category": "Commission", "date": "2026-03-30", "status": "Lost", "expectedAmount": 375, "notes": ""}, {"id": "e12", "projectId": "p6", "projectName": "Crossthink  - Apr - Week 2 & 3", "category": "Trainer Fee", "date": "2026-04-07", "status": "Lost", "expectedAmount": 4950, "notes": ""}, {"id": "e13", "projectId": "p6", "projectName": "Crossthink  - Apr - Week 2 & 3", "category": "Commission", "date": "2026-04-07", "status": "Lost", "expectedAmount": 1800, "notes": ""}, {"id": "e14", "projectId": "p7", "projectName": "Crossthink  - Apr - Week 4", "category": "Trainer Fee", "date": "2026-04-20", "status": "Lost", "expectedAmount": 4000, "notes": ""}, {"id": "e15", "projectId": "p7", "projectName": "Crossthink  - Apr - Week 4", "category": "Commission", "date": "2026-04-20", "status": "Lost", "expectedAmount": 375, "notes": ""}, {"id": "e16", "projectId": "p8", "projectName": "FastLane - AZ204", "category": "Trainer Fee", "date": "2026-05-18", "status": "Lost", "expectedAmount": 1750, "notes": ""}, {"id": "e17", "projectId": "p9", "projectName": "FastLane - AZ700", "category": "Trainer Fee", "date": "2026-04-07", "status": "Lost", "expectedAmount": 1000, "notes": ""}, {"id": "e18", "projectId": "p9", "projectName": "FastLane - AZ700", "category": "Other Cost", "date": "2026-04-07", "status": "Lost", "expectedAmount": 100, "notes": ""}, {"id": "e19", "projectId": "p10", "projectName": "Cellenza - AZ500", "category": "Trainer Fee", "date": "2026-03-16", "status": "Paid", "expectedAmount": 2800, "notes": ""}, {"id": "e20", "projectId": null, "projectName": "Ichrak - Janvier", "category": "Salary", "date": "2026-01-01", "status": "Paid", "expectedAmount": 200, "notes": ""}, {"id": "e21", "projectId": null, "projectName": "Ichrak - Fevrier", "category": "Salary", "date": "2026-02-01", "status": "Paid", "expectedAmount": 300, "notes": ""}, {"id": "e22", "projectId": null, "projectName": "IWG - Office", "category": "Office", "date": "2026-02-01", "status": "Paid", "expectedAmount": 69.2, "notes": ""}, {"id": "e23", "projectId": "p11", "projectName": "Pearson AZ-500", "category": "Certification", "date": "2026-02-27", "status": "Paid", "expectedAmount": 37.8, "notes": ""}, {"id": "e24", "projectId": "p12", "projectName": "Pearson AZ-204", "category": "Certification", "date": "2026-03-01", "status": "Paid", "expectedAmount": 37.8, "notes": ""}, {"id": "e25", "projectId": "p13", "projectName": "Eni - Certification Formateur", "category": "Certification", "date": "2026-03-06", "status": "Paid", "expectedAmount": 420, "notes": ""}, {"id": "e26", "projectId": "p14", "projectName": "Eni - Devis Habilitation (3 certifs)", "category": "Certification", "date": "2026-03-12", "status": "Paid", "expectedAmount": 630, "notes": ""}, {"id": "e27", "projectId": "p16", "projectName": "Cellenza - Custom", "category": "Trainer Fee", "date": "2026-05-19", "status": "Invoiced", "expectedAmount": 3500, "notes": ""}, {"id": "e28", "projectId": "p17", "projectName": "FastLane MD-102", "category": "Trainer Fee", "date": "2026-05-18", "status": "Invoiced", "expectedAmount": 1250, "notes": ""}, {"id": "e29", "projectId": "p17", "projectName": "FastLane MD-102", "category": "Other Cost", "date": "2026-05-18", "status": "Invoiced", "expectedAmount": 100, "notes": ""}, {"id": "e30", "projectId": null, "projectName": "Ichrak - Mars", "category": "Salary", "date": "2026-03-01", "status": "Paid", "expectedAmount": 280, "notes": ""}, {"id": "e31", "projectId": null, "projectName": "FZ - Avril & Mai", "category": "Salary", "date": "2026-04-01", "status": "Invoiced", "expectedAmount": 200, "notes": ""}, {"id": "e32", "projectId": null, "projectName": "Teams Sub", "category": "Software", "date": "2026-04-01", "status": "Paid", "expectedAmount": 6.24, "notes": ""}, {"id": "e33", "projectId": null, "projectName": "WebSite + Intranet Dev ", "category": "Salary", "date": "2026-02-02", "status": "Paid", "expectedAmount": 1200, "notes": ""}, {"id": "e34", "projectId": null, "projectName": "Amine - Avril & Mai", "category": "Salary", "date": "2026-04-01", "status": "Paid", "expectedAmount": 380, "notes": ""}, {"id": "e35", "projectId": "p18", "projectName": "FastLane MD-102", "category": "Trainer Fee", "date": "2026-06-01", "status": "Signed", "expectedAmount": 1250, "notes": ""}, {"id": "e36", "projectId": null, "projectName": "Teams Sub", "category": "Software", "date": "2026-05-01", "status": "Paid", "expectedAmount": 6.24, "notes": ""}, {"id": "e37", "projectId": "p21", "projectName": "Efrei - Cloud Intro 3", "category": "Trainer Fee", "date": null, "status": "Signed", "expectedAmount": 2000, "notes": ""}];
 
-const STATUS_ORDER = ["Signed", "Delivered", "Invoiced", "Paid", "Lost"];
+const STATUS_ORDER = ["Signed", "Scheduled", "Delivered", "Invoiced", "Paid", "Lost"];
 const STATUS_COLORS = {
   Signed: "#6FA8D8",
+  Scheduled: "#D9A24A",
   Delivered: "#5FBF95",
   Invoiced: "#9B85D1",
   Paid: "#34A87A",
@@ -224,6 +227,11 @@ function ExtraDatesEditor({ dates, onChange }) {
 }
 
 function MultiSelectFilter({ label, options, selected, onChange, colorFor }) {
+  const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState({ top: 0, left: 0 });
+  const btnRef = useRef(null);
+  const panelRef = useRef(null);
+
   const allSelected = selected.size === options.length;
   const toggle = (opt) => {
     const next = new Set(selected);
@@ -231,22 +239,44 @@ function MultiSelectFilter({ label, options, selected, onChange, colorFor }) {
     onChange(next);
   };
   const summary = allSelected ? label : selected.size === 0 ? `${label}: none` : `${label}: ${selected.size}`;
+
+  const openPanel = () => {
+    const r = btnRef.current.getBoundingClientRect();
+    setPos({ top: r.bottom + 4, left: r.left });
+    setOpen(true);
+  };
+
+  useEffect(() => {
+    if (!open) return;
+    const onDocClick = (e) => {
+      if (btnRef.current?.contains(e.target) || panelRef.current?.contains(e.target)) return;
+      setOpen(false);
+    };
+    document.addEventListener("mousedown", onDocClick);
+    return () => document.removeEventListener("mousedown", onDocClick);
+  }, [open]);
+
   return (
-    <details className="msf">
-      <summary>{summary}<ChevronDown size={12} /></summary>
-      <div className="msf-panel">
-        <button type="button" className="msf-all" onClick={() => onChange(allSelected ? new Set() : new Set(options))}>
-          {allSelected ? "Clear all" : "Select all"}
-        </button>
-        {options.map((opt) => (
-          <label key={opt} className="msf-option">
-            <input type="checkbox" checked={selected.has(opt)} onChange={() => toggle(opt)} />
-            {colorFor && <span className="msf-dot" style={{ background: colorFor(opt) }} />}
-            {opt}
-          </label>
-        ))}
-      </div>
-    </details>
+    <div className="msf">
+      <button type="button" ref={btnRef} className="msf-trigger" onClick={() => (open ? setOpen(false) : openPanel())}>
+        {summary}<ChevronDown size={12} />
+      </button>
+      {open && createPortal(
+        <div className="msf-panel" ref={panelRef} style={{ top: pos.top, left: pos.left }}>
+          <button type="button" className="msf-all" onClick={() => onChange(allSelected ? new Set() : new Set(options))}>
+            {allSelected ? "Clear all" : "Select all"}
+          </button>
+          {options.map((opt) => (
+            <label key={opt} className="msf-option">
+              <input type="checkbox" checked={selected.has(opt)} onChange={() => toggle(opt)} />
+              {colorFor && <span className="msf-dot" style={{ background: colorFor(opt) }} />}
+              {opt}
+            </label>
+          ))}
+        </div>,
+        document.body
+      )}
+    </div>
   );
 }
 
@@ -655,29 +685,37 @@ function ExpensesTab({ expenses, setExpenses, projects }) {
 --------------------------------------------------------------- */
 function PlanningTab({ projects }) {
   const [sortDir, setSortDir] = useState("asc");
+  const [view, setView] = useState("list"); // "list" | "calendar"
   const today = new Date().toISOString().slice(0, 10);
   const upcomingProjects = projects.filter((p) => p.status !== "Paid" && p.status !== "Lost");
 
-  // Flatten each project into one entry per session date (its primary startDate, plus any
-  // extra non-contiguous dates) so a single-payment training with scattered sessions still
-  // shows every date on the planning timeline, without splitting the underlying project/revenue.
-  const sessions = [];
-  upcomingProjects.forEach((p) => {
-    const allDates = [p.startDate, ...(p.extraDates || [])].filter(Boolean);
-    if (allDates.length === 0) {
-      sessions.push({ ...p, sessionDate: null, sessionKey: p.id });
-    } else {
-      allDates.forEach((d) => sessions.push({ ...p, sessionDate: d, sessionKey: `${p.id}-${d}` }));
-    }
-  });
+  const flattenToSessions = (list) => {
+    const out = [];
+    list.forEach((p) => {
+      const allDates = [p.startDate, ...(p.extraDates || [])].filter(Boolean);
+      if (allDates.length === 0) out.push({ ...p, sessionDate: null, sessionKey: p.id });
+      else allDates.forEach((d) => out.push({ ...p, sessionDate: d, sessionKey: `${p.id}-${d}` }));
+    });
+    return out;
+  };
 
-  const upcoming = sessions.sort((a, b) => {
+  // Priority section: Signed = contract signed but no trainer found yet. Surfaced first, in
+  // red, so it's obvious which deals need a trainer before they can move to Scheduled.
+  const needsTrainerProjects = upcomingProjects.filter((p) => p.status === "Signed");
+  const restProjects = upcomingProjects.filter((p) => p.status !== "Signed");
+
+  const needsTrainerSessions = flattenToSessions(needsTrainerProjects).sort((a, b) =>
+    (a.sessionDate || "9999").localeCompare(b.sessionDate || "9999")
+  );
+
+  const allSessions = flattenToSessions(upcomingProjects); // for the calendar, which shows everything together
+
+  const restSessions = flattenToSessions(restProjects).sort((a, b) => {
     const cmp = (a.sessionDate || "9999").localeCompare(b.sessionDate || "9999");
     return sortDir === "asc" ? cmp : -cmp;
   });
-
-  const dated = upcoming.filter((p) => p.sessionDate);
-  const undated = upcoming.filter((p) => !p.sessionDate);
+  const dated = restSessions.filter((p) => p.sessionDate);
+  const undated = restSessions.filter((p) => !p.sessionDate);
 
   const daysUntil = (d) => {
     const diff = Math.ceil((new Date(d) - new Date(today)) / 86400000);
@@ -696,49 +734,162 @@ function PlanningTab({ projects }) {
           <p className="sub">Everything not yet paid or lost, ordered by date, so you can see what's coming and organise around it.</p>
         </div>
         <div className="planning-controls">
-          <button className="link-btn sort-toggle" onClick={() => setSortDir(sortDir === "asc" ? "desc" : "asc")}>
-            {sortDir === "asc" ? "Soonest first ↑" : "Furthest first ↓"}
-          </button>
+          <div className="type-toggle view-toggle">
+            <button className={view === "list" ? "active" : ""} onClick={() => setView("list")}><List size={13} /> List</button>
+            <button className={view === "calendar" ? "active" : ""} onClick={() => setView("calendar")}><Calendar size={13} /> Calendar</button>
+          </div>
+          {view === "list" && (
+            <button className="link-btn sort-toggle" onClick={() => setSortDir(sortDir === "asc" ? "desc" : "asc")}>
+              {sortDir === "asc" ? "Soonest first ↑" : "Furthest first ↓"}
+            </button>
+          )}
           <div className="toolbar-total">{upcomingProjects.length} upcoming · <strong>{fmt(totalValue)}</strong> at stake</div>
         </div>
       </div>
 
-      <div className="timeline">
-        {dated.map((p) => (
-          <div className="timeline-row" key={p.sessionKey}>
-            <div className="timeline-date">
-              <div className="tl-day">{new Date(p.sessionDate + "T00:00:00").getDate()}</div>
-              <div className="tl-month">{new Date(p.sessionDate + "T00:00:00").toLocaleDateString("en-GB", { month: "short", year: "2-digit" })}</div>
-            </div>
-            <div className="timeline-line" />
-            <div className="timeline-content">
-              <div className="tl-top">
-                <span className="tl-name">{p.name}</span>
-                {p.type === "internal" && <span className="type-tag">Internal</span>}
-                {p.sessionDate !== p.startDate && <span className="type-tag session-tag">Extra session</span>}
-                <Badge status={p.status} />
-              </div>
-              <div className="tl-meta">{p.client} · {p.trainer || "trainer TBD"} · {daysUntil(p.sessionDate)}</div>
-            </div>
-            <div className="tl-amount">{fmt(p.expectedAmount)}</div>
+      {needsTrainerSessions.length > 0 && (
+        <div className="needs-trainer-block">
+          <div className="needs-trainer-banner">
+            <AlertTriangle size={16} />
+            <span><strong>{needsTrainerSessions.length} session{needsTrainerSessions.length > 1 ? "s" : ""}</strong> {needsTrainerSessions.length > 1 ? "are" : "is"} Signed but still need{needsTrainerSessions.length === 1 ? "s" : ""} a trainer, find one to move {needsTrainerSessions.length > 1 ? "them" : "it"} to Scheduled.</span>
           </div>
-        ))}
-      </div>
-
-      {undated.length > 0 && (
-        <>
-          <div className="section-divider">Not scheduled yet</div>
-          <div className="pipeline-grid">
-            {undated.map((p) => (
-              <div className="pipeline-card" key={p.sessionKey}>
-                <div className="tl-top"><span className="tl-name">{p.name}</span>{p.type === "internal" && <span className="type-tag">Internal</span>}<Badge status={p.status} /></div>
-                <div className="tl-meta">{p.client} · {p.trainer || "trainer TBD"}</div>
+          <div className="timeline needs-trainer-list">
+            {needsTrainerSessions.map((p) => (
+              <div className="timeline-row needs-trainer-row" key={p.sessionKey}>
+                <div className="timeline-date">
+                  {p.sessionDate ? (
+                    <>
+                      <div className="tl-day">{new Date(p.sessionDate + "T00:00:00").getDate()}</div>
+                      <div className="tl-month">{new Date(p.sessionDate + "T00:00:00").toLocaleDateString("en-GB", { month: "short", year: "2-digit" })}</div>
+                    </>
+                  ) : (
+                    <div className="tl-month">No date</div>
+                  )}
+                </div>
+                <div className="timeline-line" />
+                <div className="timeline-content">
+                  <div className="tl-top">
+                    <span className="tl-name">{p.name}</span>
+                    {p.type === "internal" && <span className="type-tag">Internal</span>}
+                    {p.sessionDate !== p.startDate && <span className="type-tag session-tag">Extra session</span>}
+                    <Badge status={p.status} />
+                  </div>
+                  <div className="tl-meta">{p.client} · no trainer assigned{p.sessionDate ? ` · ${daysUntil(p.sessionDate)}` : ""}</div>
+                </div>
                 <div className="tl-amount">{fmt(p.expectedAmount)}</div>
               </div>
             ))}
           </div>
+          <div className="section-divider">Rest, by date</div>
+        </div>
+      )}
+
+      {view === "calendar" ? (
+        <PlanningCalendar sessions={allSessions} />
+      ) : (
+        <>
+          <div className="timeline">
+            {dated.map((p) => (
+              <div className="timeline-row" key={p.sessionKey}>
+                <div className="timeline-date">
+                  <div className="tl-day">{new Date(p.sessionDate + "T00:00:00").getDate()}</div>
+                  <div className="tl-month">{new Date(p.sessionDate + "T00:00:00").toLocaleDateString("en-GB", { month: "short", year: "2-digit" })}</div>
+                </div>
+                <div className="timeline-line" />
+                <div className="timeline-content">
+                  <div className="tl-top">
+                    <span className="tl-name">{p.name}</span>
+                    {p.type === "internal" && <span className="type-tag">Internal</span>}
+                    {p.sessionDate !== p.startDate && <span className="type-tag session-tag">Extra session</span>}
+                    <Badge status={p.status} />
+                  </div>
+                  <div className="tl-meta">{p.client} · {p.trainer || "trainer TBD"} · {daysUntil(p.sessionDate)}</div>
+                </div>
+                <div className="tl-amount">{fmt(p.expectedAmount)}</div>
+              </div>
+            ))}
+          </div>
+
+          {undated.length > 0 && (
+            <>
+              <div className="section-divider">Not scheduled yet</div>
+              <div className="pipeline-grid">
+                {undated.map((p) => (
+                  <div className="pipeline-card" key={p.sessionKey}>
+                    <div className="tl-top"><span className="tl-name">{p.name}</span>{p.type === "internal" && <span className="type-tag">Internal</span>}<Badge status={p.status} /></div>
+                    <div className="tl-meta">{p.client} · {p.trainer || "trainer TBD"}</div>
+                    <div className="tl-amount">{fmt(p.expectedAmount)}</div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
         </>
       )}
+    </div>
+  );
+}
+
+/** Simple month-grid calendar showing every upcoming session as a small colored pill on its day. */
+function PlanningCalendar({ sessions }) {
+  const [cursor, setCursor] = useState(() => {
+    const d = new Date();
+    return new Date(d.getFullYear(), d.getMonth(), 1);
+  });
+
+  const byDate = useMemo(() => {
+    const map = {};
+    sessions.forEach((s) => {
+      if (!s.sessionDate) return;
+      (map[s.sessionDate] = map[s.sessionDate] || []).push(s);
+    });
+    return map;
+  }, [sessions]);
+
+  const year = cursor.getFullYear();
+  const month = cursor.getMonth();
+  const firstOfMonth = new Date(year, month, 1);
+  const startOffset = (firstOfMonth.getDay() + 6) % 7; // Monday-first grid
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const todayStr = new Date().toISOString().slice(0, 10);
+
+  const cells = [];
+  for (let i = 0; i < startOffset; i++) cells.push(null);
+  for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+
+  const dateStr = (d) => `${year}-${pad2(month + 1)}-${pad2(d)}`;
+
+  return (
+    <div className="planning-calendar">
+      <div className="cal-nav">
+        <button className="icon-btn" onClick={() => setCursor(new Date(year, month - 1, 1))} aria-label="Previous month"><ChevronLeft size={15} /></button>
+        <div className="cal-title">{cursor.toLocaleDateString("en-GB", { month: "long", year: "numeric" })}</div>
+        <button className="icon-btn" onClick={() => setCursor(new Date(year, month + 1, 1))} aria-label="Next month"><ChevronRight size={15} /></button>
+        <button className="link-btn" onClick={() => setCursor(new Date(new Date().getFullYear(), new Date().getMonth(), 1))}>Today</button>
+      </div>
+      <div className="cal-weekdays">
+        {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => <div key={d}>{d}</div>)}
+      </div>
+      <div className="cal-grid">
+        {cells.map((d, i) => {
+          if (d === null) return <div className="cal-cell empty" key={`e${i}`} />;
+          const ds = dateStr(d);
+          const daySessions = byDate[ds] || [];
+          return (
+            <div className={`cal-cell ${ds === todayStr ? "today" : ""}`} key={ds}>
+              <div className="cal-day-num">{d}</div>
+              <div className="cal-day-sessions">
+                {daySessions.slice(0, 3).map((s) => (
+                  <div className="cal-pill" key={s.sessionKey} style={{ background: `${STATUS_COLORS[s.status]}22`, color: STATUS_COLORS[s.status], borderColor: `${STATUS_COLORS[s.status]}55` }} title={`${s.name} · ${s.status}`}>
+                    {s.name}
+                  </div>
+                ))}
+                {daySessions.length > 3 && <div className="cal-more">+{daySessions.length - 3} more</div>}
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -755,31 +906,79 @@ function availableYears(projects, expenses) {
   return Array.from(years).sort();
 }
 
-function matchesPeriod(dateStr, year, month) {
-  if (year === "all") return true; // no period filter active
+const pad2 = (n) => String(n).padStart(2, "0");
+const toISODate = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+
+/** Quick presets (mirroring the kind of range picker Azure Cost Management offers), plus a
+ *  "custom" mode that falls back to an explicit year/month pair. Returns { from, to, label }
+ *  in YYYY-MM-DD, or null for "all time" (no filter). */
+function getPeriodRange(mode, customYear, customMonth) {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = now.getMonth(); // 0-indexed
+
+  const monthRange = (year, monthIndex0) => {
+    const from = new Date(year, monthIndex0, 1);
+    const to = new Date(year, monthIndex0 + 1, 0);
+    return { from: toISODate(from), to: toISODate(to) };
+  };
+
+  if (mode === "all") return null;
+  if (mode === "thisMonth") return { ...monthRange(y, m), label: `${MONTH_NAMES[m]} ${y}` };
+  if (mode === "lastMonth") {
+    const d = new Date(y, m - 1, 1);
+    return { ...monthRange(d.getFullYear(), d.getMonth()), label: `${MONTH_NAMES[d.getMonth()]} ${d.getFullYear()}` };
+  }
+  if (mode === "last3Months") {
+    const from = new Date(y, m - 2, 1);
+    const to = new Date(y, m + 1, 0);
+    return { from: toISODate(from), to: toISODate(to), label: "Last 3 months" };
+  }
+  if (mode === "thisYear") return { from: `${y}-01-01`, to: `${y}-12-31`, label: String(y) };
+  if (mode === "custom") {
+    if (customYear === "all") return null;
+    if (customMonth === "all") return { from: `${customYear}-01-01`, to: `${customYear}-12-31`, label: customYear };
+    const mi = parseInt(customMonth, 10) - 1;
+    return { ...monthRange(parseInt(customYear, 10), mi), label: `${MONTH_NAMES[mi]} ${customYear}` };
+  }
+  return null;
+}
+
+function inRange(dateStr, range) {
+  if (!range) return true; // no period filter active
   if (!dateStr) return false; // undated items can't belong to a specific period
-  if (dateStr.slice(0, 4) !== year) return false;
-  if (month !== "all" && dateStr.slice(5, 7) !== month) return false;
-  return true;
+  return dateStr >= range.from && dateStr <= range.to;
+}
+
+/** A multi-date project passes a period filter if ANY of its session dates (primary
+ *  startDate, or any extra non-contiguous date) actually falls within the range - not
+ *  just its primary date, and not merely because the range spans between two sessions. */
+function projectInRange(p, range) {
+  if (!range) return true;
+  const dates = [p.startDate, ...(p.extraDates || [])].filter(Boolean);
+  if (dates.length === 0) return false;
+  return dates.some((d) => d >= range.from && d <= range.to);
 }
 
 function DashboardTab({ projects, expenses }) {
   const years = useMemo(() => availableYears(projects, expenses), [projects, expenses]);
-  const [year, setYear] = useState("all");
-  const [month, setMonth] = useState("all");
+  const [periodMode, setPeriodMode] = useState("thisMonth"); // "all" | "thisMonth" | "lastMonth" | "last3Months" | "thisYear" | "custom"
+  const [customYear, setCustomYear] = useState("all");
+  const [customMonth, setCustomMonth] = useState("all");
+
+  const range = useMemo(() => getPeriodRange(periodMode, customYear, customMonth), [periodMode, customYear, customMonth]);
 
   const periodProjects = useMemo(
-    () => (year === "all" ? projects : projects.filter((p) => matchesPeriod(p.startDate, year, month))),
-    [projects, year, month]
+    () => (range === null ? projects : projects.filter((p) => projectInRange(p, range))),
+    [projects, range]
   );
   const periodExpenses = useMemo(
-    () => (year === "all" ? expenses : expenses.filter((e) => matchesPeriod(e.date, year, month))),
-    [expenses, year, month]
+    () => (range === null ? expenses : expenses.filter((e) => inRange(e.date, range))),
+    [expenses, range]
   );
-  const excludedUndated = year === "all" ? 0 : projects.filter((p) => !p.startDate).length;
+  const excludedUndated = range === null ? 0 : projects.filter((p) => !p.startDate).length;
 
-  const periodLabel =
-    year === "all" ? "All time" : month === "all" ? year : `${MONTH_NAMES[parseInt(month, 10) - 1]} ${year}`;
+  const periodLabel = range === null ? "All time" : range.label;
 
   // "Actual" = confirmed business, everything except Lost (there's no more speculative
   // Pipeline stage now that statuses were simplified). "Expected" (below) is a literal
@@ -833,24 +1032,45 @@ function DashboardTab({ projects, expenses }) {
           <h2>Dashboard</h2>
           <p className="sub">Where the business actually stands, and where it lands if every open deal closes, showing <strong>{periodLabel}</strong>.</p>
         </div>
+      </div>
+
+      <div className="period-presets">
+        {[
+          { key: "all", label: "All time" },
+          { key: "thisMonth", label: "This month" },
+          { key: "lastMonth", label: "Last month" },
+          { key: "last3Months", label: "Last 3 months" },
+          { key: "thisYear", label: `This year (${new Date().getFullYear()})` },
+        ].map((preset) => (
+          <button
+            key={preset.key}
+            className={periodMode === preset.key ? "active" : ""}
+            onClick={() => { setPeriodMode(preset.key); setCustomYear("all"); setCustomMonth("all"); }}
+          >
+            {preset.label}
+          </button>
+        ))}
+        <button className={periodMode === "custom" ? "active" : ""} onClick={() => setPeriodMode("custom")}>Custom…</button>
+      </div>
+
+      {periodMode === "custom" && (
         <div className="period-picker">
           <Select
-            value={year}
-            onChange={(v) => { setYear(v); setMonth("all"); }}
+            value={customYear}
+            onChange={(v) => { setCustomYear(v); setCustomMonth("all"); }}
             options={["all", ...years]}
-            labelFor={(v) => (v === "all" ? "All time" : v)}
+            labelFor={(v) => (v === "all" ? "Pick a year" : v)}
           />
-          {year !== "all" && (
+          {customYear !== "all" && (
             <Select
-              value={month}
-              onChange={setMonth}
+              value={customMonth}
+              onChange={setCustomMonth}
               options={["all", ...Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, "0"))]}
               labelFor={(v) => (v === "all" ? "Whole year" : MONTH_NAMES[parseInt(v, 10) - 1])}
             />
           )}
-          {year !== "all" && <button className="link-btn" onClick={() => { setYear("all"); setMonth("all"); }}>Reset to all time</button>}
         </div>
-      </div>
+      )}
       {excludedUndated > 0 && (
         <div className="period-note">{excludedUndated} pipeline project{excludedUndated > 1 ? "s" : ""} without a date {excludedUndated > 1 ? "aren't" : "isn't"} shown for this period.</div>
       )}
@@ -1169,7 +1389,15 @@ html, body, #root { height: 100%; margin: 0; }
 .app-body { padding: 26px 28px 36px 28px; }
 
 .panel-header { display:flex; align-items:flex-end; justify-content:space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
-.period-picker { display:flex; align-items:center; gap: 8px; flex-wrap: wrap; }
+.period-presets { display:flex; align-items:center; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+.period-presets button {
+  background: #1C1C20; border: 1px solid #2E2E34; color: #9B9BA3;
+  padding: 7px 14px; border-radius: 20px; font-size: 12.5px; font-weight: 600;
+  cursor: pointer; font-family: 'Inter', sans-serif; white-space: nowrap;
+}
+.period-presets button:hover { border-color: #3B3B42; color: #F1F0ED; }
+.period-presets button.active { background: #2F8F63; border-color: #2F8F63; color: #141416; }
+.period-picker { display:flex; align-items:center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
 .period-note { font-size: 12px; color: #9B9BA3; margin: -12px 0 16px 0; }
 .panel-header h2 { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 600; margin: 0 0 4px 0; }
 .panel-header .sub { margin: 0; font-size: 13px; color: #9B9BA3; max-width: 480px; }
@@ -1248,7 +1476,44 @@ html, body, #root { height: 100%; margin: 0; }
   cursor: pointer; font-family: 'Inter', sans-serif; padding: 0;
 }
 .link-btn:hover { text-decoration: underline; }
-.planning-controls { display:flex; align-items:center; gap: 16px; }
+.planning-controls { display:flex; align-items:center; gap: 16px; flex-wrap: wrap; }
+.view-toggle { margin-bottom: 0; }
+.view-toggle button { display:flex; align-items:center; gap: 5px; }
+
+.needs-trainer-block { margin-bottom: 6px; }
+.needs-trainer-banner {
+  display:flex; align-items:center; gap: 10px; background: #E0695A1A; border: 1px solid #E0695A55;
+  color: #E0695A; padding: 10px 14px; border-radius: 10px; font-size: 13px; margin-bottom: 10px;
+}
+.needs-trainer-banner strong { color: #F1F0ED; }
+.needs-trainer-row { background: #E0695A0D; border-radius: 8px; padding-left: 6px; padding-right: 6px; }
+.needs-trainer-row .tl-name { color: #F1F0ED; }
+
+.planning-calendar { margin-top: 4px; }
+.cal-nav { display:flex; align-items:center; gap: 10px; margin-bottom: 14px; }
+.cal-title { font-family: 'Fraunces', serif; font-size: 16px; font-weight: 600; min-width: 160px; text-align: center; }
+.cal-weekdays { display:grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 6px; }
+.cal-weekdays div { text-align: center; font-size: 11px; font-weight: 700; color: #9B9BA3; text-transform: uppercase; letter-spacing: 0.4px; }
+.cal-grid { display:grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.cal-cell {
+  min-height: 92px; background: #1C1C20; border: 1px solid #2E2E34; border-radius: 8px;
+  padding: 6px; display:flex; flex-direction: column; gap: 4px;
+}
+.cal-cell.empty { background: transparent; border: none; }
+.cal-cell.today { border-color: #34A87A; box-shadow: inset 0 0 0 1px #34A87A; }
+.cal-day-num { font-size: 11.5px; font-weight: 700; color: #9B9BA3; }
+.cal-cell.today .cal-day-num { color: #34A87A; }
+.cal-day-sessions { display:flex; flex-direction: column; gap: 3px; overflow: hidden; }
+.cal-pill {
+  font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 5px; border: 1px solid;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.cal-more { font-size: 10px; color: #9B9BA3; padding-left: 2px; }
+
+@media (max-width: 780px) {
+  .cal-cell { min-height: 64px; }
+  .cal-title { min-width: auto; }
+}
 .sort-toggle { white-space: nowrap; }
 
 /* Per-column filter row */
@@ -1261,18 +1526,17 @@ tr.filter-row th { padding: 7px 10px; background: #1B1B1F; border-bottom: 1px so
 .range-filter input { min-width: 0; }
 .range-filter input[type="date"] { font-size: 11px; padding: 5px 4px; }
 
-.msf { position: relative; }
-.msf summary {
+.msf { position: relative; display:inline-block; }
+.msf-trigger {
   list-style: none; cursor: pointer; display:flex; align-items:center; gap: 5px;
   border: 1px solid #3B3B42; border-radius: 6px; padding: 5px 9px; font-size: 12px;
-  color: #F1F0ED; background: #1C1C20; white-space: nowrap;
+  color: #F1F0ED; background: #1C1C20; white-space: nowrap; font-family: 'Inter', sans-serif;
 }
-.msf summary::-webkit-details-marker { display: none; }
 .msf-panel {
-  position: absolute; top: calc(100% + 4px); left: 0; z-index: 20;
+  position: fixed; z-index: 200;
   background: #1C1C20; border: 1px solid #2E2E34; border-radius: 8px;
   padding: 6px; min-width: 160px; box-shadow: 0 6px 18px rgba(0,0,0,0.35);
-  display:flex; flex-direction: column; gap: 2px; max-height: 220px; overflow-y: auto;
+  display:flex; flex-direction: column; gap: 2px; max-height: 260px; overflow-y: auto;
 }
 .msf-option { display:flex; align-items:center; gap: 7px; font-size: 12.5px; padding: 5px 6px; border-radius: 5px; cursor: pointer; white-space: nowrap; }
 .msf-option:hover { background: #26262B; }

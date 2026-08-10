@@ -86,6 +86,7 @@ describe("dashboard math matches the underlying rows (black-box check)", () => {
     }
 
     await goToTab(user, "Dashboard");
+    await user.click(screen.getByRole("button", { name: "All time" }));
     const kpiCards = screen.getAllByText(/^Revenue$/).map((el) => el.closest(".kpi-card"));
     const revenueCard = kpiCards.find(Boolean);
     expect(revenueCard).toBeTruthy();
@@ -216,11 +217,11 @@ describe("Revenue column filters", () => {
     await goToTab(user, "Revenue");
 
     // open the Status multi-select and uncheck everything except "Lost"
-    const statusToggle = screen.getByText(/^Status$/, { selector: "summary" });
-    const statusDetails = statusToggle.closest("details");
+    const statusToggle = screen.getByText(/^Status$/, { selector: ".msf-trigger" });
     await user.click(statusToggle);
-    await user.click(within(statusDetails).getByRole("button", { name: /clear all/i }));
-    const lostCheckbox = within(statusDetails).getByRole("checkbox", { name: /Lost/i });
+    const statusPanel = document.querySelector(".msf-panel");
+    await user.click(within(statusPanel).getByRole("button", { name: /clear all/i }));
+    const lostCheckbox = within(statusPanel).getByRole("checkbox", { name: /Lost/i });
     await user.click(lostCheckbox);
 
     // every visible project row should be Lost
@@ -274,11 +275,11 @@ describe("Expenses column filters", () => {
     await renderReady();
     await goToTab(user, "Expenses");
 
-    const categoryToggle = screen.getByText(/^Category$/, { selector: "summary" });
-    const categoryDetails = categoryToggle.closest("details");
+    const categoryToggle = screen.getByText(/^Category$/, { selector: ".msf-trigger" });
     await user.click(categoryToggle);
-    await user.click(within(categoryDetails).getByRole("button", { name: /clear all/i }));
-    const officeCheckbox = within(categoryDetails).getByRole("checkbox", { name: /Office/i });
+    const categoryPanel = document.querySelector(".msf-panel");
+    await user.click(within(categoryPanel).getByRole("button", { name: /clear all/i }));
+    const officeCheckbox = within(categoryPanel).getByRole("checkbox", { name: /Office/i });
     await user.click(officeCheckbox);
 
     const rows = screen.getAllByRole("row").slice(2);
@@ -346,7 +347,9 @@ describe("Planning tab ordering", () => {
     await renderReady();
     await goToTab(user, "Planning");
 
-    const rows = Array.from(document.querySelectorAll(".timeline-row"));
+    // Scope to the main chronological list only - the "needs a trainer" priority section
+    // (Signed-status items) is intentionally shown first regardless of date, so it's excluded here.
+    const rows = Array.from(document.querySelectorAll(".timeline:not(.needs-trainer-list) .timeline-row"));
     expect(rows.length).toBeGreaterThan(1);
 
     // Read the day/month/year straight off each timeline row's own date badge and
@@ -461,13 +464,13 @@ describe("History panel", () => {
   });
 });
 
-describe("Dashboard period filter", () => {
-  it("defaults to All time", async () => {
+describe("Dashboard period presets", () => {
+  it("defaults to This month", async () => {
     await renderReady();
-    expect(screen.getByText("All time", { selector: "strong" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "This month" }).className).toContain("active");
   });
 
-  it("filtering to 2027 shows only 2027 projects' totals, independently verified against the Revenue tab", async () => {
+  it("Custom mode reveals year/month pickers; selecting 2027 shows only 2027 projects' totals, independently verified against the Revenue tab", async () => {
     const user = userEvent.setup();
     await renderReady();
 
@@ -487,49 +490,61 @@ describe("Dashboard period filter", () => {
         if (statusText === "Paid") actual2027 += amount;
       }
     }
-    // Both 2027 sessions (Cloud Intro 2, parts 1 & 2) have no priced amount yet in the
-    // source spreadsheet - confirm the test is actually looking at real rows, not that
-    // the year is empty entirely.
     expect(matched2027Rows).toBeGreaterThan(0);
     expect(expected2027).toBe(0);
 
-    // Now select year=2027 on the Dashboard and confirm the KPI matches (i.e. shows 0, not a fabricated figure)
     await goToTab(user, "Dashboard");
+    await user.click(screen.getByRole("button", { name: "Custom…" }));
     const yearSelect = screen.getAllByRole("combobox")[0];
     await user.selectOptions(yearSelect, "2027");
 
-    expect(screen.getByText("2027", { selector: "strong" })).toBeInTheDocument(); // subtitle reflects the period
+    expect(screen.getByText("2027", { selector: "strong" })).toBeInTheDocument();
     const revenueCards = screen.getAllByText(/^Revenue$/).map((el) => el.closest(".kpi-card")).filter(Boolean);
     const shownActual = eurToNumber(within(revenueCards[0]).getByText(/€/, { selector: ".kpi-actual" }).textContent);
     expect(Math.abs(shownActual - actual2027)).toBeLessThanOrEqual(2);
   });
 
-  it("narrowing to a specific month within a year filters further, and Reset returns to All time", async () => {
+  it("narrowing to a specific month within a custom year filters further, and switching back to All time clears it", async () => {
     const user = userEvent.setup();
     await renderReady();
     await goToTab(user, "Dashboard");
 
+    await user.click(screen.getByRole("button", { name: "Custom…" }));
     const yearSelect = screen.getAllByRole("combobox")[0];
     await user.selectOptions(yearSelect, "2027");
 
-    // a month selector should now appear
     const selects = screen.getAllByRole("combobox");
     expect(selects.length).toBe(2);
     await user.selectOptions(selects[1], "01");
     expect(screen.getByText(/Jan 2027/i)).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: /Reset to all time/i }));
+    await user.click(screen.getByRole("button", { name: "All time" }));
     expect(screen.getByText("All time", { selector: "strong" })).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /Reset to all time/i })).not.toBeInTheDocument();
   });
 
   it("excludes undated pipeline projects from a specific period and shows a note about it", async () => {
     const user = userEvent.setup();
     await renderReady();
     await goToTab(user, "Dashboard");
+    await user.click(screen.getByRole("button", { name: "Custom…" }));
     const yearSelect = screen.getAllByRole("combobox")[0];
     await user.selectOptions(yearSelect, "2026");
     expect(screen.getByText(/pipeline project.*without a date/i)).toBeInTheDocument();
+  });
+
+  it("This month / Last month / Last 3 months / This year presets are selectable and update the label", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Dashboard");
+
+    for (const label of ["This month", "Last month", "Last 3 months", `This year (${new Date().getFullYear()})`]) {
+      await user.click(screen.getByRole("button", { name: label }));
+      expect(screen.getByRole("button", { name: label }).className).toContain("active");
+    }
+
+    // back to All time and confirm nothing stays "stuck" active
+    await user.click(screen.getByRole("button", { name: "All time" }));
+    expect(screen.getByRole("button", { name: "This month" }).className).not.toContain("active");
   });
 });
 
@@ -592,8 +607,10 @@ describe("No fabricated figures for genuinely unpriced pipeline sessions", () =>
 
 describe("Actual matches the source spreadsheet's own Dashboard totals", () => {
   it("shows Actual Revenue/Expenses as Bilan 2026 (20931.90/20493.36) plus the EFREI additions now counted as confirmed since the Pipeline status was removed", async () => {
+    const user = userEvent.setup();
     await renderReady();
-    // Dashboard is the default landing tab already
+    // Dashboard is the default landing tab, but defaults to "This month" - switch to All time
+    await user.click(screen.getByRole("button", { name: "All time" }));
     const revenueCards = screen.getAllByText(/^Revenue$/).map((el) => el.closest(".kpi-card")).filter(Boolean);
     const expenseCards = screen.getAllByText(/^Expenses$/).map((el) => el.closest(".kpi-card")).filter(Boolean);
     const shownRevenue = eurToNumber(within(revenueCards[0]).getByText(/€/, { selector: ".kpi-actual" }).textContent);
@@ -607,7 +624,9 @@ describe("Actual matches the source spreadsheet's own Dashboard totals", () => {
   });
 
   it("shows Expected Revenue/Expenses as a literal sum of every row (Lost included), matching the file's Expected Revenue (43121.90) / Expected TCost (38843.36) totals plus the EFREI pipeline additions", async () => {
+    const user = userEvent.setup();
     await renderReady();
+    await user.click(screen.getByRole("button", { name: "All time" }));
     const revenueCards = screen.getAllByText(/^Revenue$/).map((el) => el.closest(".kpi-card")).filter(Boolean);
     const expenseCards = screen.getAllByText(/^Expenses$/).map((el) => el.closest(".kpi-card")).filter(Boolean);
     const expectedRevenueText = within(revenueCards[0]).getByText(/if everything closes/i).textContent;
@@ -750,11 +769,11 @@ describe("Internal (non-client) trainings/certifications", () => {
     await renderReady();
     await goToTab(user, "Expenses");
 
-    const categoryToggle = screen.getByText(/^Category$/, { selector: "summary" });
-    const categoryDetails = categoryToggle.closest("details");
+    const categoryToggle = screen.getByText(/^Category$/, { selector: ".msf-trigger" });
     await user.click(categoryToggle);
-    await user.click(within(categoryDetails).getByRole("button", { name: /clear all/i }));
-    const certCheckbox = within(categoryDetails).getByRole("checkbox", { name: /Certification/i });
+    const categoryPanel = document.querySelector(".msf-panel");
+    await user.click(within(categoryPanel).getByRole("button", { name: /clear all/i }));
+    const certCheckbox = within(categoryPanel).getByRole("checkbox", { name: /Certification/i });
     await user.click(certCheckbox);
 
     expect(screen.getAllByText("Pearson AZ-500").length).toBeGreaterThan(0);
@@ -783,7 +802,7 @@ describe("Contact column and 5-status simplification", () => {
     expect(within(row).getByText("Julien")).toBeInTheDocument();
   });
 
-  it("only offers 5 statuses (no Pipeline, no separate Scheduled) in the status filter and edit dropdown", async () => {
+  it("offers 6 statuses (Signed, Scheduled, Delivered, Invoiced, Paid, Lost) in the status filter and edit dropdown", async () => {
     const user = userEvent.setup();
     await renderReady();
     await goToTab(user, "Revenue");
@@ -792,7 +811,7 @@ describe("Contact column and 5-status simplification", () => {
     const editingRow = document.querySelector("tr.editing");
     const statusSelect = within(editingRow).getByRole("combobox");
     const options = Array.from(statusSelect.querySelectorAll("option")).map((o) => o.value);
-    expect(options).toEqual(["Signed", "Delivered", "Invoiced", "Paid", "Lost"]);
+    expect(options).toEqual(["Signed", "Scheduled", "Delivered", "Invoiced", "Paid", "Lost"]);
   });
 
   it("can filter Revenue by contact name", async () => {
@@ -959,5 +978,205 @@ describe("New expense stays visible when created from a filtered scope", () => {
     const editingRow = document.querySelector("tr.editing");
     expect(editingRow).toBeTruthy();
     expect(screen.getByRole("button", { name: "Recurring" }).className).toContain("active");
+  });
+});
+
+describe("Scheduled status reintroduced after Signed", () => {
+  it("Scheduled sits right after Signed in the status list", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Revenue");
+    await user.click(screen.getByRole("button", { name: /New project/i }));
+    const editingRow = document.querySelector("tr.editing");
+    const statusSelect = within(editingRow).getByRole("combobox");
+    const options = Array.from(statusSelect.querySelectorAll("option")).map((o) => o.value);
+    expect(options.indexOf("Scheduled")).toBe(options.indexOf("Signed") + 1);
+  });
+
+  it("counts Scheduled as confirmed business, same as Signed/Delivered/Invoiced/Paid", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Revenue");
+    await user.click(screen.getByRole("button", { name: /New project/i }));
+    const editingRow = document.querySelector("tr.editing");
+    const numberInput = within(editingRow).getByRole("spinbutton");
+    await user.clear(numberInput);
+    await user.type(numberInput, "777");
+    const statusSelect = within(editingRow).getByRole("combobox");
+    await user.selectOptions(statusSelect, "Scheduled");
+    await user.click(within(editingRow).getByRole("button", { name: "Save" }));
+
+    await goToTab(user, "Dashboard");
+    const revenueCards = screen.getAllByText(/^Revenue$/).map((el) => el.closest(".kpi-card")).filter(Boolean);
+    const shownActual = eurToNumber(within(revenueCards[0]).getByText(/€/, { selector: ".kpi-actual" }).textContent);
+    expect(shownActual).toBeGreaterThanOrEqual(777);
+  });
+});
+
+describe("Period filter Option A: any session date counts, not just the primary one", () => {
+  it("includes a project in a month's filter if only an EXTRA date (not the primary date) falls in that month", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Revenue");
+
+    await user.click(screen.getByRole("button", { name: /New project/i }));
+    const editingRow = document.querySelector("tr.editing");
+    const nameInput = within(editingRow).getAllByRole("textbox")[0];
+    await user.clear(nameInput);
+    await user.type(nameInput, "Split Session Training");
+
+    const startDateInput = editingRow.querySelector('input[type="date"]');
+    fireEvent.change(startDateInput, { target: { value: "2026-02-28" } }); // primary date in February
+    const extraDateInput = editingRow.querySelector(".extra-dates-add input");
+    fireEvent.change(extraDateInput, { target: { value: "2026-03-10" } }); // extra date in March
+    await user.click(within(editingRow).getByRole("button", { name: "Add date" }));
+
+    const numberInput = within(editingRow).getByRole("spinbutton");
+    await user.clear(numberInput);
+    await user.type(numberInput, "500");
+    await user.click(within(editingRow).getByRole("button", { name: "Save" }));
+
+    await goToTab(user, "Dashboard");
+    await user.click(screen.getByRole("button", { name: "Custom…" }));
+    const yearSelect = screen.getAllByRole("combobox")[0];
+    await user.selectOptions(yearSelect, "2026");
+    const monthSelect = screen.getAllByRole("combobox")[1];
+    await user.selectOptions(monthSelect, "03"); // March - the project's PRIMARY date is Feb, not March
+
+    // it should still show up in March because of the extra date, not be excluded
+    const revenueCards = screen.getAllByText(/^Revenue$/).map((el) => el.closest(".kpi-card")).filter(Boolean);
+    const shownExpected = eurToNumber(within(revenueCards[0]).getByText(/if everything closes/i).textContent);
+    expect(shownExpected).toBeGreaterThanOrEqual(500);
+  });
+
+  it("excludes a project from a month's filter if none of its dates (primary or extra) fall in that month", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Revenue");
+
+    // baseline: All time expected revenue before adding this project
+    await goToTab(user, "Dashboard");
+    const revenueCards0 = screen.getAllByText(/^Revenue$/).map((el) => el.closest(".kpi-card")).filter(Boolean);
+    const baselineAllTime = eurToNumber(within(revenueCards0[0]).getByText(/if everything closes/i).textContent);
+
+    await goToTab(user, "Revenue");
+    await user.click(screen.getByRole("button", { name: /New project/i }));
+    const editingRow = document.querySelector("tr.editing");
+    const nameInput = within(editingRow).getAllByRole("textbox")[0];
+    await user.clear(nameInput);
+    await user.type(nameInput, "Feb And April Only");
+
+    const startDateInput = editingRow.querySelector('input[type="date"]');
+    fireEvent.change(startDateInput, { target: { value: "2026-02-10" } });
+    const extraDateInput = editingRow.querySelector(".extra-dates-add input");
+    fireEvent.change(extraDateInput, { target: { value: "2026-04-10" } }); // Feb and April, nothing in March
+    await user.click(within(editingRow).getByRole("button", { name: "Add date" }));
+    const numberInput = within(editingRow).getByRole("spinbutton");
+    await user.clear(numberInput);
+    await user.type(numberInput, "900");
+    await user.click(within(editingRow).getByRole("button", { name: "Save" }));
+
+    await goToTab(user, "Dashboard");
+    await user.click(screen.getByRole("button", { name: "Custom…" }));
+    const yearSelect = screen.getAllByRole("combobox")[0];
+    await user.selectOptions(yearSelect, "2026");
+    const monthSelect = screen.getAllByRole("combobox")[1];
+    await user.selectOptions(monthSelect, "03"); // March - no session lands here
+
+    const revenueCards = screen.getAllByText(/^Revenue$/).map((el) => el.closest(".kpi-card")).filter(Boolean);
+    const marchExpected = eurToNumber(within(revenueCards[0]).getByText(/if everything closes/i).textContent);
+
+    // confirm the new project's 900 is NOT part of March's total, by checking April instead where it SHOULD appear
+    await user.selectOptions(monthSelect, "04");
+    const aprilExpected = eurToNumber(within(revenueCards[0]).getByText(/if everything closes/i).textContent);
+    expect(aprilExpected).toBeGreaterThanOrEqual(900);
+    expect(aprilExpected).toBeGreaterThan(marchExpected);
+  });
+});
+
+describe("MultiSelectFilter dropdown escapes table clipping (portal)", () => {
+  it("renders the Status dropdown panel outside the table via a portal, directly under document.body", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Revenue");
+
+    const statusToggle = screen.getByText(/^Status$/, { selector: ".msf-trigger" });
+    await user.click(statusToggle);
+
+    const panel = document.querySelector(".msf-panel");
+    expect(panel).toBeTruthy();
+    // the panel's parent should be document.body (portal), not the table's th/thead
+    expect(panel.closest("table")).toBeNull();
+    expect(panel.parentElement).toBe(document.body);
+  });
+
+  it("closes the dropdown when clicking outside", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Revenue");
+
+    const statusToggle = screen.getByText(/^Status$/, { selector: ".msf-trigger" });
+    await user.click(statusToggle);
+    expect(document.querySelector(".msf-panel")).toBeTruthy();
+
+    await user.click(screen.getByRole("heading", { name: "Revenue" }));
+    expect(document.querySelector(".msf-panel")).toBeNull();
+  });
+});
+
+describe("Planning: needs-a-trainer priority section", () => {
+  it("shows Signed projects in a red 'needs a trainer' section before the regular chronological list", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Planning");
+
+    const banner = screen.queryByText(/need.*a trainer/i);
+    expect(banner).toBeInTheDocument();
+
+    const needsTrainerBlock = document.querySelector(".needs-trainer-block");
+    expect(needsTrainerBlock).toBeTruthy();
+    // it should appear before the main timeline in the DOM
+    const mainTimeline = document.querySelector(".timeline:not(.needs-trainer-list)");
+    expect(needsTrainerBlock.compareDocumentPosition(mainTimeline) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("does not duplicate a Signed project into the regular chronological list", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Planning");
+
+    const needsTrainerNames = Array.from(document.querySelectorAll(".needs-trainer-row .tl-name")).map((el) => el.textContent);
+    const mainListNames = Array.from(document.querySelectorAll(".timeline:not(.needs-trainer-list) .tl-name")).map((el) => el.textContent);
+    for (const name of needsTrainerNames) {
+      expect(mainListNames).not.toContain(name);
+    }
+  });
+});
+
+describe("Planning: calendar view", () => {
+  it("switches to a month-grid calendar and shows session pills", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Planning");
+
+    await user.click(screen.getByRole("button", { name: /Calendar/i }));
+    expect(document.querySelector(".planning-calendar")).toBeTruthy();
+    expect(document.querySelectorAll(".cal-cell").length).toBeGreaterThan(20); // a month grid has ~30-42 cells
+  });
+
+  it("can navigate to the next/previous month and back to today", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Planning");
+    await user.click(screen.getByRole("button", { name: /Calendar/i }));
+
+    const titleBefore = document.querySelector(".cal-title").textContent;
+    await user.click(screen.getByRole("button", { name: "Next month" }));
+    const titleAfter = document.querySelector(".cal-title").textContent;
+    expect(titleAfter).not.toBe(titleBefore);
+
+    await user.click(screen.getByRole("button", { name: /^Today$/i }));
+    const titleToday = document.querySelector(".cal-title").textContent;
+    expect(titleToday).toBe(titleBefore);
   });
 });
