@@ -471,25 +471,25 @@ function RevenueTab({ projects, setProjects }) {
                         <button className="icon-btn" onClick={cancelEdit} aria-label="Cancel"><X size={14} /></button>
                       </td>
                       <td>
-                        <input value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} />
+                        <input value={draft.name} onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))} />
                         <div className="inline-type-toggle">
-                          <button type="button" className={draft.type !== "internal" ? "active" : ""} onClick={() => setDraft({ ...draft, type: "revenue" })}>Client</button>
-                          <button type="button" className={draft.type === "internal" ? "active" : ""} onClick={() => setDraft({ ...draft, type: "internal" })}>Internal</button>
+                          <button type="button" className={draft.type !== "internal" ? "active" : ""} onClick={() => setDraft((d) => ({ ...d, type: "revenue" }))}>Client</button>
+                          <button type="button" className={draft.type === "internal" ? "active" : ""} onClick={() => setDraft((d) => ({ ...d, type: "internal" }))}>Internal</button>
                         </div>
                       </td>
-                      <td><input value={draft.client} onChange={(e) => setDraft({ ...draft, client: e.target.value })} /></td>
-                      <td><input value={draft.contact || ""} onChange={(e) => setDraft({ ...draft, contact: e.target.value })} /></td>
-                      <td><input value={draft.trainer || ""} onChange={(e) => setDraft({ ...draft, trainer: e.target.value })} /></td>
+                      <td><input value={draft.client} onChange={(e) => setDraft((d) => ({ ...d, client: e.target.value }))} /></td>
+                      <td><input value={draft.contact || ""} onChange={(e) => setDraft((d) => ({ ...d, contact: e.target.value }))} /></td>
+                      <td><input value={draft.trainer || ""} onChange={(e) => setDraft((d) => ({ ...d, trainer: e.target.value }))} /></td>
                       <td className="date-cell">
-                        <input type="date" value={draft.startDate || ""} onChange={(e) => setDraft({ ...draft, startDate: e.target.value || null })} />
-                        <input type="date" value={draft.endDate || ""} onChange={(e) => setDraft({ ...draft, endDate: e.target.value || null })} />
+                        <input type="date" value={draft.startDate || ""} onChange={(e) => setDraft((d) => ({ ...d, startDate: e.target.value || null }))} />
+                        <input type="date" value={draft.endDate || ""} onChange={(e) => setDraft((d) => ({ ...d, endDate: e.target.value || null }))} />
                         <ExtraDatesEditor
                           dates={draft.extraDates || []}
-                          onChange={(next) => setDraft({ ...draft, extraDates: next })}
+                          onChange={(next) => setDraft((d) => ({ ...d, extraDates: next }))}
                         />
                       </td>
-                      <td><Select value={draft.status} onChange={(v) => setDraft({ ...draft, status: v })} options={STATUS_ORDER} /></td>
-                      <td className="num"><input className="num-input" type="number" value={draft.expectedAmount} onChange={(e) => setDraft({ ...draft, expectedAmount: parseFloat(e.target.value) || 0 })} /></td>
+                      <td><Select value={draft.status} onChange={(v) => setDraft((d) => ({ ...d, status: v }))} options={STATUS_ORDER} /></td>
+                      <td className="num"><input className="num-input" type="number" value={draft.expectedAmount} onChange={(e) => setDraft((d) => ({ ...d, expectedAmount: parseFloat(e.target.value) || 0 }))} /></td>
                     </>
                   ) : (
                     <>
@@ -669,20 +669,20 @@ function ExpensesTab({ expenses, setExpenses, projects }) {
                         <Select
                           value={draft.projectId || "none"}
                           onChange={(v) => {
-                            if (v === "none") setDraft({ ...draft, projectId: null, projectName: "General / Recurring" });
+                            if (v === "none") setDraft((d) => ({ ...d, projectId: null, projectName: "General / Recurring" }));
                             else {
                               const proj = projects.find((p) => p.id === v);
-                              setDraft({ ...draft, projectId: v, projectName: proj ? proj.name : "" });
+                              setDraft((d) => ({ ...d, projectId: v, projectName: proj ? proj.name : "" }));
                             }
                           }}
                           options={["none", ...projects.map((p) => p.id)]}
                           labelFor={(v) => (v === "none" ? "General / Recurring (not linked)" : (projects.find((p) => p.id === v)?.name || v))}
                         />
                       </td>
-                      <td><Select value={draft.category} onChange={(v) => setDraft({ ...draft, category: v })} options={EXPENSE_CATEGORIES} /></td>
-                      <td><input type="date" value={draft.date || ""} onChange={(ev) => setDraft({ ...draft, date: ev.target.value || null })} /></td>
-                      <td><Select value={draft.status} onChange={(v) => setDraft({ ...draft, status: v })} options={STATUS_ORDER} /></td>
-                      <td className="num"><input className="num-input" type="number" value={draft.expectedAmount} onChange={(ev) => setDraft({ ...draft, expectedAmount: parseFloat(ev.target.value) || 0 })} /></td>
+                      <td><Select value={draft.category} onChange={(v) => setDraft((d) => ({ ...d, category: v }))} options={EXPENSE_CATEGORIES} /></td>
+                      <td><input type="date" value={draft.date || ""} onChange={(ev) => setDraft((d) => ({ ...d, date: ev.target.value || null }))} /></td>
+                      <td><Select value={draft.status} onChange={(v) => setDraft((d) => ({ ...d, status: v }))} options={STATUS_ORDER} /></td>
+                      <td className="num"><input className="num-input" type="number" value={draft.expectedAmount} onChange={(ev) => setDraft((d) => ({ ...d, expectedAmount: parseFloat(ev.target.value) || 0 }))} /></td>
                     </>
                   ) : (
                     <>

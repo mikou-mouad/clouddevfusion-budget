@@ -1258,3 +1258,55 @@ describe("Duplicate button", () => {
     expect(screen.getByText("Efrei - Cloud Intro")).toBeInTheDocument();
   });
 });
+
+describe("Adding multiple extra dates does not lose one due to stale state", () => {
+  it("keeps all 4 dates even when added back-to-back without waiting for re-renders in between", async () => {
+    render(<App />);
+    await waitFor(() => expect(screen.queryByText(/Loading your ledger/i)).not.toBeInTheDocument());
+    fireEvent.click(screen.getByRole("button", { name: /^Revenue$/i }));
+    fireEvent.click(screen.getByRole("button", { name: /New project/i }));
+    const editingRow = document.querySelector("tr.editing");
+
+    const startDateInput = editingRow.querySelector('input[type="date"]');
+    fireEvent.change(startDateInput, { target: { value: "2026-03-12" } });
+
+    const extraDates = ["2026-03-31", "2026-04-02", "2026-04-21", "2026-05-13"];
+    for (const d of extraDates) {
+      const extraDateInput = editingRow.querySelector(".extra-dates-add input");
+      fireEvent.change(extraDateInput, { target: { value: d } });
+      const addBtn = within(editingRow).getByRole("button", { name: "Add date" });
+      fireEvent.click(addBtn);
+    }
+
+    const chips = editingRow.querySelectorAll(".extra-date-chip");
+    expect(chips.length).toBe(4);
+  });
+
+  it("beyond 4 dates still works too (no artificial cap): adding 6 keeps all 6", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Revenue");
+    await user.click(screen.getByRole("button", { name: /New project/i }));
+    const editingRow = document.querySelector("tr.editing");
+
+    const startDateInput = editingRow.querySelector('input[type="date"]');
+    fireEvent.change(startDateInput, { target: { value: "2026-03-12" } });
+
+    const extraDates = ["2026-03-31", "2026-04-02", "2026-04-21", "2026-05-13", "2026-05-14", "2026-05-15"];
+    for (const d of extraDates) {
+      const extraDateInput = editingRow.querySelector(".extra-dates-add input");
+      fireEvent.change(extraDateInput, { target: { value: d } });
+      await user.click(within(editingRow).getByRole("button", { name: "Add date" }));
+    }
+    const chips = editingRow.querySelectorAll(".extra-date-chip");
+    expect(chips.length).toBe(6);
+
+    const numberInput = within(editingRow).getByRole("spinbutton");
+    await user.clear(numberInput);
+    await user.type(numberInput, "100");
+    await user.click(within(editingRow).getByRole("button", { name: "Save" }));
+
+    const savedRow = screen.getByText("New project", { selector: ".proj-name" }).closest("tr");
+    expect(within(savedRow).getByText(/\+6 more dates/)).toBeInTheDocument();
+  });
+});
