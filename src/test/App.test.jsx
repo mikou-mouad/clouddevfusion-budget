@@ -77,12 +77,12 @@ describe("dashboard math matches the underlying rows (black-box check)", () => {
     let actual = 0, expected = 0;
     for (const row of rows) {
       const cells = within(row).queryAllByRole("cell");
-      if (cells.length < 6) continue;
-      const amountText = cells[5].textContent;
-      const statusText = cells[4].textContent.trim();
+      if (cells.length < 7) continue;
+      const amountText = cells[6].textContent;
+      const statusText = cells[5].textContent.trim();
       const amount = eurToNumber(amountText);
-      if (statusText !== "Lost") expected += amount;
-      if (statusText !== "Lost" && statusText !== "Pipeline") actual += amount;
+      expected += amount; // Expected = literal unconditional sum, Lost included
+      if (statusText !== "Lost") actual += amount;
     }
 
     await goToTab(user, "Dashboard");
@@ -108,8 +108,8 @@ describe("dashboard math matches the underlying rows (black-box check)", () => {
       if (cells.length < 5) continue;
       const amount = eurToNumber(cells[4].textContent);
       const statusText = cells[3].textContent.trim();
-      if (statusText !== "Lost") expected += amount;
-      if (statusText !== "Lost" && statusText !== "Pipeline") actual += amount;
+      expected += amount; // Expected = literal unconditional sum, Lost included
+      if (statusText !== "Lost") actual += amount;
     }
     expect(expected).toBeGreaterThan(0);
     expect(actual).toBeGreaterThan(0);
@@ -142,7 +142,7 @@ describe("Revenue tab CRUD", () => {
     await user.selectOptions(select, "Signed");
 
     // Save (checkmark button)
-    const saveBtn = within(editingRow).getAllByRole("button")[0];
+    const saveBtn = within(editingRow).getByRole("button", { name: "Save" });
     await user.click(saveBtn);
 
     expect(screen.getAllByRole("row").length).toBe(before + 1);
@@ -160,7 +160,7 @@ describe("Revenue tab CRUD", () => {
 
     const targetRow = rowFor("Efrei - Cloud Intro");
     expect(targetRow).toBeTruthy();
-    const deleteBtn = within(targetRow).getAllByRole("button")[1];
+    const deleteBtn = within(targetRow).getByRole("button", { name: "Delete" });
     await user.click(deleteBtn);
 
     expect(screen.queryByText("Efrei - Cloud Intro")).not.toBeInTheDocument();
@@ -187,7 +187,7 @@ describe("Expenses tab CRUD", () => {
     // selects order: linked project, category, status
     await user.selectOptions(selects[1], "Software");
 
-    const saveBtn = within(editingRow).getAllByRole("button")[0];
+    const saveBtn = within(editingRow).getByRole("button", { name: "Save" });
     await user.click(saveBtn);
 
     expect(screen.getAllByRole("row").length).toBe(before + 1);
@@ -227,8 +227,8 @@ describe("Revenue column filters", () => {
     const rows = screen.getAllByRole("row").slice(2);
     const visibleStatuses = rows
       .map((r) => within(r).queryAllByRole("cell"))
-      .filter((c) => c.length >= 5)
-      .map((c) => c[4].textContent.trim());
+      .filter((c) => c.length >= 6)
+      .map((c) => c[5].textContent.trim());
     expect(visibleStatuses.length).toBeGreaterThan(0);
     expect(visibleStatuses.every((s) => s === "Lost")).toBe(true);
 
@@ -249,8 +249,8 @@ describe("Revenue column filters", () => {
     const rows = screen.getAllByRole("row").slice(2);
     const amounts = rows
       .map((r) => within(r).queryAllByRole("cell"))
-      .filter((c) => c.length >= 6)
-      .map((c) => eurToNumber(c[5].textContent));
+      .filter((c) => c.length >= 7)
+      .map((c) => eurToNumber(c[6].textContent));
     expect(amounts.length).toBeGreaterThan(0);
     expect(amounts.every((a) => a >= 3000 && a <= 5000)).toBe(true);
   });
@@ -302,9 +302,9 @@ describe("Planning tab", () => {
     const upcomingNames = [];
     for (const row of rows) {
       const cells = within(row).queryAllByRole("cell");
-      if (cells.length < 5) continue;
+      if (cells.length < 8) continue;
       const name = cells[0].textContent.trim();
-      const status = cells[4].textContent.trim();
+      const status = cells[5].textContent.trim();
       if (status === "Paid" || status === "Lost") paidOrLostNames.push(name);
       else upcomingNames.push(name);
     }
@@ -326,7 +326,7 @@ describe("persistence across reloads", () => {
     await goToTab(user, "Revenue");
 
     const targetRow = rowFor("Cellenza - AZ500");
-    const deleteBtn = within(targetRow).getAllByRole("button")[1];
+    const deleteBtn = within(targetRow).getByRole("button", { name: "Delete" });
     await user.click(deleteBtn);
     expect(screen.queryByText("Cellenza - AZ500")).not.toBeInTheDocument();
 
@@ -385,7 +385,7 @@ describe("manual Save button", () => {
 
     await goToTab(user, "Revenue");
     const targetRow = rowFor("Cellenza - AZ500");
-    const deleteBtn = within(targetRow).getAllByRole("button")[1];
+    const deleteBtn = within(targetRow).getByRole("button", { name: "Delete" });
     await user.click(deleteBtn);
 
     expect(fetchSpy).not.toHaveBeenCalled();
@@ -477,10 +477,10 @@ describe("Dashboard period filter", () => {
     let actual2027 = 0, expected2027 = 0, matched2027Rows = 0;
     for (const row of rows) {
       const cells = within(row).queryAllByRole("cell");
-      if (cells.length < 6) continue;
-      const dateText = cells[3].textContent;
-      const statusText = cells[4].textContent.trim();
-      const amount = eurToNumber(cells[5].textContent);
+      if (cells.length < 7) continue;
+      const dateText = cells[4].textContent;
+      const statusText = cells[5].textContent.trim();
+      const amount = eurToNumber(cells[6].textContent);
       if (dateText.includes("2027")) {
         matched2027Rows++;
         if (statusText !== "Lost") expected2027 += amount;
@@ -591,7 +591,7 @@ describe("No fabricated figures for genuinely unpriced pipeline sessions", () =>
 });
 
 describe("Actual matches the source spreadsheet's own Dashboard totals", () => {
-  it("shows Actual Revenue/Expenses matching the file's Total Revenue (20931.90) and Total Costs (20493.36) exactly", async () => {
+  it("shows Actual Revenue/Expenses as Bilan 2026 (20931.90/20493.36) plus the EFREI additions now counted as confirmed since the Pipeline status was removed", async () => {
     await renderReady();
     // Dashboard is the default landing tab already
     const revenueCards = screen.getAllByText(/^Revenue$/).map((el) => el.closest(".kpi-card")).filter(Boolean);
@@ -599,9 +599,11 @@ describe("Actual matches the source spreadsheet's own Dashboard totals", () => {
     const shownRevenue = eurToNumber(within(revenueCards[0]).getByText(/€/, { selector: ".kpi-actual" }).textContent);
     const shownExpenses = eurToNumber(within(expenseCards[0]).getByText(/€/, { selector: ".kpi-actual" }).textContent);
 
-    // allow a couple of euros of rounding slack since the UI rounds to whole euros
-    expect(Math.abs(shownRevenue - 20931.9)).toBeLessThanOrEqual(2);
-    expect(Math.abs(shownExpenses - 20493.36)).toBeLessThanOrEqual(2);
+    // Bilan 2026 file total (20931.90/20493.36) + Cloud Intro 3 (2212/2000), which used to be
+    // "Pipeline" (excluded from Actual) but now defaults to "Signed" since Pipeline no longer
+    // exists as a status — this is an intentional consequence of simplifying to 5 statuses.
+    expect(Math.abs(shownRevenue - (20931.9 + 2212))).toBeLessThanOrEqual(2);
+    expect(Math.abs(shownExpenses - (20493.36 + 2000))).toBeLessThanOrEqual(2);
   });
 
   it("shows Expected Revenue/Expenses as a literal sum of every row (Lost included), matching the file's Expected Revenue (43121.90) / Expected TCost (38843.36) totals plus the EFREI pipeline additions", async () => {
@@ -645,7 +647,7 @@ describe("Expense project link dropdown shows real names", () => {
     const editingRow = document.querySelector("tr.editing");
     const projectSelect = within(editingRow).getAllByRole("combobox")[0];
     await user.selectOptions(projectSelect, screen.getAllByText("Efrei - Cloud Intro")[0].closest("option") || projectSelect.querySelector("option[value='p1']"));
-    const saveBtn = within(editingRow).getAllByRole("button")[0];
+    const saveBtn = within(editingRow).getByRole("button", { name: "Save" });
     await user.click(saveBtn);
     expect(screen.getAllByText("Efrei - Cloud Intro").length).toBeGreaterThan(0);
   });
@@ -678,7 +680,7 @@ describe("Delivered status", () => {
     await user.type(numberInput, "500");
     const statusSelect = within(editingRow).getByRole("combobox");
     await user.selectOptions(statusSelect, "Delivered");
-    const saveBtn = within(editingRow).getAllByRole("button")[0];
+    const saveBtn = within(editingRow).getByRole("button", { name: "Save" });
     await user.click(saveBtn);
 
     await goToTab(user, "Dashboard");
@@ -708,5 +710,144 @@ describe("New rows appear at the top of the list immediately", () => {
     await user.click(screen.getByRole("button", { name: /New expense/i }));
     const firstDataRow = screen.getAllByRole("row")[2];
     expect(firstDataRow.className).toContain("editing");
+  });
+});
+
+describe("Internal (non-client) trainings/certifications", () => {
+  it("does not show internal items (Pearson, Eni certifications) in the default Client Revenue view", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Revenue");
+
+    expect(screen.queryByText("Pearson AZ-500")).not.toBeInTheDocument();
+    expect(screen.queryByText("Eni - Certification Formateur")).not.toBeInTheDocument();
+    expect(screen.getByText("Efrei - Cloud Intro")).toBeInTheDocument();
+  });
+
+  it("shows internal items when the Internal toggle is selected, and hides client projects", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Revenue");
+
+    await user.click(screen.getByRole("button", { name: "Internal" }));
+    expect(screen.getByText("Pearson AZ-500")).toBeInTheDocument();
+    expect(screen.getByText("Eni - Certification Formateur")).toBeInTheDocument();
+    expect(screen.queryByText("Efrei - Cloud Intro")).not.toBeInTheDocument();
+  });
+
+  it("shows both when All is selected", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Revenue");
+
+    await user.click(screen.getByRole("button", { name: "All" }));
+    expect(screen.getByText("Pearson AZ-500")).toBeInTheDocument();
+    expect(screen.getByText("Efrei - Cloud Intro")).toBeInTheDocument();
+  });
+
+  it("still counts Certification costs in Expenses even though they're not client revenue", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Expenses");
+
+    const categoryToggle = screen.getByText(/^Category$/, { selector: "summary" });
+    const categoryDetails = categoryToggle.closest("details");
+    await user.click(categoryToggle);
+    await user.click(within(categoryDetails).getByRole("button", { name: /clear all/i }));
+    const certCheckbox = within(categoryDetails).getByRole("checkbox", { name: /Certification/i });
+    await user.click(certCheckbox);
+
+    expect(screen.getAllByText("Pearson AZ-500").length).toBeGreaterThan(0);
+  });
+
+  it("a new project defaults to Internal type when created while viewing the Internal tab", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Revenue");
+    await user.click(screen.getByRole("button", { name: "Internal" }));
+    await user.click(screen.getByRole("button", { name: /New project/i }));
+
+    const editingRow = document.querySelector("tr.editing");
+    const internalToggle = within(editingRow).getByRole("button", { name: "Internal" });
+    expect(internalToggle.className).toContain("active");
+  });
+});
+
+describe("Contact column and 5-status simplification", () => {
+  it("shows a Contact column with real contact names, separate from Client", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Revenue");
+
+    const row = rowFor("Efrei - Cloud Intro");
+    expect(within(row).getByText("Julien")).toBeInTheDocument();
+  });
+
+  it("only offers 5 statuses (no Pipeline, no separate Scheduled) in the status filter and edit dropdown", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Revenue");
+
+    await user.click(screen.getByRole("button", { name: /New project/i }));
+    const editingRow = document.querySelector("tr.editing");
+    const statusSelect = within(editingRow).getByRole("combobox");
+    const options = Array.from(statusSelect.querySelectorAll("option")).map((o) => o.value);
+    expect(options).toEqual(["Signed", "Delivered", "Invoiced", "Paid", "Lost"]);
+  });
+
+  it("can filter Revenue by contact name", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Revenue");
+
+    const contactFilter = screen.getAllByPlaceholderText("Filter…")[2]; // Project, Client, Contact, Trainer order
+    await user.type(contactFilter, "Julien");
+    expect(screen.getByText("Efrei - Cloud Intro")).toBeInTheDocument();
+    expect(screen.queryByText("Cellenza - AZ500")).not.toBeInTheDocument();
+  });
+});
+
+describe("Expenses Client/Internal/Recurring toggle", () => {
+  it("defaults to All and shows a mix of client-linked, internal-linked, and recurring expenses", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Expenses");
+
+    expect(screen.getAllByText("Efrei - Cloud Intro").length).toBeGreaterThan(0); // client-linked
+    expect(screen.getAllByText("Pearson AZ-500").length).toBeGreaterThan(0); // internal-linked
+    expect(screen.getAllByText("Teams Sub").length).toBeGreaterThan(0); // recurring, unlinked
+  });
+
+  it("Client view shows only expenses linked to a client (revenue) project", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Expenses");
+    await user.click(screen.getByRole("button", { name: "Client" }));
+
+    expect(screen.getAllByText("Efrei - Cloud Intro").length).toBeGreaterThan(0);
+    expect(screen.queryByText("Pearson AZ-500")).not.toBeInTheDocument();
+    expect(screen.queryByText("Teams Sub")).not.toBeInTheDocument();
+  });
+
+  it("Internal view shows only expenses linked to an internal project", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Expenses");
+    await user.click(screen.getByRole("button", { name: "Internal" }));
+
+    expect(screen.getAllByText("Pearson AZ-500").length).toBeGreaterThan(0);
+    expect(screen.queryByText("Efrei - Cloud Intro")).not.toBeInTheDocument();
+    expect(screen.queryByText("Teams Sub")).not.toBeInTheDocument();
+  });
+
+  it("Recurring view shows only standalone (unlinked) expenses", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Expenses");
+    await user.click(screen.getByRole("button", { name: "Recurring" }));
+
+    expect(screen.getAllByText("Teams Sub").length).toBeGreaterThan(0);
+    expect(screen.queryByText("Efrei - Cloud Intro")).not.toBeInTheDocument();
+    expect(screen.queryByText("Pearson AZ-500")).not.toBeInTheDocument();
   });
 });

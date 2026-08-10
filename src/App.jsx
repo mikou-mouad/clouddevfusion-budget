@@ -11,14 +11,12 @@ import {
 /* ---------------------------------------------------------------
    SEED DATA — imported from the user's existing tracking sheet
 --------------------------------------------------------------- */
-const SEED_PROJECTS_ALL = [{"id": "p1", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Ahmed Tahri", "topic": "Training", "name": "Efrei - Cloud Intro", "startDate": "2026-03-09", "endDate": "2026-03-13", "status": "Paid", "expectedAmount": 2765, "notes": ""}, {"id": "p2", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Ahmed Tahri", "topic": "Training", "name": "Efrei - DP600 - Aug (1/2)", "startDate": "2026-07-06", "endDate": "2026-07-07", "status": "Signed", "expectedAmount": 1176, "notes": ""}, {"id": "p3", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Ahmed Tahri", "topic": "Training", "name": "Efrei - DP600 - Aug (2/2)", "startDate": "2026-08-31", "endDate": "2026-09-02", "status": "Signed", "expectedAmount": 1764, "notes": ""}, {"id": "p4", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Monaim Touinsi", "topic": "Training", "name": "Efrei - DP600 - Sep", "startDate": "2026-08-31", "endDate": "2026-09-04", "status": "Signed", "expectedAmount": 2940, "notes": ""}, {"id": "p5", "client": "Crossthink ", "contact": "Arnaud ", "source": "Ilyes & Alexis", "trainer": "Ahmed Tahri", "topic": "Training", "name": "Crossthink  - Apr - Week 1", "startDate": "2026-03-30", "endDate": "2026-04-03", "status": "Lost", "expectedAmount": 4750, "notes": ""}, {"id": "p6", "client": "Crossthink ", "contact": "Arnaud ", "source": "Ilyes & Alexis", "trainer": "Salahedine Bejaoui", "topic": "Training", "name": "Crossthink  - Apr - Week 2 & 3", "startDate": "2026-04-07", "endDate": "2026-04-17", "status": "Lost", "expectedAmount": 8550, "notes": ""}, {"id": "p7", "client": "Crossthink ", "contact": "Arnaud ", "source": "Ilyes & Alexis", "trainer": "Mouad MIKOU", "topic": "Training", "name": "Crossthink  - Apr - Week 4", "startDate": "2026-04-20", "endDate": "2026-04-24", "status": "Lost", "expectedAmount": 4750, "notes": ""}, {"id": "p8", "client": "FastLane", "contact": "Sarah Medjeber", "source": "N/A", "trainer": "Monaim Touinsi", "topic": "Training", "name": "FastLane - AZ204", "startDate": "2026-05-18", "endDate": "2026-05-22", "status": "Lost", "expectedAmount": 2300, "notes": ""}, {"id": "p9", "client": "FastLane", "contact": "Sarah Medjeber", "source": "N/A", "trainer": "Youssef ElGandouli", "topic": "Training", "name": "FastLane - AZ700", "startDate": "2026-04-07", "endDate": "2026-04-10", "status": "Lost", "expectedAmount": 1840, "notes": ""}, {"id": "p10", "client": "Cellenza", "contact": "Alain\u00a0GIANSILY", "source": "N/A", "trainer": "Mouad MIKOU", "topic": "Training", "name": "Cellenza - AZ500", "startDate": "2026-03-16", "endDate": "2026-03-19", "status": "Paid", "expectedAmount": 3000, "notes": ""}, {"id": "p11", "client": "IWG", "contact": "N/A", "source": "N/A", "trainer": "N/A", "topic": "Office", "name": "IWG - Office - Retour Caution", "startDate": "2026-03-12", "endDate": "2026-03-12", "status": "Paid", "expectedAmount": 186.9, "notes": ""}, {"id": "p12", "client": "Cellenza", "contact": "Alain\u00a0GIANSILY", "source": "N/A", "trainer": "Ahmed Tahri", "topic": "Training", "name": "Cellenza - Custom", "startDate": "2026-05-19", "endDate": "2026-05-20", "status": "Invoiced", "expectedAmount": 4500, "notes": ""}, {"id": "p13", "client": "FastLane", "contact": "Sarah Medjeber", "source": "N/A", "trainer": "Youssef ElGandouli", "topic": "Training", "name": "FastLane MD-102", "startDate": "2026-05-18", "endDate": "2026-05-22", "status": "Invoiced", "expectedAmount": 2300, "notes": ""}, {"id": "p14", "client": "FastLane", "contact": "Sarah Medjeber", "source": "N/A", "trainer": "Youssef ElGandouli", "topic": "Training", "name": "FastLane MD-102", "startDate": "2026-06-01", "endDate": "2026-06-05", "status": "Scheduled", "expectedAmount": 2300, "notes": ""}, {"id": "p15", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Oussama EDDAI", "topic": "Training", "name": "Efrei - Cloud Intro 2 (1/2)", "startDate": "2027-01-04", "endDate": "2027-01-05", "status": "Signed", "expectedAmount": 0, "notes": ""}, {"id": "p16", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Oussama EDDAI", "topic": "Training", "name": "Efrei - Cloud Intro 2 (2/2)", "startDate": "2027-01-12", "endDate": "2027-01-13", "status": "Signed", "expectedAmount": 0, "notes": ""}, {"id": "p17", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Oussama EDDAI or Monaim", "topic": "Training", "name": "Efrei - Cloud Intro 3", "startDate": null, "endDate": null, "status": "Pipeline", "expectedAmount": 2212, "notes": ""}, {"id": "p18", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": null, "topic": "Training", "name": "Efrei -  AZ104 - 1", "startDate": null, "endDate": null, "status": "Pipeline", "expectedAmount": 0, "notes": ""}, {"id": "p19", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": null, "topic": "Training", "name": "Efrei -  AZ104 - 2", "startDate": null, "endDate": null, "status": "Pipeline", "expectedAmount": 0, "notes": ""}, {"id": "p20", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": null, "topic": "Training", "name": "Efrei - DP700 - 1", "startDate": null, "endDate": null, "status": "Pipeline", "expectedAmount": 0, "notes": ""}, {"id": "p21", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": null, "topic": "Training", "name": "Efrei - DP700 - 2", "startDate": null, "endDate": null, "status": "Pipeline", "expectedAmount": 0, "notes": ""}];
+const SEED_PROJECTS_ALL = [{"id": "p1", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Ahmed Tahri", "topic": "Training", "name": "Efrei - Cloud Intro", "startDate": "2026-03-09", "endDate": "2026-03-13", "status": "Paid", "expectedAmount": 2765, "notes": ""}, {"id": "p2", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Ahmed Tahri", "topic": "Training", "name": "Efrei - DP600 - Aug (1/2)", "startDate": "2026-07-06", "endDate": "2026-07-07", "status": "Signed", "expectedAmount": 1176, "notes": ""}, {"id": "p3", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Ahmed Tahri", "topic": "Training", "name": "Efrei - DP600 - Aug (2/2)", "startDate": "2026-08-31", "endDate": "2026-09-02", "status": "Signed", "expectedAmount": 1764, "notes": ""}, {"id": "p4", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Monaim Touinsi", "topic": "Training", "name": "Efrei - DP600 - Sep", "startDate": "2026-08-31", "endDate": "2026-09-04", "status": "Signed", "expectedAmount": 2940, "notes": ""}, {"id": "p5", "type": "revenue", "client": "Crossthink ", "contact": "Arnaud ", "source": "Ilyes & Alexis", "trainer": "Ahmed Tahri", "topic": "Training", "name": "Crossthink  - Apr - Week 1", "startDate": "2026-03-30", "endDate": "2026-04-03", "status": "Lost", "expectedAmount": 4750, "notes": ""}, {"id": "p6", "type": "revenue", "client": "Crossthink ", "contact": "Arnaud ", "source": "Ilyes & Alexis", "trainer": "Salahedine Bejaoui", "topic": "Training", "name": "Crossthink  - Apr - Week 2 & 3", "startDate": "2026-04-07", "endDate": "2026-04-17", "status": "Lost", "expectedAmount": 8550, "notes": ""}, {"id": "p7", "type": "revenue", "client": "Crossthink ", "contact": "Arnaud ", "source": "Ilyes & Alexis", "trainer": "Mouad MIKOU", "topic": "Training", "name": "Crossthink  - Apr - Week 4", "startDate": "2026-04-20", "endDate": "2026-04-24", "status": "Lost", "expectedAmount": 4750, "notes": ""}, {"id": "p8", "type": "revenue", "client": "FastLane", "contact": "Sarah Medjeber", "source": "N/A", "trainer": "Monaim Touinsi", "topic": "Training", "name": "FastLane - AZ204", "startDate": "2026-05-18", "endDate": "2026-05-22", "status": "Lost", "expectedAmount": 2300, "notes": ""}, {"id": "p9", "type": "revenue", "client": "FastLane", "contact": "Sarah Medjeber", "source": "N/A", "trainer": "Youssef ElGandouli", "topic": "Training", "name": "FastLane - AZ700", "startDate": "2026-04-07", "endDate": "2026-04-10", "status": "Lost", "expectedAmount": 1840, "notes": ""}, {"id": "p10", "type": "revenue", "client": "Cellenza", "contact": "Alain\u00a0GIANSILY", "source": "N/A", "trainer": "Mouad MIKOU", "topic": "Training", "name": "Cellenza - AZ500", "startDate": "2026-03-16", "endDate": "2026-03-19", "status": "Paid", "expectedAmount": 3000, "notes": ""}, {"id": "p11", "type": "internal", "client": "Pearson Vue", "contact": "N/A", "source": "N/A", "trainer": "N/A", "topic": "Certification", "name": "Pearson AZ-500", "startDate": "2026-02-27", "endDate": "2026-02-27", "status": "Paid", "expectedAmount": 0, "notes": ""}, {"id": "p12", "type": "internal", "client": "Pearson Vue", "contact": "N/A", "source": "N/A", "trainer": "N/A", "topic": "Certification", "name": "Pearson AZ-204", "startDate": "2026-03-01", "endDate": "2026-03-01", "status": "Paid", "expectedAmount": 0, "notes": ""}, {"id": "p13", "type": "internal", "client": "Eni Editions", "contact": "Vanessa Dallerac", "source": "N/A", "trainer": "N/A", "topic": "Certification", "name": "Eni - Certification Formateur", "startDate": "2026-03-06", "endDate": "2026-03-06", "status": "Paid", "expectedAmount": 0, "notes": ""}, {"id": "p14", "type": "internal", "client": "Eni Editions", "contact": "Vanessa Dallerac", "source": "N/A", "trainer": "N/A", "topic": "Certification", "name": "Eni - Devis Habilitation (3 certifs)", "startDate": "2026-03-12", "endDate": "2026-03-12", "status": "Paid", "expectedAmount": 0, "notes": ""}, {"id": "p15", "type": "revenue", "client": "IWG", "contact": "N/A", "source": "N/A", "trainer": "N/A", "topic": "Office", "name": "IWG - Office - Retour Caution", "startDate": "2026-03-12", "endDate": "2026-03-12", "status": "Paid", "expectedAmount": 186.9, "notes": ""}, {"id": "p16", "type": "revenue", "client": "Cellenza", "contact": "Alain\u00a0GIANSILY", "source": "N/A", "trainer": "Ahmed Tahri", "topic": "Training", "name": "Cellenza - Custom", "startDate": "2026-05-19", "endDate": "2026-05-20", "status": "Invoiced", "expectedAmount": 4500, "notes": ""}, {"id": "p17", "type": "revenue", "client": "FastLane", "contact": "Sarah Medjeber", "source": "N/A", "trainer": "Youssef ElGandouli", "topic": "Training", "name": "FastLane MD-102", "startDate": "2026-05-18", "endDate": "2026-05-22", "status": "Invoiced", "expectedAmount": 2300, "notes": ""}, {"id": "p18", "type": "revenue", "client": "FastLane", "contact": "Sarah Medjeber", "source": "N/A", "trainer": "Youssef ElGandouli", "topic": "Training", "name": "FastLane MD-102", "startDate": "2026-06-01", "endDate": "2026-06-05", "status": "Signed", "expectedAmount": 2300, "notes": ""}, {"id": "p19", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Oussama EDDAI", "topic": "Training", "name": "Efrei - Cloud Intro 2 (1/2)", "startDate": "2027-01-04", "endDate": "2027-01-05", "status": "Signed", "expectedAmount": 0, "notes": ""}, {"id": "p20", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Oussama EDDAI", "topic": "Training", "name": "Efrei - Cloud Intro 2 (2/2)", "startDate": "2027-01-12", "endDate": "2027-01-13", "status": "Signed", "expectedAmount": 0, "notes": ""}, {"id": "p21", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Oussama EDDAI or Monaim", "topic": "Training", "name": "Efrei - Cloud Intro 3", "startDate": null, "endDate": null, "status": "Signed", "expectedAmount": 2212, "notes": ""}, {"id": "p22", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": null, "topic": "Training", "name": "Efrei -  AZ104 - 1", "startDate": null, "endDate": null, "status": "Signed", "expectedAmount": 0, "notes": ""}, {"id": "p23", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": null, "topic": "Training", "name": "Efrei -  AZ104 - 2", "startDate": null, "endDate": null, "status": "Signed", "expectedAmount": 0, "notes": ""}, {"id": "p24", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": null, "topic": "Training", "name": "Efrei - DP700 - 1", "startDate": null, "endDate": null, "status": "Signed", "expectedAmount": 0, "notes": ""}, {"id": "p25", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": null, "topic": "Training", "name": "Efrei - DP700 - 2", "startDate": null, "endDate": null, "status": "Signed", "expectedAmount": 0, "notes": ""}];
 
-const SEED_EXPENSES = [{"id": "e1", "projectId": "p1", "projectName": "Efrei - Cloud Intro", "category": "Trainer Fee", "date": "2026-03-09", "status": "Paid", "expectedAmount": 2150, "notes": ""}, {"id": "e2", "projectId": "p1", "projectName": "Efrei - Cloud Intro", "category": "Commission", "date": "2026-03-09", "status": "Paid", "expectedAmount": 307.5, "notes": ""}, {"id": "e3", "projectId": null, "projectName": "IWG - Office", "category": "Office", "date": "2026-01-01", "status": "Paid", "expectedAmount": 278.58, "notes": ""}, {"id": "e4", "projectId": "p2", "projectName": "Efrei - DP600 - Aug (1/2)", "category": "Trainer Fee", "date": "2026-07-06", "status": "Signed", "expectedAmount": 860, "notes": ""}, {"id": "e5", "projectId": "p2", "projectName": "Efrei - DP600 - Aug (1/2)", "category": "Commission", "date": "2026-07-06", "status": "Signed", "expectedAmount": 158, "notes": ""}, {"id": "e6", "projectId": "p3", "projectName": "Efrei - DP600 - Aug (2/2)", "category": "Trainer Fee", "date": "2026-08-31", "status": "Signed", "expectedAmount": 1290, "notes": ""}, {"id": "e7", "projectId": "p3", "projectName": "Efrei - DP600 - Aug (2/2)", "category": "Commission", "date": "2026-08-31", "status": "Signed", "expectedAmount": 237, "notes": ""}, {"id": "e8", "projectId": "p4", "projectName": "Efrei - DP600 - Sep", "category": "Trainer Fee", "date": "2026-08-31", "status": "Signed", "expectedAmount": 2150, "notes": ""}, {"id": "e9", "projectId": "p4", "projectName": "Efrei - DP600 - Sep", "category": "Commission", "date": "2026-08-31", "status": "Signed", "expectedAmount": 395, "notes": ""}, {"id": "e10", "projectId": "p5", "projectName": "Crossthink  - Apr - Week 1", "category": "Trainer Fee", "date": "2026-03-30", "status": "Lost", "expectedAmount": 4000, "notes": ""}, {"id": "e11", "projectId": "p5", "projectName": "Crossthink  - Apr - Week 1", "category": "Commission", "date": "2026-03-30", "status": "Lost", "expectedAmount": 375, "notes": ""}, {"id": "e12", "projectId": "p6", "projectName": "Crossthink  - Apr - Week 2 & 3", "category": "Trainer Fee", "date": "2026-04-07", "status": "Lost", "expectedAmount": 4950, "notes": ""}, {"id": "e13", "projectId": "p6", "projectName": "Crossthink  - Apr - Week 2 & 3", "category": "Commission", "date": "2026-04-07", "status": "Lost", "expectedAmount": 1800, "notes": ""}, {"id": "e14", "projectId": "p7", "projectName": "Crossthink  - Apr - Week 4", "category": "Trainer Fee", "date": "2026-04-20", "status": "Lost", "expectedAmount": 4000, "notes": ""}, {"id": "e15", "projectId": "p7", "projectName": "Crossthink  - Apr - Week 4", "category": "Commission", "date": "2026-04-20", "status": "Lost", "expectedAmount": 375, "notes": ""}, {"id": "e16", "projectId": "p8", "projectName": "FastLane - AZ204", "category": "Trainer Fee", "date": "2026-05-18", "status": "Lost", "expectedAmount": 1750, "notes": ""}, {"id": "e17", "projectId": "p9", "projectName": "FastLane - AZ700", "category": "Trainer Fee", "date": "2026-04-07", "status": "Lost", "expectedAmount": 1000, "notes": ""}, {"id": "e18", "projectId": "p9", "projectName": "FastLane - AZ700", "category": "Other Cost", "date": "2026-04-07", "status": "Lost", "expectedAmount": 100, "notes": ""}, {"id": "e19", "projectId": "p10", "projectName": "Cellenza - AZ500", "category": "Trainer Fee", "date": "2026-03-16", "status": "Paid", "expectedAmount": 2800, "notes": ""}, {"id": "e20", "projectId": null, "projectName": "Ichrak - Janvier", "category": "Salary", "date": "2026-01-01", "status": "Paid", "expectedAmount": 200, "notes": ""}, {"id": "e21", "projectId": null, "projectName": "Ichrak - Fevrier", "category": "Salary", "date": "2026-02-01", "status": "Paid", "expectedAmount": 300, "notes": ""}, {"id": "e22", "projectId": null, "projectName": "IWG - Office", "category": "Office", "date": "2026-02-01", "status": "Paid", "expectedAmount": 69.2, "notes": ""}, {"id": "e23", "projectId": null, "projectName": "Pearson AZ-500", "category": "Certification", "date": "2026-02-27", "status": "Paid", "expectedAmount": 37.8, "notes": ""}, {"id": "e24", "projectId": null, "projectName": "Pearson AZ-204", "category": "Certification", "date": "2026-03-01", "status": "Paid", "expectedAmount": 37.8, "notes": ""}, {"id": "e25", "projectId": null, "projectName": "Eni - Certification Formateur", "category": "Certification", "date": "2026-03-06", "status": "Paid", "expectedAmount": 420, "notes": ""}, {"id": "e26", "projectId": null, "projectName": "Eni - Devis Habilitation (3 certifs)", "category": "Certification", "date": "2026-03-12", "status": "Paid", "expectedAmount": 630, "notes": ""}, {"id": "e27", "projectId": "p12", "projectName": "Cellenza - Custom", "category": "Trainer Fee", "date": "2026-05-19", "status": "Invoiced", "expectedAmount": 3500, "notes": ""}, {"id": "e28", "projectId": "p13", "projectName": "FastLane MD-102", "category": "Trainer Fee", "date": "2026-05-18", "status": "Invoiced", "expectedAmount": 1250, "notes": ""}, {"id": "e29", "projectId": "p13", "projectName": "FastLane MD-102", "category": "Other Cost", "date": "2026-05-18", "status": "Invoiced", "expectedAmount": 100, "notes": ""}, {"id": "e30", "projectId": null, "projectName": "Ichrak - Mars", "category": "Salary", "date": "2026-03-01", "status": "Paid", "expectedAmount": 280, "notes": ""}, {"id": "e31", "projectId": null, "projectName": "FZ - Avril & Mai", "category": "Salary", "date": "2026-04-01", "status": "Invoiced", "expectedAmount": 200, "notes": ""}, {"id": "e32", "projectId": null, "projectName": "Teams Sub", "category": "Software", "date": "2026-04-01", "status": "Paid", "expectedAmount": 6.24, "notes": ""}, {"id": "e33", "projectId": null, "projectName": "WebSite + Intranet Dev ", "category": "Salary", "date": "2026-02-02", "status": "Paid", "expectedAmount": 1200, "notes": ""}, {"id": "e34", "projectId": null, "projectName": "Amine - Avril & Mai", "category": "Salary", "date": "2026-04-01", "status": "Paid", "expectedAmount": 380, "notes": ""}, {"id": "e35", "projectId": "p14", "projectName": "FastLane MD-102", "category": "Trainer Fee", "date": "2026-06-01", "status": "Scheduled", "expectedAmount": 1250, "notes": ""}, {"id": "e36", "projectId": null, "projectName": "Teams Sub", "category": "Software", "date": "2026-05-01", "status": "Paid", "expectedAmount": 6.24, "notes": ""}, {"id": "e37", "projectId": "p17", "projectName": "Efrei - Cloud Intro 3", "category": "Trainer Fee", "date": null, "status": "Pipeline", "expectedAmount": 2000, "notes": ""}];
+const SEED_EXPENSES = [{"id": "e1", "projectId": "p1", "projectName": "Efrei - Cloud Intro", "category": "Trainer Fee", "date": "2026-03-09", "status": "Paid", "expectedAmount": 2150, "notes": ""}, {"id": "e2", "projectId": "p1", "projectName": "Efrei - Cloud Intro", "category": "Commission", "date": "2026-03-09", "status": "Paid", "expectedAmount": 307.5, "notes": ""}, {"id": "e3", "projectId": null, "projectName": "IWG - Office", "category": "Office", "date": "2026-01-01", "status": "Paid", "expectedAmount": 278.58, "notes": ""}, {"id": "e4", "projectId": "p2", "projectName": "Efrei - DP600 - Aug (1/2)", "category": "Trainer Fee", "date": "2026-07-06", "status": "Signed", "expectedAmount": 860, "notes": ""}, {"id": "e5", "projectId": "p2", "projectName": "Efrei - DP600 - Aug (1/2)", "category": "Commission", "date": "2026-07-06", "status": "Signed", "expectedAmount": 158, "notes": ""}, {"id": "e6", "projectId": "p3", "projectName": "Efrei - DP600 - Aug (2/2)", "category": "Trainer Fee", "date": "2026-08-31", "status": "Signed", "expectedAmount": 1290, "notes": ""}, {"id": "e7", "projectId": "p3", "projectName": "Efrei - DP600 - Aug (2/2)", "category": "Commission", "date": "2026-08-31", "status": "Signed", "expectedAmount": 237, "notes": ""}, {"id": "e8", "projectId": "p4", "projectName": "Efrei - DP600 - Sep", "category": "Trainer Fee", "date": "2026-08-31", "status": "Signed", "expectedAmount": 2150, "notes": ""}, {"id": "e9", "projectId": "p4", "projectName": "Efrei - DP600 - Sep", "category": "Commission", "date": "2026-08-31", "status": "Signed", "expectedAmount": 395, "notes": ""}, {"id": "e10", "projectId": "p5", "projectName": "Crossthink  - Apr - Week 1", "category": "Trainer Fee", "date": "2026-03-30", "status": "Lost", "expectedAmount": 4000, "notes": ""}, {"id": "e11", "projectId": "p5", "projectName": "Crossthink  - Apr - Week 1", "category": "Commission", "date": "2026-03-30", "status": "Lost", "expectedAmount": 375, "notes": ""}, {"id": "e12", "projectId": "p6", "projectName": "Crossthink  - Apr - Week 2 & 3", "category": "Trainer Fee", "date": "2026-04-07", "status": "Lost", "expectedAmount": 4950, "notes": ""}, {"id": "e13", "projectId": "p6", "projectName": "Crossthink  - Apr - Week 2 & 3", "category": "Commission", "date": "2026-04-07", "status": "Lost", "expectedAmount": 1800, "notes": ""}, {"id": "e14", "projectId": "p7", "projectName": "Crossthink  - Apr - Week 4", "category": "Trainer Fee", "date": "2026-04-20", "status": "Lost", "expectedAmount": 4000, "notes": ""}, {"id": "e15", "projectId": "p7", "projectName": "Crossthink  - Apr - Week 4", "category": "Commission", "date": "2026-04-20", "status": "Lost", "expectedAmount": 375, "notes": ""}, {"id": "e16", "projectId": "p8", "projectName": "FastLane - AZ204", "category": "Trainer Fee", "date": "2026-05-18", "status": "Lost", "expectedAmount": 1750, "notes": ""}, {"id": "e17", "projectId": "p9", "projectName": "FastLane - AZ700", "category": "Trainer Fee", "date": "2026-04-07", "status": "Lost", "expectedAmount": 1000, "notes": ""}, {"id": "e18", "projectId": "p9", "projectName": "FastLane - AZ700", "category": "Other Cost", "date": "2026-04-07", "status": "Lost", "expectedAmount": 100, "notes": ""}, {"id": "e19", "projectId": "p10", "projectName": "Cellenza - AZ500", "category": "Trainer Fee", "date": "2026-03-16", "status": "Paid", "expectedAmount": 2800, "notes": ""}, {"id": "e20", "projectId": null, "projectName": "Ichrak - Janvier", "category": "Salary", "date": "2026-01-01", "status": "Paid", "expectedAmount": 200, "notes": ""}, {"id": "e21", "projectId": null, "projectName": "Ichrak - Fevrier", "category": "Salary", "date": "2026-02-01", "status": "Paid", "expectedAmount": 300, "notes": ""}, {"id": "e22", "projectId": null, "projectName": "IWG - Office", "category": "Office", "date": "2026-02-01", "status": "Paid", "expectedAmount": 69.2, "notes": ""}, {"id": "e23", "projectId": "p11", "projectName": "Pearson AZ-500", "category": "Certification", "date": "2026-02-27", "status": "Paid", "expectedAmount": 37.8, "notes": ""}, {"id": "e24", "projectId": "p12", "projectName": "Pearson AZ-204", "category": "Certification", "date": "2026-03-01", "status": "Paid", "expectedAmount": 37.8, "notes": ""}, {"id": "e25", "projectId": "p13", "projectName": "Eni - Certification Formateur", "category": "Certification", "date": "2026-03-06", "status": "Paid", "expectedAmount": 420, "notes": ""}, {"id": "e26", "projectId": "p14", "projectName": "Eni - Devis Habilitation (3 certifs)", "category": "Certification", "date": "2026-03-12", "status": "Paid", "expectedAmount": 630, "notes": ""}, {"id": "e27", "projectId": "p16", "projectName": "Cellenza - Custom", "category": "Trainer Fee", "date": "2026-05-19", "status": "Invoiced", "expectedAmount": 3500, "notes": ""}, {"id": "e28", "projectId": "p17", "projectName": "FastLane MD-102", "category": "Trainer Fee", "date": "2026-05-18", "status": "Invoiced", "expectedAmount": 1250, "notes": ""}, {"id": "e29", "projectId": "p17", "projectName": "FastLane MD-102", "category": "Other Cost", "date": "2026-05-18", "status": "Invoiced", "expectedAmount": 100, "notes": ""}, {"id": "e30", "projectId": null, "projectName": "Ichrak - Mars", "category": "Salary", "date": "2026-03-01", "status": "Paid", "expectedAmount": 280, "notes": ""}, {"id": "e31", "projectId": null, "projectName": "FZ - Avril & Mai", "category": "Salary", "date": "2026-04-01", "status": "Invoiced", "expectedAmount": 200, "notes": ""}, {"id": "e32", "projectId": null, "projectName": "Teams Sub", "category": "Software", "date": "2026-04-01", "status": "Paid", "expectedAmount": 6.24, "notes": ""}, {"id": "e33", "projectId": null, "projectName": "WebSite + Intranet Dev ", "category": "Salary", "date": "2026-02-02", "status": "Paid", "expectedAmount": 1200, "notes": ""}, {"id": "e34", "projectId": null, "projectName": "Amine - Avril & Mai", "category": "Salary", "date": "2026-04-01", "status": "Paid", "expectedAmount": 380, "notes": ""}, {"id": "e35", "projectId": "p18", "projectName": "FastLane MD-102", "category": "Trainer Fee", "date": "2026-06-01", "status": "Signed", "expectedAmount": 1250, "notes": ""}, {"id": "e36", "projectId": null, "projectName": "Teams Sub", "category": "Software", "date": "2026-05-01", "status": "Paid", "expectedAmount": 6.24, "notes": ""}, {"id": "e37", "projectId": "p21", "projectName": "Efrei - Cloud Intro 3", "category": "Trainer Fee", "date": null, "status": "Signed", "expectedAmount": 2000, "notes": ""}];
 
-const STATUS_ORDER = ["Pipeline", "Scheduled", "Signed", "Delivered", "Invoiced", "Paid", "Lost"];
+const STATUS_ORDER = ["Signed", "Delivered", "Invoiced", "Paid", "Lost"];
 const STATUS_COLORS = {
-  Pipeline: "#9AA39C",
-  Scheduled: "#C68A2E",
   Signed: "#3E7CB1",
   Delivered: "#4C8C6E",
   Invoiced: "#7A5FB5",
@@ -289,7 +287,7 @@ function HistoryPanel({ onRestore }) {
    Revenue (Projects) Table
 --------------------------------------------------------------- */
 const EMPTY_REVENUE_FILTERS = {
-  name: "", client: "", trainer: "",
+  name: "", client: "", contact: "", trainer: "",
   statuses: new Set(STATUS_ORDER),
   dateFrom: "", dateTo: "", amountMin: "", amountMax: "",
 };
@@ -298,11 +296,12 @@ function RevenueTab({ projects, setProjects }) {
   const [editingId, setEditingId] = useState(null);
   const [draft, setDraft] = useState(null);
   const [filters, setFilters] = useState(EMPTY_REVENUE_FILTERS);
+  const [typeView, setTypeView] = useState("revenue"); // "revenue" | "internal" | "all"
   const setF = (patch) => setFilters((f) => ({ ...f, ...patch }));
 
   const startEdit = (p) => { setEditingId(p.id); setDraft({ ...p }); };
   const startNew = () => {
-    const p = { id: uid("p"), client: "", contact: "", source: "", trainer: "", topic: "Training", name: "New project", startDate: null, endDate: null, status: "Pipeline", expectedAmount: 0, notes: "" };
+    const p = { id: uid("p"), type: typeView === "internal" ? "internal" : "revenue", client: "", contact: "", source: "", trainer: "", topic: "Training", name: "New project", startDate: null, endDate: null, status: "Signed", expectedAmount: 0, notes: "" };
     setProjects([p, ...projects]);
     startEdit(p);
   };
@@ -312,9 +311,11 @@ function RevenueTab({ projects, setProjects }) {
   };
   const remove = (id) => setProjects(projects.filter((p) => p.id !== id));
 
-  const filtered = projects.filter((p) => {
+  const inTypeView = projects.filter((p) => typeView === "all" || (p.type || "revenue") === typeView);
+  const filtered = inTypeView.filter((p) => {
     if (filters.name && !p.name.toLowerCase().includes(filters.name.toLowerCase())) return false;
     if (filters.client && !(p.client || "").toLowerCase().includes(filters.client.toLowerCase())) return false;
+    if (filters.contact && !(p.contact || "").toLowerCase().includes(filters.contact.toLowerCase())) return false;
     if (filters.trainer && !(p.trainer || "").toLowerCase().includes(filters.trainer.toLowerCase())) return false;
     if (!filters.statuses.has(p.status)) return false;
     if (filters.dateFrom && (!p.startDate || p.startDate < filters.dateFrom)) return false;
@@ -330,20 +331,26 @@ function RevenueTab({ projects, setProjects }) {
   });
   const total = filtered.reduce((s, p) => s + (p.expectedAmount || 0), 0);
   const isFiltered = JSON.stringify([...filters.statuses].sort()) !== JSON.stringify([...STATUS_ORDER].sort())
-    || filters.name || filters.client || filters.trainer || filters.dateFrom || filters.dateTo || filters.amountMin !== "" || filters.amountMax !== "";
+    || filters.name || filters.client || filters.contact || filters.trainer || filters.dateFrom || filters.dateTo || filters.amountMin !== "" || filters.amountMax !== "";
 
   return (
     <div className="panel">
       <div className="panel-header">
         <div>
           <h2>Revenue</h2>
-          <p className="sub">Every training / project engagement that brings in money.</p>
+          <p className="sub">Client engagements that bring in money. Your own trainings/certifications live under "Internal" — no client, but still worth tracking.</p>
         </div>
         <button className="btn-primary" onClick={startNew}><Plus size={15} /> New project</button>
       </div>
 
+      <div className="type-toggle">
+        <button className={typeView === "revenue" ? "active" : ""} onClick={() => setTypeView("revenue")}>Client</button>
+        <button className={typeView === "internal" ? "active" : ""} onClick={() => setTypeView("internal")}>Internal</button>
+        <button className={typeView === "all" ? "active" : ""} onClick={() => setTypeView("all")}>All</button>
+      </div>
+
       <div className="toolbar">
-        <div className="toolbar-total">{filtered.length} of {projects.length} projects · <strong>{fmt(total)}</strong> pipeline value</div>
+        <div className="toolbar-total">{filtered.length} of {inTypeView.length} {typeView === "internal" ? "internal items" : "projects"} · <strong>{fmt(total)}</strong> {typeView === "internal" ? "cost" : "pipeline value"}</div>
         {isFiltered && <button className="link-btn" onClick={() => setFilters(EMPTY_REVENUE_FILTERS)}>Clear filters</button>}
       </div>
 
@@ -351,11 +358,12 @@ function RevenueTab({ projects, setProjects }) {
         <table>
           <thead>
             <tr>
-              <th>Project</th><th>Client</th><th>Trainer</th><th>Dates</th><th>Status</th><th className="num">Amount</th><th></th>
+              <th>Project</th><th>Client</th><th>Contact</th><th>Trainer</th><th>Dates</th><th>Status</th><th className="num">Amount</th><th></th>
             </tr>
             <tr className="filter-row">
               <th><input className="col-filter" placeholder="Filter…" value={filters.name} onChange={(e) => setF({ name: e.target.value })} /></th>
               <th><input className="col-filter" placeholder="Filter…" value={filters.client} onChange={(e) => setF({ client: e.target.value })} /></th>
+              <th><input className="col-filter" placeholder="Filter…" value={filters.contact} onChange={(e) => setF({ contact: e.target.value })} /></th>
               <th><input className="col-filter" placeholder="Filter…" value={filters.trainer} onChange={(e) => setF({ trainer: e.target.value })} /></th>
               <th>
                 <div className="range-filter">
@@ -382,8 +390,15 @@ function RevenueTab({ projects, setProjects }) {
                 <tr key={p.id} className={isEdit ? "editing" : ""}>
                   {isEdit ? (
                     <>
-                      <td><input value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} /></td>
+                      <td>
+                        <input value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} />
+                        <div className="inline-type-toggle">
+                          <button type="button" className={draft.type !== "internal" ? "active" : ""} onClick={() => setDraft({ ...draft, type: "revenue" })}>Client</button>
+                          <button type="button" className={draft.type === "internal" ? "active" : ""} onClick={() => setDraft({ ...draft, type: "internal" })}>Internal</button>
+                        </div>
+                      </td>
                       <td><input value={draft.client} onChange={(e) => setDraft({ ...draft, client: e.target.value })} /></td>
+                      <td><input value={draft.contact || ""} onChange={(e) => setDraft({ ...draft, contact: e.target.value })} /></td>
                       <td><input value={draft.trainer || ""} onChange={(e) => setDraft({ ...draft, trainer: e.target.value })} /></td>
                       <td className="date-cell">
                         <input type="date" value={draft.startDate || ""} onChange={(e) => setDraft({ ...draft, startDate: e.target.value || null })} />
@@ -392,21 +407,22 @@ function RevenueTab({ projects, setProjects }) {
                       <td><Select value={draft.status} onChange={(v) => setDraft({ ...draft, status: v })} options={STATUS_ORDER} /></td>
                       <td className="num"><input className="num-input" type="number" value={draft.expectedAmount} onChange={(e) => setDraft({ ...draft, expectedAmount: parseFloat(e.target.value) || 0 })} /></td>
                       <td className="actions">
-                        <button className="icon-btn ok" onClick={save}><Check size={14} /></button>
-                        <button className="icon-btn" onClick={() => { setEditingId(null); }}><X size={14} /></button>
+                        <button className="icon-btn ok" onClick={save} aria-label="Save"><Check size={14} /></button>
+                        <button className="icon-btn" onClick={() => { setEditingId(null); }} aria-label="Cancel"><X size={14} /></button>
                       </td>
                     </>
                   ) : (
                     <>
-                      <td className="proj-name">{p.name}</td>
+                      <td className="proj-name">{p.name}{p.type === "internal" && <span className="type-tag">Internal</span>}</td>
                       <td>{p.client}</td>
+                      <td>{p.contact || "—"}</td>
                       <td>{p.trainer || "—"}</td>
                       <td className="date-cell">{fmtDate(p.startDate)}{p.endDate && p.endDate !== p.startDate ? ` → ${fmtDate(p.endDate)}` : ""}</td>
                       <td><Badge status={p.status} /></td>
                       <td className="num strong">{fmt(p.expectedAmount)}</td>
                       <td className="actions">
-                        <button className="icon-btn" onClick={() => startEdit(p)}><Pencil size={13} /></button>
-                        <button className="icon-btn danger" onClick={() => remove(p.id)}><Trash2 size={13} /></button>
+                        <button className="icon-btn" onClick={() => startEdit(p)} aria-label="Edit"><Pencil size={13} /></button>
+                        <button className="icon-btn danger" onClick={() => remove(p.id)} aria-label="Delete"><Trash2 size={13} /></button>
                       </td>
                     </>
                   )}
@@ -414,7 +430,7 @@ function RevenueTab({ projects, setProjects }) {
               );
             })}
             {sorted.length === 0 && (
-              <tr><td colSpan={7} className="empty-row">No projects match these filters.</td></tr>
+              <tr><td colSpan={8} className="empty-row">No projects match these filters.</td></tr>
             )}
           </tbody>
         </table>
@@ -433,15 +449,24 @@ const EMPTY_EXPENSE_FILTERS = {
   dateFrom: "", dateTo: "", amountMin: "", amountMax: "",
 };
 
+/** Where an expense "belongs": linked to a client (revenue) project, linked to an internal
+ *  (non-client) project, or standalone/recurring with no project link at all. */
+function expenseScope(e, projects) {
+  if (!e.projectId) return "recurring";
+  const proj = projects.find((p) => p.id === e.projectId);
+  return proj ? (proj.type || "revenue") : "revenue";
+}
+
 function ExpensesTab({ expenses, setExpenses, projects }) {
   const [editingId, setEditingId] = useState(null);
   const [draft, setDraft] = useState(null);
   const [filters, setFilters] = useState(EMPTY_EXPENSE_FILTERS);
+  const [typeView, setTypeView] = useState("all"); // "all" | "revenue" | "internal" | "recurring"
   const setF = (patch) => setFilters((f) => ({ ...f, ...patch }));
 
   const startEdit = (e) => { setEditingId(e.id); setDraft({ ...e }); };
   const startNew = () => {
-    const e = { id: uid("e"), projectId: null, projectName: "", category: "Other Cost", date: null, status: "Pipeline", expectedAmount: 0, notes: "" };
+    const e = { id: uid("e"), projectId: null, projectName: "", category: "Other Cost", date: null, status: "Signed", expectedAmount: 0, notes: "" };
     setExpenses([e, ...expenses]);
     startEdit(e);
   };
@@ -451,7 +476,8 @@ function ExpensesTab({ expenses, setExpenses, projects }) {
   };
   const remove = (id) => setExpenses(expenses.filter((e) => e.id !== id));
 
-  const filtered = expenses.filter((e) => {
+  const inTypeView = expenses.filter((e) => typeView === "all" || expenseScope(e, projects) === typeView);
+  const filtered = inTypeView.filter((e) => {
     const name = e.projectName || "General / Recurring";
     if (filters.project && !name.toLowerCase().includes(filters.project.toLowerCase())) return false;
     if (!filters.categories.has(e.category)) return false;
@@ -481,8 +507,15 @@ function ExpensesTab({ expenses, setExpenses, projects }) {
         <button className="btn-primary" onClick={startNew}><Plus size={15} /> New expense</button>
       </div>
 
+      <div className="type-toggle">
+        <button className={typeView === "all" ? "active" : ""} onClick={() => setTypeView("all")}>All</button>
+        <button className={typeView === "revenue" ? "active" : ""} onClick={() => setTypeView("revenue")}>Client</button>
+        <button className={typeView === "internal" ? "active" : ""} onClick={() => setTypeView("internal")}>Internal</button>
+        <button className={typeView === "recurring" ? "active" : ""} onClick={() => setTypeView("recurring")}>Recurring</button>
+      </div>
+
       <div className="toolbar">
-        <div className="toolbar-total">{filtered.length} of {expenses.length} entries · <strong>{fmt(total)}</strong> total</div>
+        <div className="toolbar-total">{filtered.length} of {inTypeView.length} entries · <strong>{fmt(total)}</strong> total</div>
         {isFiltered && <button className="link-btn" onClick={() => setFilters(EMPTY_EXPENSE_FILTERS)}>Clear filters</button>}
       </div>
 
@@ -541,8 +574,8 @@ function ExpensesTab({ expenses, setExpenses, projects }) {
                       <td><Select value={draft.status} onChange={(v) => setDraft({ ...draft, status: v })} options={STATUS_ORDER} /></td>
                       <td className="num"><input className="num-input" type="number" value={draft.expectedAmount} onChange={(ev) => setDraft({ ...draft, expectedAmount: parseFloat(ev.target.value) || 0 })} /></td>
                       <td className="actions">
-                        <button className="icon-btn ok" onClick={save}><Check size={14} /></button>
-                        <button className="icon-btn" onClick={() => setEditingId(null)}><X size={14} /></button>
+                        <button className="icon-btn ok" onClick={save} aria-label="Save"><Check size={14} /></button>
+                        <button className="icon-btn" onClick={() => setEditingId(null)} aria-label="Cancel"><X size={14} /></button>
                       </td>
                     </>
                   ) : (
@@ -553,8 +586,8 @@ function ExpensesTab({ expenses, setExpenses, projects }) {
                       <td><Badge status={e.status} /></td>
                       <td className="num strong neg">{fmt(e.expectedAmount)}</td>
                       <td className="actions">
-                        <button className="icon-btn" onClick={() => startEdit(e)}><Pencil size={13} /></button>
-                        <button className="icon-btn danger" onClick={() => remove(e.id)}><Trash2 size={13} /></button>
+                        <button className="icon-btn" onClick={() => startEdit(e)} aria-label="Edit"><Pencil size={13} /></button>
+                        <button className="icon-btn danger" onClick={() => remove(e.id)} aria-label="Delete"><Trash2 size={13} /></button>
                       </td>
                     </>
                   )}
@@ -622,6 +655,7 @@ function PlanningTab({ projects }) {
             <div className="timeline-content">
               <div className="tl-top">
                 <span className="tl-name">{p.name}</span>
+                {p.type === "internal" && <span className="type-tag">Internal</span>}
                 <Badge status={p.status} />
               </div>
               <div className="tl-meta">{p.client} · {p.trainer || "trainer TBD"} · {daysUntil(p.startDate)}</div>
@@ -637,7 +671,7 @@ function PlanningTab({ projects }) {
           <div className="pipeline-grid">
             {undated.map((p) => (
               <div className="pipeline-card" key={p.id}>
-                <div className="tl-top"><span className="tl-name">{p.name}</span><Badge status={p.status} /></div>
+                <div className="tl-top"><span className="tl-name">{p.name}</span>{p.type === "internal" && <span className="type-tag">Internal</span>}<Badge status={p.status} /></div>
                 <div className="tl-meta">{p.client} · {p.trainer || "trainer TBD"}</div>
                 <div className="tl-amount">{fmt(p.expectedAmount)}</div>
               </div>
@@ -687,11 +721,10 @@ function DashboardTab({ projects, expenses }) {
   const periodLabel =
     year === "all" ? "All time" : month === "all" ? year : `${MONTH_NAMES[parseInt(month, 10) - 1]} ${year}`;
 
-  // "Actual" = confirmed, ongoing-or-done business: anything not Lost and not still at the
-  // speculative Pipeline stage (so Scheduled/Signed/Invoiced/Paid all count, matching how the
-  // source spreadsheet's own Dashboard total is computed). "Expected" additionally folds in
-  // genuine Pipeline-stage items — deals that haven't even reached a firm stage yet.
-  const isConfirmed = (x) => x.status !== "Lost" && x.status !== "Pipeline";
+  // "Actual" = confirmed business, everything except Lost (there's no more speculative
+  // Pipeline stage now that statuses were simplified). "Expected" (below) is a literal
+  // unfiltered sum including Lost, matching the source file's own column totals.
+  const isConfirmed = (x) => x.status !== "Lost";
   const actualRevenue = periodProjects.filter(isConfirmed).reduce((s, p) => s + (p.expectedAmount || 0), 0);
   // "Expected" matches the spreadsheet's own column totals exactly: a plain sum with no
   // status filtering at all, so Lost deals' original target amounts still count (that's
@@ -708,7 +741,7 @@ function DashboardTab({ projects, expenses }) {
       const k = monthKey(p.startDate);
       if (!map[k]) map[k] = { month: k, actual: 0, expected: 0 };
       map[k].expected += p.expectedAmount || 0;
-      if (p.status !== "Lost" && p.status !== "Pipeline") map[k].actual += p.expectedAmount || 0;
+      if (p.status !== "Lost") map[k].actual += p.expectedAmount || 0;
     });
     return Object.values(map)
       .filter((m) => m.month !== "unscheduled")
@@ -1131,6 +1164,25 @@ html, body, #root { height: 100%; margin: 0; }
 .chart-card h3 { font-size: 13.5px; font-weight: 600; margin: 0 0 6px 0; color: #14231F; }
 
 .toolbar { display:flex; align-items:center; justify-content:space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 10px; }
+
+.type-toggle { display:inline-flex; gap: 2px; background: #EFEEE5; border-radius: 8px; padding: 3px; margin-bottom: 14px; }
+.type-toggle button {
+  background: transparent; border: none; padding: 6px 14px; border-radius: 6px; font-size: 12.5px; font-weight: 600;
+  color: #6B7A72; cursor: pointer; font-family: 'Inter', sans-serif;
+}
+.type-toggle button.active { background: #fff; color: #14231F; box-shadow: 0 1px 2px rgba(20,35,31,0.08); }
+
+.inline-type-toggle { display:inline-flex; gap: 3px; margin-top: 5px; }
+.inline-type-toggle button {
+  background: #F3F1E7; border: 1px solid #E4E1D6; padding: 2px 8px; border-radius: 5px; font-size: 10.5px; font-weight: 600;
+  color: #6B7A72; cursor: pointer; font-family: 'Inter', sans-serif;
+}
+.inline-type-toggle button.active { background: #14231F; color: #EFEEE5; border-color: #14231F; }
+
+.type-tag {
+  display: inline-block; margin-left: 8px; font-size: 10px; font-weight: 700; letter-spacing: 0.3px;
+  color: #7A5FB5; background: #7A5FB51A; border: 1px solid #7A5FB555; padding: 2px 7px; border-radius: 20px; vertical-align: middle;
+}
 .toolbar-total { font-size: 12.5px; color: #6B7A72; }
 .toolbar-total strong { color: #14231F; }
 .link-btn {
