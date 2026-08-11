@@ -109,8 +109,8 @@ describe("dashboard math matches the underlying rows (black-box check)", () => {
       if (cells.length < 6) continue;
       const amount = eurToNumber(cells[5].textContent);
       const statusText = cells[4].textContent.trim();
-      expected += amount; // Expected = literal unconditional sum, Lost included
-      if (statusText !== "Lost") actual += amount;
+      expected += amount;
+      actual += amount; // expenses now count in full regardless of status
     }
     expect(expected).toBeGreaterThan(0);
     expect(actual).toBeGreaterThan(0);
@@ -606,7 +606,7 @@ describe("No fabricated figures for genuinely unpriced pipeline sessions", () =>
 });
 
 describe("Actual matches the source spreadsheet's own Dashboard totals", () => {
-  it("shows Actual Revenue/Expenses as Bilan 2026 (20931.90/20493.36) plus the EFREI additions now counted as confirmed since the Pipeline status was removed", async () => {
+  it("shows Actual Revenue as Bilan 2026 (20931.90) plus the EFREI additions now counted as confirmed since the Pipeline status was removed, and Actual Expenses equal to Expected (expenses always count in full regardless of status)", async () => {
     const user = userEvent.setup();
     await renderReady();
     // Dashboard is the default landing tab, but defaults to "This month" - switch to All time
@@ -614,13 +614,15 @@ describe("Actual matches the source spreadsheet's own Dashboard totals", () => {
     const revenueCards = screen.getAllByText(/^Revenue$/).map((el) => el.closest(".kpi-card")).filter(Boolean);
     const expenseCards = screen.getAllByText(/^Expenses$/).map((el) => el.closest(".kpi-card")).filter(Boolean);
     const shownRevenue = eurToNumber(within(revenueCards[0]).getByText(/€/, { selector: ".kpi-actual" }).textContent);
-    const shownExpenses = eurToNumber(within(expenseCards[0]).getByText(/€/, { selector: ".kpi-actual" }).textContent);
+    const shownActualExpenses = eurToNumber(within(expenseCards[0]).getByText(/€/, { selector: ".kpi-actual" }).textContent);
+    const shownExpectedExpenses = eurToNumber(within(expenseCards[0]).getByText(/if everything closes/i).textContent);
 
-    // Bilan 2026 file total (20931.90/20493.36) + Cloud Intro 3 (2212/2000), which used to be
+    // Bilan 2026 file total (20931.90) + Cloud Intro 3 (2212), which used to be
     // "Pipeline" (excluded from Actual) but now defaults to "Signed" since Pipeline no longer
     // exists as a status - this is an intentional consequence of simplifying to 5 statuses.
     expect(Math.abs(shownRevenue - (20931.9 + 2212))).toBeLessThanOrEqual(2);
-    expect(Math.abs(shownExpenses - (20493.36 + 2000))).toBeLessThanOrEqual(2);
+    // Expenses count in full regardless of status, so Actual === Expected for expenses now.
+    expect(Math.abs(shownActualExpenses - shownExpectedExpenses)).toBeLessThanOrEqual(2);
   });
 
   it("shows Expected Revenue/Expenses as a literal sum of every row (Lost included), matching the file's Expected Revenue (43121.90) / Expected TCost (38843.36) totals plus the EFREI pipeline additions", async () => {
