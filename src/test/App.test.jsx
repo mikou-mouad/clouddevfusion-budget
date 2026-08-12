@@ -135,7 +135,7 @@ describe("Revenue tab CRUD", () => {
     await user.clear(inputs[1]);
     await user.type(inputs[1], "Acme Corp");
 
-    const numberInput = within(editingRow).getByRole("spinbutton");
+    const numberInput = within(editingRow).getByRole("textbox", { name: "Amount" });
     await user.clear(numberInput);
     await user.type(numberInput, "1500");
 
@@ -180,7 +180,7 @@ describe("Expenses tab CRUD", () => {
     const editingRow = document.querySelector("tr.editing");
     expect(editingRow).toBeTruthy();
 
-    const numberInput = within(editingRow).getByRole("spinbutton");
+    const numberInput = within(editingRow).getByRole("textbox", { name: "Amount" });
     await user.clear(numberInput);
     await user.type(numberInput, "120");
 
@@ -696,7 +696,7 @@ describe("Delivered status", () => {
     await goToTab(user, "Revenue");
     await user.click(screen.getByRole("button", { name: /New project/i }));
     const editingRow = document.querySelector("tr.editing");
-    const numberInput = within(editingRow).getByRole("spinbutton");
+    const numberInput = within(editingRow).getByRole("textbox", { name: "Amount" });
     await user.clear(numberInput);
     await user.type(numberInput, "500");
     const statusSelect = within(editingRow).getByRole("combobox");
@@ -918,7 +918,7 @@ describe("Non-contiguous session dates on a single project", () => {
     // the chip for the added date should now be visible
     expect(within(editingRow).getByText(/15 Sept? 2026/)).toBeInTheDocument();
 
-    const numberInput = within(editingRow).getByRole("spinbutton");
+    const numberInput = within(editingRow).getByRole("textbox", { name: "Amount" });
     await user.clear(numberInput);
     await user.type(numberInput, "1000");
     await user.click(within(editingRow).getByRole("button", { name: "Save" }));
@@ -1001,7 +1001,7 @@ describe("Scheduled status reintroduced after Signed", () => {
     await goToTab(user, "Revenue");
     await user.click(screen.getByRole("button", { name: /New project/i }));
     const editingRow = document.querySelector("tr.editing");
-    const numberInput = within(editingRow).getByRole("spinbutton");
+    const numberInput = within(editingRow).getByRole("textbox", { name: "Amount" });
     await user.clear(numberInput);
     await user.type(numberInput, "777");
     const statusSelect = within(editingRow).getByRole("combobox");
@@ -1033,7 +1033,7 @@ describe("Period filter Option A: any session date counts, not just the primary 
     fireEvent.change(extraDateInput, { target: { value: "2026-03-10" } }); // extra date in March
     await user.click(within(editingRow).getByRole("button", { name: "Add date" }));
 
-    const numberInput = within(editingRow).getByRole("spinbutton");
+    const numberInput = within(editingRow).getByRole("textbox", { name: "Amount" });
     await user.clear(numberInput);
     await user.type(numberInput, "500");
     await user.click(within(editingRow).getByRole("button", { name: "Save" }));
@@ -1073,7 +1073,7 @@ describe("Period filter Option A: any session date counts, not just the primary 
     const extraDateInput = editingRow.querySelector(".extra-dates-add input");
     fireEvent.change(extraDateInput, { target: { value: "2026-04-10" } }); // Feb and April, nothing in March
     await user.click(within(editingRow).getByRole("button", { name: "Add date" }));
-    const numberInput = within(editingRow).getByRole("spinbutton");
+    const numberInput = within(editingRow).getByRole("textbox", { name: "Amount" });
     await user.clear(numberInput);
     await user.type(numberInput, "900");
     await user.click(within(editingRow).getByRole("button", { name: "Save" }));
@@ -1328,7 +1328,7 @@ describe("Adding multiple extra dates does not lose one due to stale state", () 
     const chips = editingRow.querySelectorAll(".extra-date-chip");
     expect(chips.length).toBe(6);
 
-    const numberInput = within(editingRow).getByRole("spinbutton");
+    const numberInput = within(editingRow).getByRole("textbox", { name: "Amount" });
     await user.clear(numberInput);
     await user.type(numberInput, "100");
     await user.click(within(editingRow).getByRole("button", { name: "Save" }));
@@ -1419,5 +1419,80 @@ describe("Expenses text filter also searches by client name", () => {
     const projectFilter = screen.getByPlaceholderText("Project or client…");
     await user.type(projectFilter, "Cloud Intro");
     expect(screen.getAllByText("Efrei - Cloud Intro").length).toBeGreaterThan(0);
+  });
+});
+
+describe("Amount field accepts comma as decimal separator", () => {
+  it("stores 3.5 correctly when the user types '3,5' in the amount field", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Revenue");
+    await user.click(screen.getByRole("button", { name: /New project/i }));
+    const editingRow = document.querySelector("tr.editing");
+
+    const amountInput = within(editingRow).getByRole("textbox", { name: "Amount" });
+    await user.clear(amountInput);
+    await user.type(amountInput, "3,5");
+    expect(amountInput.value).toBe("3,5"); // comma preserved in the raw input while typing
+
+    await user.click(within(editingRow).getByRole("button", { name: "Save" }));
+    // new row saves immediately (no review step)
+    await waitFor(() => expect(document.querySelector("tr.editing")).toBeNull());
+
+    const savedRow = screen.getByText("New project", { selector: ".proj-name" }).closest("tr");
+    expect(within(savedRow).getByText("4 €")).toBeInTheDocument(); // fmt rounds 3.5 to 4
+  });
+});
+
+describe("Save shows a review modal for existing rows", () => {
+  it("clicking Save on an existing row shows a recap of what changed before committing", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Revenue");
+
+    const row = rowFor("Efrei - Cloud Intro");
+    await user.click(within(row).getByRole("button", { name: "Edit" }));
+    const editingRow = document.querySelector("tr.editing");
+
+    // change the amount
+    const amountInput = within(editingRow).getByRole("textbox", { name: "Amount" });
+    await user.clear(amountInput);
+    await user.type(amountInput, "999");
+
+    await user.click(within(editingRow).getByRole("button", { name: "Save" }));
+
+    // review modal should appear
+    const modal = document.querySelector(".review-modal");
+    expect(modal).toBeTruthy();
+    expect(modal.textContent).toContain("Amount");
+    expect(modal.textContent).toContain("999");
+
+    // clicking "Back to editing" closes the modal without saving
+    await user.click(screen.getByRole("button", { name: /Back to editing/i }));
+    expect(document.querySelector(".review-modal")).toBeNull();
+    expect(document.querySelector("tr.editing")).toBeTruthy(); // still in edit mode
+
+    // now confirm
+    await user.click(within(document.querySelector("tr.editing")).getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: /Confirm & Save/i }));
+    await waitFor(() => expect(document.querySelector("tr.editing")).toBeNull());
+
+    // amount updated
+    const savedRow = rowFor("Efrei - Cloud Intro");
+    expect(within(savedRow).getByText("999 €")).toBeInTheDocument();
+  });
+
+  it("clicking Save on a NEW row saves directly, no review step", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Revenue");
+
+    await user.click(screen.getByRole("button", { name: /New project/i }));
+    const editingRow = document.querySelector("tr.editing");
+    await user.click(within(editingRow).getByRole("button", { name: "Save" }));
+
+    // no review modal
+    expect(document.querySelector(".review-modal")).toBeNull();
+    await waitFor(() => expect(document.querySelector("tr.editing")).toBeNull());
   });
 });

@@ -28,6 +28,11 @@ const EXPENSE_CATEGORIES = ["Trainer Fee", "Commission", "Certification", "Other
 
 const fmt = (n) =>
   new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(n || 0);
+// Accepts either comma or period as the decimal separator (French input habits: "3,5")
+const parseAmount = (str) => {
+  const n = parseFloat(String(str).replace(",", "."));
+  return Number.isNaN(n) ? 0 : n;
+};
 const fmtDate = (d) => {
   if (!d) return "-";
   const dt = new Date(d + "T00:00:00");
@@ -194,6 +199,59 @@ function Select({ value, onChange, options, labelFor }) {
 /** Multi-select checkbox dropdown, used for column filters (Status / Category). */
 /** Lets a single project (one payment) have extra, non-contiguous session dates
  *  beyond its primary start/end range — e.g. a training split across scattered days. */
+/** Compares an original object to a draft across a set of {key, label, format} field
+ *  descriptors and returns only the ones that actually changed, for a pre-save recap. */
+function computeFieldDiff(original, draft, fields) {
+  const changes = [];
+  for (const f of fields) {
+    const before = original ? original[f.key] : undefined;
+    const after = draft[f.key];
+    const beforeStr = JSON.stringify(before ?? null);
+    const afterStr = JSON.stringify(after ?? null);
+    if (beforeStr !== afterStr) {
+      changes.push({
+        label: f.label,
+        before: f.format ? f.format(before) : (before ?? "—"),
+        after: f.format ? f.format(after) : (after ?? "—"),
+      });
+    }
+  }
+  return changes;
+}
+
+/** Modal shown before committing an edit to an EXISTING row, listing exactly what
+ *  changed (old -> new) so a save never happens "blind". */
+function SaveReviewModal({ changes, onConfirm, onBack }) {
+  return createPortal(
+    <div className="review-backdrop" onClick={onBack}>
+      <div className="review-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="review-head">Review changes before saving</div>
+        {changes.length === 0 ? (
+          <div className="review-empty">No changes detected.</div>
+        ) : (
+          <div className="review-list">
+            {changes.map((c) => (
+              <div className="review-row" key={c.label}>
+                <div className="review-label">{c.label}</div>
+                <div className="review-values">
+                  <span className="review-before">{c.before}</span>
+                  <span className="review-arrow">→</span>
+                  <span className="review-after">{c.after}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        <div className="review-actions">
+          <button className="ghost-btn" onClick={onBack}>Back to editing</button>
+          <button className="btn-primary" onClick={onConfirm}>Confirm &amp; Save</button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
 function ExtraDatesEditor({ dates, onChange }) {
   const [draftDate, setDraftDate] = useState("");
   const add = () => {
@@ -356,25 +414,48 @@ function RevenueTab({ projects, setProjects }) {
   const [pendingNewId, setPendingNewId] = useState(null); // id of a just-created row not yet saved
   const [filters, setFilters] = useState(EMPTY_REVENUE_FILTERS);
   const [typeView, setTypeView] = useState("revenue"); // "revenue" | "internal" | "all"
+  const [editOriginal, setEditOriginal] = useState(null);
+  const [reviewChanges, setReviewChanges] = useState(null); // null = no modal, [] or [...] = show it
   const setF = (patch) => setFilters((f) => ({ ...f, ...patch }));
 
-  const startEdit = (p) => { setEditingId(p.id); setDraft({ ...p }); };
+  const REVENUE_DIFF_FIELDS = [
+    { key: "name", label: "Project name" },
+    { key: "type", label: "Type", format: (v) => (v === "internal" ? "Internal" : "Client") },
+    { key: "client", label: "Client" },
+    { key: "contact", label: "Contact" },
+    { key: "trainer", label: "Trainer" },
+    { key: "startDate", label: "Start date", format: (v) => fmtDate(v) },
+    { key: "endDate", label: "End date", format: (v) => fmtDate(v) },
+    { key: "extraDates", label: "Extra dates", format: (v) => (v && v.length ? v.map(fmtDate).join(", ") : "none") },
+    { key: "status", label: "Status" },
+    { key: "expectedAmount", label: "Amount", format: (v) => fmt(v) },
+  ];
+
+  const startEdit = (p) => { setEditingId(p.id); setDraft({ ...p }); setEditOriginal(p); };
   const startNew = () => {
     const p = { id: uid("p"), type: typeView === "internal" ? "internal" : "revenue", client: "", contact: "", source: "", trainer: "", topic: "Training", name: "New project", startDate: null, endDate: null, extraDates: [], status: "Signed", expectedAmount: 0, notes: "" };
     setProjects([p, ...projects]);
     setPendingNewId(p.id);
     startEdit(p);
   };
+  const doSave = () => {
+    const { expectedAmountText, ...clean } = draft;
+    setProjects(projects.map((p) => (p.id === editingId ? clean : p)));
+    setEditingId(null); setDraft(null); setPendingNewId(null); setEditOriginal(null); setReviewChanges(null);
+  };
   const save = () => {
-    setProjects(projects.map((p) => (p.id === editingId ? draft : p)));
-    setEditingId(null); setDraft(null); setPendingNewId(null);
+    // brand new / duplicated rows save immediately, no review needed
+    if (pendingNewId === editingId) { doSave(); return; }
+    const changes = computeFieldDiff(editOriginal, draft, REVENUE_DIFF_FIELDS);
+    if (changes.length === 0) { doSave(); return; }
+    setReviewChanges(changes);
   };
   const cancelEdit = () => {
     if (pendingNewId === editingId) {
       // never actually saved - discard the row rather than leaving a stray blank/duplicate behind
       setProjects(projects.filter((p) => p.id !== editingId));
     }
-    setEditingId(null); setDraft(null); setPendingNewId(null);
+    setEditingId(null); setDraft(null); setPendingNewId(null); setEditOriginal(null);
   };
   const remove = (id) => setProjects(projects.filter((p) => p.id !== id));
   const duplicate = (p) => {
@@ -488,7 +569,7 @@ function RevenueTab({ projects, setProjects }) {
                         />
                       </td>
                       <td><Select value={draft.status} onChange={(v) => setDraft((d) => ({ ...d, status: v }))} options={STATUS_ORDER} /></td>
-                      <td className="num"><input className="num-input" type="number" value={draft.expectedAmount} onChange={(e) => setDraft((d) => ({ ...d, expectedAmount: parseFloat(e.target.value) || 0 }))} /><div className="ht-hint">HT (excl. VAT)</div></td>
+                      <td className="num"><input className="num-input" type="text" inputMode="decimal" aria-label="Amount" value={draft.expectedAmountText !== undefined ? draft.expectedAmountText : String(draft.expectedAmount)} onChange={(e) => setDraft((d) => ({ ...d, expectedAmountText: e.target.value, expectedAmount: parseAmount(e.target.value) }))} /><div className="ht-hint">HT (excl. VAT)</div></td>
                     </>
                   ) : (
                     <>
@@ -522,6 +603,13 @@ function RevenueTab({ projects, setProjects }) {
           </tbody>
         </table>
       </div>
+      {reviewChanges && (
+        <SaveReviewModal
+          changes={reviewChanges}
+          onConfirm={doSave}
+          onBack={() => setReviewChanges(null)}
+        />
+      )}
     </div>
   );
 }
@@ -550,9 +638,19 @@ function ExpensesTab({ expenses, setExpenses, projects }) {
   const [pendingNewId, setPendingNewId] = useState(null); // id of a just-created row not yet saved
   const [filters, setFilters] = useState(EMPTY_EXPENSE_FILTERS);
   const [typeView, setTypeView] = useState("all"); // "all" | "revenue" | "internal" | "recurring"
+  const [editOriginal, setEditOriginal] = useState(null);
+  const [reviewChanges, setReviewChanges] = useState(null);
   const setF = (patch) => setFilters((f) => ({ ...f, ...patch }));
 
-  const startEdit = (e) => { setEditingId(e.id); setDraft({ ...e }); };
+  const EXPENSE_DIFF_FIELDS = [
+    { key: "projectName", label: "Linked project", format: (v) => v || "General / Recurring" },
+    { key: "category", label: "Category" },
+    { key: "date", label: "Date", format: (v) => fmtDate(v) },
+    { key: "status", label: "Status" },
+    { key: "expectedAmount", label: "Amount", format: (v) => fmt(v) },
+  ];
+
+  const startEdit = (e) => { setEditingId(e.id); setDraft({ ...e }); setEditOriginal(e); };
   const startNew = () => {
     const e = { id: uid("e"), projectId: null, projectName: "", category: "Other Cost", date: null, status: "Signed", expectedAmount: 0, notes: "" };
     setExpenses([e, ...expenses]);
@@ -563,15 +661,22 @@ function ExpensesTab({ expenses, setExpenses, projects }) {
     // right after creation.
     if (typeView === "revenue" || typeView === "internal") setTypeView("all");
   };
+  const doSave = () => {
+    const { expectedAmountText, ...clean } = draft;
+    setExpenses(expenses.map((e) => (e.id === editingId ? clean : e)));
+    setEditingId(null); setDraft(null); setPendingNewId(null); setEditOriginal(null); setReviewChanges(null);
+  };
   const save = () => {
-    setExpenses(expenses.map((e) => (e.id === editingId ? draft : e)));
-    setEditingId(null); setDraft(null); setPendingNewId(null);
+    if (pendingNewId === editingId) { doSave(); return; }
+    const changes = computeFieldDiff(editOriginal, draft, EXPENSE_DIFF_FIELDS);
+    if (changes.length === 0) { doSave(); return; }
+    setReviewChanges(changes);
   };
   const cancelEdit = () => {
     if (pendingNewId === editingId) {
       setExpenses(expenses.filter((e) => e.id !== editingId));
     }
-    setEditingId(null); setDraft(null); setPendingNewId(null);
+    setEditingId(null); setDraft(null); setPendingNewId(null); setEditOriginal(null);
   };
   const remove = (id) => setExpenses(expenses.filter((e) => e.id !== id));
   const duplicate = (e) => {
@@ -690,7 +795,7 @@ function ExpensesTab({ expenses, setExpenses, projects }) {
                       <td><Select value={draft.category} onChange={(v) => setDraft((d) => ({ ...d, category: v }))} options={EXPENSE_CATEGORIES} /></td>
                       <td><input type="date" value={draft.date || ""} onChange={(ev) => setDraft((d) => ({ ...d, date: ev.target.value || null }))} /></td>
                       <td><Select value={draft.status} onChange={(v) => setDraft((d) => ({ ...d, status: v }))} options={EXPENSE_STATUS_ORDER} /></td>
-                      <td className="num"><input className="num-input" type="number" value={draft.expectedAmount} onChange={(ev) => setDraft((d) => ({ ...d, expectedAmount: parseFloat(ev.target.value) || 0 }))} /><div className="ht-hint">HT (excl. VAT)</div></td>
+                      <td className="num"><input className="num-input" type="text" inputMode="decimal" aria-label="Amount" value={draft.expectedAmountText !== undefined ? draft.expectedAmountText : String(draft.expectedAmount)} onChange={(ev) => setDraft((d) => ({ ...d, expectedAmountText: ev.target.value, expectedAmount: parseAmount(ev.target.value) }))} /><div className="ht-hint">HT (excl. VAT)</div></td>
                     </>
                   ) : (
                     <>
@@ -715,6 +820,13 @@ function ExpensesTab({ expenses, setExpenses, projects }) {
           </tbody>
         </table>
       </div>
+      {reviewChanges && (
+        <SaveReviewModal
+          changes={reviewChanges}
+          onConfirm={doSave}
+          onBack={() => setReviewChanges(null)}
+        />
+      )}
     </div>
   );
 }
@@ -1505,6 +1617,27 @@ tr.filter-row th { padding: 7px 10px; background: #1B1B1F; border-bottom: 1px so
   border: 1px solid #3B3B42; border-radius: 6px; padding: 5px 9px; font-size: 12px;
   color: #F1F0ED; background: #1C1C20; white-space: nowrap; font-family: 'Inter', sans-serif;
 }
+.review-backdrop {
+  position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,0.55);
+  display:flex; align-items:center; justify-content:center; padding: 20px;
+}
+.review-modal {
+  background: #1C1C20; border: 1px solid #2E2E34; border-radius: 12px;
+  width: 100%; max-width: 420px; max-height: 80vh; display:flex; flex-direction: column;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5); color: #F1F0ED; font-family: 'Inter', sans-serif;
+}
+.review-head { font-family: 'Fraunces', serif; font-size: 16px; font-weight: 600; padding: 18px 20px 12px; border-bottom: 1px solid #2E2E34; }
+.review-empty { padding: 24px 20px; color: #9B9BA3; font-size: 13px; }
+.review-list { overflow-y: auto; padding: 8px 20px; }
+.review-row { padding: 10px 0; border-bottom: 1px solid #26262B; }
+.review-row:last-child { border-bottom: none; }
+.review-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; color: #9B9BA3; font-weight: 600; margin-bottom: 4px; }
+.review-values { display:flex; align-items:center; gap: 8px; font-size: 13px; flex-wrap: wrap; }
+.review-before { color: #E0695A; text-decoration: line-through; opacity: 0.8; }
+.review-arrow { color: #9B9BA3; }
+.review-after { color: #34A87A; font-weight: 600; }
+.review-actions { display:flex; justify-content: flex-end; gap: 8px; padding: 16px 20px; border-top: 1px solid #2E2E34; }
+
 .msf-panel {
   position: fixed; z-index: 200;
   background: #1C1C20; border: 1px solid #2E2E34; border-radius: 8px;
