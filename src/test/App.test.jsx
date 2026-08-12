@@ -1337,3 +1337,57 @@ describe("Adding multiple extra dates does not lose one due to stale state", () 
     expect(within(savedRow).getByText(/\+6 more dates/)).toBeInTheDocument();
   });
 });
+
+describe("Editing an existing row stays in place (does not jump to top)", () => {
+  it("Revenue: editing a row not at the top leaves it at the same position and shows the correct data", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Revenue");
+
+    const rows = screen.getAllByRole("row").slice(2);
+    const dataRows = rows.filter((r) => within(r).queryAllByRole("cell").length >= 8);
+    const targetIndex = Math.min(3, dataRows.length - 1);
+    const targetRow = dataRows[targetIndex];
+    const targetName = targetRow.querySelector(".proj-name").textContent;
+
+    await user.click(within(targetRow).getByRole("button", { name: "Edit" }));
+
+    const editingRow = document.querySelector("tr.editing");
+    const allBodyRows = Array.from(document.querySelectorAll("tbody tr"));
+    expect(allBodyRows.indexOf(editingRow)).toBe(targetIndex); // stayed in place, no jump to top
+    const nameInput = within(editingRow).getAllByRole("textbox")[0];
+    expect(nameInput.value).toBe(targetName); // editing the row that was actually clicked
+  });
+
+  it("Expenses: editing a row not at the top leaves it at the same position and shows the correct data", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Expenses");
+
+    const rows = screen.getAllByRole("row").slice(2);
+    const dataRows = rows.filter((r) => within(r).queryAllByRole("cell").length >= 6);
+    const targetIndex = Math.min(5, dataRows.length - 1);
+    const targetRow = dataRows[targetIndex];
+    const targetProjectId = within(targetRow).getAllByRole("cell")[1].textContent;
+
+    await user.click(within(targetRow).getByRole("button", { name: "Edit" }));
+
+    const editingRow = document.querySelector("tr.editing");
+    const allBodyRows = Array.from(document.querySelectorAll("tbody tr"));
+    expect(allBodyRows.indexOf(editingRow)).toBe(targetIndex); // stayed in place, no jump to top
+    const linkedProjectSelect = within(editingRow).getAllByRole("combobox")[0];
+    const selectedLabel = linkedProjectSelect.options[linkedProjectSelect.selectedIndex].text;
+    expect(selectedLabel).toBe(targetProjectId); // editing the row that was actually clicked, not a different one
+  });
+
+  it("New project still jumps to the top (unsaved rows should stay visible)", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Revenue");
+    await user.click(screen.getByRole("button", { name: /New project/i }));
+
+    const editingRow = document.querySelector("tr.editing");
+    const allBodyRows = Array.from(document.querySelectorAll("tbody tr"));
+    expect(allBodyRows.indexOf(editingRow)).toBe(0);
+  });
+});

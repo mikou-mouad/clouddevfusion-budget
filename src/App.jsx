@@ -398,8 +398,10 @@ function RevenueTab({ projects, setProjects }) {
     return true;
   });
   const sorted = [...filtered].sort((a, b) => {
-    if (a.id === editingId) return -1;
-    if (b.id === editingId) return 1;
+    if (pendingNewId === editingId) {
+      if (a.id === editingId) return -1;
+      if (b.id === editingId) return 1;
+    }
     return (b.startDate || "0000").localeCompare(a.startDate || "0000");
   });
   const total = filtered.reduce((s, p) => s + (p.expectedAmount || 0), 0);
@@ -592,8 +594,10 @@ function ExpensesTab({ expenses, setExpenses, projects }) {
     return true;
   });
   const sorted = [...filtered].sort((a, b) => {
-    if (a.id === editingId) return -1;
-    if (b.id === editingId) return 1;
+    if (pendingNewId === editingId) {
+      if (a.id === editingId) return -1;
+      if (b.id === editingId) return 1;
+    }
     return (b.date || "0000").localeCompare(a.date || "0000");
   });
   const total = filtered.reduce((s, e) => s + (e.expectedAmount || 0), 0);
