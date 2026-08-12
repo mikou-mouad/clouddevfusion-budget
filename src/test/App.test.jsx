@@ -1440,7 +1440,8 @@ describe("Amount field accepts comma as decimal separator", () => {
     await waitFor(() => expect(document.querySelector("tr.editing")).toBeNull());
 
     const savedRow = screen.getByText("New project", { selector: ".proj-name" }).closest("tr");
-    expect(within(savedRow).getByText("4 €")).toBeInTheDocument(); // fmt rounds 3.5 to 4
+    // with up-to-2-decimal display, 3.5 should appear as 3,50 € (fr-FR locale)
+    expect(within(savedRow).getByText(/3[,.]5/)).toBeInTheDocument();
   });
 });
 

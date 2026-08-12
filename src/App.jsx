@@ -27,7 +27,7 @@ const STATUS_COLORS = {
 const EXPENSE_CATEGORIES = ["Trainer Fee", "Commission", "Certification", "Other Cost", "Office", "Salary", "Software", "Travel", "Other"];
 
 const fmt = (n) =>
-  new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(n || 0);
+  new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR", minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(n || 0);
 // Accepts either comma or period as the decimal separator (French input habits: "3,5")
 const parseAmount = (str) => {
   const n = parseFloat(String(str).replace(",", "."));
