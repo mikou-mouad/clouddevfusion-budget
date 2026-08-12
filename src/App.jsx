@@ -221,6 +221,58 @@ function computeFieldDiff(original, draft, fields) {
 
 /** Modal shown before committing an edit to an EXISTING row, listing exactly what
  *  changed (old -> new) so a save never happens "blind". */
+/** A "Voir le détail" link that opens a popover showing every line
+ *  that makes up the total, so the number isn't a black box. */
+function TotalBreakdown({ rows, nameKey, amountKey = "expectedAmount" }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  const lines = rows.filter((r) => (r[amountKey] || 0) > 0);
+  const total = rows.reduce((s, r) => s + (r[amountKey] || 0), 0);
+
+  if (lines.length === 0) return null;
+
+  return (
+    <span className="total-breakdown" ref={ref}>
+      <button className="detail-link" onClick={() => setOpen((v) => !v)}>Voir le détail</button>
+      {open && createPortal(
+        <div
+          className="breakdown-panel"
+          style={{
+            position: "fixed",
+            top: ref.current ? ref.current.getBoundingClientRect().bottom + 6 : 0,
+            left: ref.current ? ref.current.getBoundingClientRect().left : 0,
+            zIndex: 400,
+          }}
+        >
+          <div className="breakdown-head">{fmt(total)} = </div>
+          <div className="breakdown-list">
+            {lines.sort((a, b) => (b[amountKey] || 0) - (a[amountKey] || 0)).map((r, i) => (
+              <div className="breakdown-row" key={i}>
+                <span className="breakdown-name">{r[nameKey]}</span>
+                <span className="breakdown-amount">{fmt(r[amountKey])}</span>
+              </div>
+            ))}
+          </div>
+          <div className="breakdown-formula">
+            {lines.sort((a, b) => (b[amountKey] || 0) - (a[amountKey] || 0))
+              .map((r) => fmt(r[amountKey]).replace(" €", "€").replace("\u202f", ""))
+              .join(" + ")}
+          </div>
+        </div>,
+        document.body
+      )}
+    </span>
+  );
+}
+
 function SaveReviewModal({ changes, onConfirm, onBack }) {
   return createPortal(
     <div className="review-backdrop" onClick={onBack}>
@@ -506,7 +558,7 @@ function RevenueTab({ projects, setProjects }) {
       </div>
 
       <div className="toolbar">
-        <div className="toolbar-total">{filtered.length} of {inTypeView.length} {typeView === "internal" ? "internal items" : "projects"} · <strong>{fmt(total)}</strong> {typeView === "internal" ? "cost" : "pipeline value"}</div>
+        <div className="toolbar-total">{filtered.length} of {inTypeView.length} {typeView === "internal" ? "internal items" : "projects"} · <strong>{fmt(total)}</strong> {typeView === "internal" ? "cost" : "pipeline value"} <TotalBreakdown rows={filtered} nameKey="name" /></div>
         {isFiltered && <button className="link-btn" onClick={() => setFilters(EMPTY_REVENUE_FILTERS)}>Clear filters</button>}
       </div>
 
@@ -734,7 +786,7 @@ function ExpensesTab({ expenses, setExpenses, projects }) {
       </div>
 
       <div className="toolbar">
-        <div className="toolbar-total">{filtered.length} of {inTypeView.length} entries · <strong>{fmt(total)}</strong> total</div>
+        <div className="toolbar-total">{filtered.length} of {inTypeView.length} entries · <strong>{fmt(total)}</strong> total <TotalBreakdown rows={filtered} nameKey="projectName" /></div>
         {isFiltered && <button className="link-btn" onClick={() => setFilters(EMPTY_EXPENSE_FILTERS)}>Clear filters</button>}
       </div>
 
@@ -1556,6 +1608,25 @@ html, body, #root { height: 100%; margin: 0; }
 }
 .toolbar-total { font-size: 12.5px; color: #9B9BA3; }
 .toolbar-total strong { color: #F1F0ED; }
+.total-breakdown { display: inline-block; position: relative; }
+.detail-link {
+  background: none; border: none; color: #6FA8D8; font-size: 11.5px; font-weight: 600;
+  cursor: pointer; font-family: 'Inter', sans-serif; padding: 0; margin-left: 6px;
+  text-decoration: underline dotted;
+}
+.breakdown-panel {
+  background: #1C1C20; border: 1px solid #2E2E34; border-radius: 10px;
+  min-width: 280px; max-width: 380px; max-height: 320px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4); font-family: 'Inter', sans-serif; overflow: hidden;
+  display: flex; flex-direction: column;
+}
+.breakdown-head { font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600; color: #F1F0ED; padding: 10px 14px 6px; border-bottom: 1px solid #2E2E34; }
+.breakdown-list { overflow-y: auto; max-height: 200px; padding: 6px 0; }
+.breakdown-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 5px 14px; font-size: 12px; }
+.breakdown-row:hover { background: #26262B; }
+.breakdown-name { color: #9B9BA3; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.breakdown-amount { font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #F1F0ED; flex-shrink: 0; }
+.breakdown-formula { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #6B6B75; padding: 6px 14px 10px; border-top: 1px solid #2E2E34; word-break: break-all; line-height: 1.5; }
 .link-btn {
   background: none; border: none; color: #6FA8D8; font-size: 12.5px; font-weight: 600;
   cursor: pointer; font-family: 'Inter', sans-serif; padding: 0;
