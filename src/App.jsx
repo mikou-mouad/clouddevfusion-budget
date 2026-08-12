@@ -584,7 +584,14 @@ function ExpensesTab({ expenses, setExpenses, projects }) {
   const inTypeView = expenses.filter((e) => typeView === "all" || expenseScope(e, projects) === typeView);
   const filtered = inTypeView.filter((e) => {
     const name = e.projectName || "General / Recurring";
-    if (filters.project && !name.toLowerCase().includes(filters.project.toLowerCase())) return false;
+    const linkedProject = e.projectId ? projects.find((p) => p.id === e.projectId) : null;
+    const client = linkedProject?.client || "";
+    if (filters.project) {
+      const q = filters.project.toLowerCase();
+      const matchesName = name.toLowerCase().includes(q);
+      const matchesClient = client.toLowerCase().includes(q);
+      if (!matchesName && !matchesClient) return false;
+    }
     if (!filters.categories.has(e.category)) return false;
     if (!filters.statuses.has(e.status)) return false;
     if (filters.dateFrom && (!e.date || e.date < filters.dateFrom)) return false;
@@ -634,7 +641,7 @@ function ExpensesTab({ expenses, setExpenses, projects }) {
             </tr>
             <tr className="filter-row">
               <th></th>
-              <th><input className="col-filter" placeholder="Filter…" value={filters.project} onChange={(e) => setF({ project: e.target.value })} /></th>
+              <th><input className="col-filter" placeholder="Project or client…" value={filters.project} onChange={(e) => setF({ project: e.target.value })} /></th>
               <th>
                 <MultiSelectFilter label="Category" options={EXPENSE_CATEGORIES} selected={filters.categories} onChange={(s) => setF({ categories: s })} />
               </th>

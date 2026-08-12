@@ -263,7 +263,7 @@ describe("Expenses column filters", () => {
     await renderReady();
     await goToTab(user, "Expenses");
 
-    const projectFilter = screen.getByPlaceholderText("Filter…");
+    const projectFilter = screen.getByPlaceholderText("Project or client…");
     await user.type(projectFilter, "IWG");
 
     expect(screen.getAllByText("IWG - Office").length).toBeGreaterThan(0);
@@ -578,7 +578,7 @@ describe("Revenue vs. overhead expense separation", () => {
     await renderReady();
     await goToTab(user, "Expenses");
 
-    const projectFilter = screen.getByPlaceholderText("Filter…");
+    const projectFilter = screen.getByPlaceholderText("Project or client…");
     await user.type(projectFilter, "Teams Sub");
     expect(screen.getByText(/2 of \d+ entries/)).toBeInTheDocument(); // two Teams Sub months
   });
@@ -599,7 +599,7 @@ describe("No fabricated figures for genuinely unpriced pipeline sessions", () =>
 
     // and no Trainer Fee expense should exist for them either, since the source has none
     await goToTab(user, "Expenses");
-    const projectFilter = screen.getByPlaceholderText("Filter…");
+    const projectFilter = screen.getByPlaceholderText("Project or client…");
     await user.type(projectFilter, "Cloud Intro 2");
     expect(screen.getByText(/0 of \d+ entries/)).toBeInTheDocument();
   });
@@ -1389,5 +1389,35 @@ describe("Editing an existing row stays in place (does not jump to top)", () => 
     const editingRow = document.querySelector("tr.editing");
     const allBodyRows = Array.from(document.querySelectorAll("tbody tr"));
     expect(allBodyRows.indexOf(editingRow)).toBe(0);
+  });
+});
+
+describe("Expenses text filter also searches by client name", () => {
+  it("typing a client name (e.g. 'Efrei') shows every expense linked to any of that client's projects", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Expenses");
+
+    const projectFilter = screen.getByPlaceholderText("Project or client…");
+    await user.type(projectFilter, "Efrei");
+
+    const rows = screen.getAllByRole("row").slice(2).filter((r) => within(r).queryAllByRole("cell").length >= 6);
+    expect(rows.length).toBeGreaterThan(1);
+    for (const row of rows) {
+      const linkedName = within(row).getAllByRole("cell")[1].textContent;
+      expect(linkedName.toLowerCase()).toContain("efrei");
+    }
+    // and something clearly NOT Efrei-linked should be excluded
+    expect(screen.queryByText("Pearson AZ-500")).not.toBeInTheDocument();
+  });
+
+  it("still matches by the linked project's own name too (not just client)", async () => {
+    const user = userEvent.setup();
+    await renderReady();
+    await goToTab(user, "Expenses");
+
+    const projectFilter = screen.getByPlaceholderText("Project or client…");
+    await user.type(projectFilter, "Cloud Intro");
+    expect(screen.getAllByText("Efrei - Cloud Intro").length).toBeGreaterThan(0);
   });
 });
