@@ -165,7 +165,7 @@ function Badge({ status }) {
   );
 }
 
-function KpiCard({ icon: Icon, label, actual, expected, tone }) {
+function KpiCard({ icon: Icon, label, actual, expected, tone, breakdownRows, breakdownNameKey }) {
   return (
     <div className="kpi-card">
       <div className="kpi-top">
@@ -174,7 +174,7 @@ function KpiCard({ icon: Icon, label, actual, expected, tone }) {
         </div>
         <span className="kpi-label">{label}</span>
       </div>
-      <div className="kpi-actual">{fmt(actual)}</div>
+      <div className="kpi-actual">{fmt(actual)}{breakdownRows && <TotalBreakdown rows={breakdownRows} nameKey={breakdownNameKey} />}</div>
       <div className="kpi-expected">
         <Target size={12} style={{ marginRight: 4, position: "relative", top: 1 }} />
         {fmt(expected)} if everything closes
@@ -460,15 +460,124 @@ const EMPTY_REVENUE_FILTERS = {
   dateFrom: "", dateTo: "", amountMin: "", amountMax: "",
 };
 
+/* ---------------------------------------------------------------
+   Shared period filtering (used by Revenue, Expenses and Dashboard)
+--------------------------------------------------------------- */
+const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const pad2 = (n) => String(n).padStart(2, "0");
+const toISODate = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+
+function availableYears(projects, expenses) {
+  const years = new Set();
+  projects.forEach((p) => { if (p.startDate) years.add(p.startDate.slice(0, 4)); });
+  expenses.forEach((e) => { if (e.date) years.add(e.date.slice(0, 4)); });
+  return Array.from(years).sort();
+}
+
+function getPeriodRange(mode, customYear, customMonth) {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = now.getMonth();
+  const monthRange = (year, mi) => {
+    const from = new Date(year, mi, 1);
+    const to = new Date(year, mi + 1, 0);
+    return { from: toISODate(from), to: toISODate(to) };
+  };
+  if (mode === "all") return null;
+  if (mode === "thisMonth") return { ...monthRange(y, m), label: `${MONTH_NAMES[m]} ${y}` };
+  if (mode === "lastMonth") {
+    const d = new Date(y, m - 1, 1);
+    return { ...monthRange(d.getFullYear(), d.getMonth()), label: `${MONTH_NAMES[d.getMonth()]} ${d.getFullYear()}` };
+  }
+  if (mode === "last3Months") {
+    const from = new Date(y, m - 2, 1);
+    const to = new Date(y, m + 1, 0);
+    return { from: toISODate(from), to: toISODate(to), label: "Last 3 months" };
+  }
+  if (mode === "thisYear") return { from: `${y}-01-01`, to: `${y}-12-31`, label: String(y) };
+  if (mode === "custom") {
+    if (customYear === "all") return null;
+    if (customMonth === "all") return { from: `${customYear}-01-01`, to: `${customYear}-12-31`, label: customYear };
+    const mi = parseInt(customMonth, 10) - 1;
+    return { ...monthRange(parseInt(customYear, 10), mi), label: `${MONTH_NAMES[mi]} ${customYear}` };
+  }
+  return null;
+}
+
+function inRange(dateStr, range) {
+  if (!range) return true;
+  if (!dateStr) return false;
+  return dateStr >= range.from && dateStr <= range.to;
+}
+
+function projectInRange(p, range) {
+  if (!range) return true;
+  const dates = [p.startDate, ...(p.extraDates || [])].filter(Boolean);
+  if (dates.length === 0) return false;
+  return dates.some((d) => d >= range.from && d <= range.to);
+}
+
+/** Reusable period preset pills + optional Custom dropdowns.
+ *  Controlled: caller owns periodMode/customYear/customMonth state. */
+function PeriodPicker({ periodMode, setPeriodMode, customYear, setCustomYear, customMonth, setCustomMonth, years }) {
+  const currentYear = new Date().getFullYear();
+  return (
+    <>
+      <div className="period-presets">
+        {[
+          { key: "all", label: "All time" },
+          { key: "thisMonth", label: "This month" },
+          { key: "lastMonth", label: "Last month" },
+          { key: "last3Months", label: "Last 3 months" },
+          { key: "thisYear", label: `This year (${currentYear})` },
+        ].map((preset) => (
+          <button
+            key={preset.key}
+            className={periodMode === preset.key ? "active" : ""}
+            onClick={() => { setPeriodMode(preset.key); setCustomYear("all"); setCustomMonth("all"); }}
+          >
+            {preset.label}
+          </button>
+        ))}
+        <button className={periodMode === "custom" ? "active" : ""} onClick={() => setPeriodMode("custom")}>Custom…</button>
+      </div>
+      {periodMode === "custom" && (
+        <div className="period-picker">
+          <Select
+            value={customYear}
+            onChange={(v) => { setCustomYear(v); setCustomMonth("all"); }}
+            options={["all", ...(years || [])]}
+            labelFor={(v) => (v === "all" ? "Pick a year" : v)}
+          />
+          {customYear !== "all" && (
+            <Select
+              value={customMonth}
+              onChange={setCustomMonth}
+              options={["all", ...Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, "0"))]}
+              labelFor={(v) => (v === "all" ? "Whole year" : MONTH_NAMES[parseInt(v, 10) - 1])}
+            />
+          )}
+        </div>
+      )}
+    </>
+  );
+}
+
 function RevenueTab({ projects, setProjects }) {
   const [editingId, setEditingId] = useState(null);
   const [draft, setDraft] = useState(null);
-  const [pendingNewId, setPendingNewId] = useState(null); // id of a just-created row not yet saved
+  const [pendingNewId, setPendingNewId] = useState(null);
   const [filters, setFilters] = useState(EMPTY_REVENUE_FILTERS);
-  const [typeView, setTypeView] = useState("revenue"); // "revenue" | "internal" | "all"
+  const [typeView, setTypeView] = useState("revenue");
+  const [periodMode, setPeriodMode] = useState("all");
+  const [customYear, setCustomYear] = useState("all");
+  const [customMonth, setCustomMonth] = useState("all");
   const [editOriginal, setEditOriginal] = useState(null);
-  const [reviewChanges, setReviewChanges] = useState(null); // null = no modal, [] or [...] = show it
+  const [reviewChanges, setReviewChanges] = useState(null);
   const setF = (patch) => setFilters((f) => ({ ...f, ...patch }));
+
+  const range = useMemo(() => getPeriodRange(periodMode, customYear, customMonth), [periodMode, customYear, customMonth]);
+  const years = useMemo(() => availableYears(projects, []), [projects]);
 
   const REVENUE_DIFF_FIELDS = [
     { key: "name", label: "Project name" },
@@ -517,7 +626,9 @@ function RevenueTab({ projects, setProjects }) {
     startEdit(copy);
   };
 
-  const inTypeView = projects.filter((p) => typeView === "all" || (p.type || "revenue") === typeView);
+  const inTypeView = projects
+    .filter((p) => typeView === "all" || (p.type || "revenue") === typeView)
+    .filter((p) => projectInRange(p, range));
   const filtered = inTypeView.filter((p) => {
     if (filters.name && !p.name.toLowerCase().includes(filters.name.toLowerCase())) return false;
     if (filters.client && !(p.client || "").toLowerCase().includes(filters.client.toLowerCase())) return false;
@@ -556,6 +667,13 @@ function RevenueTab({ projects, setProjects }) {
         <button className={typeView === "revenue" ? "active" : ""} onClick={() => setTypeView("revenue")}>Client</button>
         <button className={typeView === "internal" ? "active" : ""} onClick={() => setTypeView("internal")}>Internal</button>
       </div>
+
+      <PeriodPicker
+        periodMode={periodMode} setPeriodMode={setPeriodMode}
+        customYear={customYear} setCustomYear={setCustomYear}
+        customMonth={customMonth} setCustomMonth={setCustomMonth}
+        years={years}
+      />
 
       <div className="toolbar">
         <div className="toolbar-total">{filtered.length} of {inTypeView.length} {typeView === "internal" ? "internal items" : "projects"} · <strong>{fmt(total)}</strong> {typeView === "internal" ? "cost" : "pipeline value"} <TotalBreakdown rows={filtered} nameKey="name" /></div>
@@ -687,12 +805,18 @@ function expenseScope(e, projects) {
 function ExpensesTab({ expenses, setExpenses, projects }) {
   const [editingId, setEditingId] = useState(null);
   const [draft, setDraft] = useState(null);
-  const [pendingNewId, setPendingNewId] = useState(null); // id of a just-created row not yet saved
+  const [pendingNewId, setPendingNewId] = useState(null);
   const [filters, setFilters] = useState(EMPTY_EXPENSE_FILTERS);
-  const [typeView, setTypeView] = useState("all"); // "all" | "revenue" | "internal" | "recurring"
+  const [typeView, setTypeView] = useState("all");
+  const [periodMode, setPeriodMode] = useState("all");
+  const [customYear, setCustomYear] = useState("all");
+  const [customMonth, setCustomMonth] = useState("all");
   const [editOriginal, setEditOriginal] = useState(null);
   const [reviewChanges, setReviewChanges] = useState(null);
   const setF = (patch) => setFilters((f) => ({ ...f, ...patch }));
+
+  const range = useMemo(() => getPeriodRange(periodMode, customYear, customMonth), [periodMode, customYear, customMonth]);
+  const years = useMemo(() => availableYears([], expenses), [expenses]);
 
   const EXPENSE_DIFF_FIELDS = [
     { key: "projectName", label: "Linked project", format: (v) => v || "General / Recurring" },
@@ -738,7 +862,9 @@ function ExpensesTab({ expenses, setExpenses, projects }) {
     startEdit(copy);
   };
 
-  const inTypeView = expenses.filter((e) => typeView === "all" || expenseScope(e, projects) === typeView);
+  const inTypeView = expenses
+    .filter((e) => typeView === "all" || expenseScope(e, projects) === typeView)
+    .filter((e) => inRange(e.date, range));
   const filtered = inTypeView.filter((e) => {
     const name = e.projectName || "General / Recurring";
     const linkedProject = e.projectId ? projects.find((p) => p.id === e.projectId) : null;
@@ -784,6 +910,13 @@ function ExpensesTab({ expenses, setExpenses, projects }) {
         <button className={typeView === "internal" ? "active" : ""} onClick={() => setTypeView("internal")}>Internal</button>
         <button className={typeView === "recurring" ? "active" : ""} onClick={() => setTypeView("recurring")}>Recurring</button>
       </div>
+
+      <PeriodPicker
+        periodMode={periodMode} setPeriodMode={setPeriodMode}
+        customYear={customYear} setCustomYear={setCustomYear}
+        customMonth={customMonth} setCustomMonth={setCustomMonth}
+        years={years}
+      />
 
       <div className="toolbar">
         <div className="toolbar-total">{filtered.length} of {inTypeView.length} entries · <strong>{fmt(total)}</strong> total <TotalBreakdown rows={filtered} nameKey="projectName" /></div>
@@ -1108,69 +1241,6 @@ function PlanningCalendar({ sessions }) {
 /* ---------------------------------------------------------------
    Dashboard Tab
 --------------------------------------------------------------- */
-const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-function availableYears(projects, expenses) {
-  const years = new Set();
-  projects.forEach((p) => { if (p.startDate) years.add(p.startDate.slice(0, 4)); });
-  expenses.forEach((e) => { if (e.date) years.add(e.date.slice(0, 4)); });
-  return Array.from(years).sort();
-}
-
-const pad2 = (n) => String(n).padStart(2, "0");
-const toISODate = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
-
-/** Quick presets (mirroring the kind of range picker Azure Cost Management offers), plus a
- *  "custom" mode that falls back to an explicit year/month pair. Returns { from, to, label }
- *  in YYYY-MM-DD, or null for "all time" (no filter). */
-function getPeriodRange(mode, customYear, customMonth) {
-  const now = new Date();
-  const y = now.getFullYear();
-  const m = now.getMonth(); // 0-indexed
-
-  const monthRange = (year, monthIndex0) => {
-    const from = new Date(year, monthIndex0, 1);
-    const to = new Date(year, monthIndex0 + 1, 0);
-    return { from: toISODate(from), to: toISODate(to) };
-  };
-
-  if (mode === "all") return null;
-  if (mode === "thisMonth") return { ...monthRange(y, m), label: `${MONTH_NAMES[m]} ${y}` };
-  if (mode === "lastMonth") {
-    const d = new Date(y, m - 1, 1);
-    return { ...monthRange(d.getFullYear(), d.getMonth()), label: `${MONTH_NAMES[d.getMonth()]} ${d.getFullYear()}` };
-  }
-  if (mode === "last3Months") {
-    const from = new Date(y, m - 2, 1);
-    const to = new Date(y, m + 1, 0);
-    return { from: toISODate(from), to: toISODate(to), label: "Last 3 months" };
-  }
-  if (mode === "thisYear") return { from: `${y}-01-01`, to: `${y}-12-31`, label: String(y) };
-  if (mode === "custom") {
-    if (customYear === "all") return null;
-    if (customMonth === "all") return { from: `${customYear}-01-01`, to: `${customYear}-12-31`, label: customYear };
-    const mi = parseInt(customMonth, 10) - 1;
-    return { ...monthRange(parseInt(customYear, 10), mi), label: `${MONTH_NAMES[mi]} ${customYear}` };
-  }
-  return null;
-}
-
-function inRange(dateStr, range) {
-  if (!range) return true; // no period filter active
-  if (!dateStr) return false; // undated items can't belong to a specific period
-  return dateStr >= range.from && dateStr <= range.to;
-}
-
-/** A multi-date project passes a period filter if ANY of its session dates (primary
- *  startDate, or any extra non-contiguous date) actually falls within the range - not
- *  just its primary date, and not merely because the range spans between two sessions. */
-function projectInRange(p, range) {
-  if (!range) return true;
-  const dates = [p.startDate, ...(p.extraDates || [])].filter(Boolean);
-  if (dates.length === 0) return false;
-  return dates.some((d) => d >= range.from && d <= range.to);
-}
-
 function DashboardTab({ projects, expenses }) {
   const years = useMemo(() => availableYears(projects, expenses), [projects, expenses]);
   const [periodMode, setPeriodMode] = useState("thisMonth"); // "all" | "thisMonth" | "lastMonth" | "last3Months" | "thisYear" | "custom"
@@ -1216,50 +1286,21 @@ function DashboardTab({ projects, expenses }) {
         </div>
       </div>
 
-      <div className="period-presets">
-        {[
-          { key: "all", label: "All time" },
-          { key: "thisMonth", label: "This month" },
-          { key: "lastMonth", label: "Last month" },
-          { key: "last3Months", label: "Last 3 months" },
-          { key: "thisYear", label: `This year (${new Date().getFullYear()})` },
-        ].map((preset) => (
-          <button
-            key={preset.key}
-            className={periodMode === preset.key ? "active" : ""}
-            onClick={() => { setPeriodMode(preset.key); setCustomYear("all"); setCustomMonth("all"); }}
-          >
-            {preset.label}
-          </button>
-        ))}
-        <button className={periodMode === "custom" ? "active" : ""} onClick={() => setPeriodMode("custom")}>Custom…</button>
-      </div>
-
-      {periodMode === "custom" && (
-        <div className="period-picker">
-          <Select
-            value={customYear}
-            onChange={(v) => { setCustomYear(v); setCustomMonth("all"); }}
-            options={["all", ...years]}
-            labelFor={(v) => (v === "all" ? "Pick a year" : v)}
-          />
-          {customYear !== "all" && (
-            <Select
-              value={customMonth}
-              onChange={setCustomMonth}
-              options={["all", ...Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, "0"))]}
-              labelFor={(v) => (v === "all" ? "Whole year" : MONTH_NAMES[parseInt(v, 10) - 1])}
-            />
-          )}
-        </div>
-      )}
+      <PeriodPicker
+        periodMode={periodMode} setPeriodMode={setPeriodMode}
+        customYear={customYear} setCustomYear={setCustomYear}
+        customMonth={customMonth} setCustomMonth={setCustomMonth}
+        years={years}
+      />
       {excludedUndated > 0 && (
         <div className="period-note">{excludedUndated} pipeline project{excludedUndated > 1 ? "s" : ""} without a date {excludedUndated > 1 ? "aren't" : "isn't"} shown for this period.</div>
       )}
 
       <div className="kpi-grid">
-        <KpiCard icon={TrendingUp} label="Revenue" actual={actualRevenue} expected={expectedRevenue} tone="#34A87A" />
-        <KpiCard icon={TrendingDown} label="Expenses" actual={actualExpenses} expected={expectedExpenses} tone="#E0695A" />
+        <KpiCard icon={TrendingUp} label="Revenue" actual={actualRevenue} expected={expectedRevenue} tone="#34A87A"
+          breakdownRows={periodProjects.filter(isConfirmed)} breakdownNameKey="name" />
+        <KpiCard icon={TrendingDown} label="Expenses" actual={actualExpenses} expected={expectedExpenses} tone="#E0695A"
+          breakdownRows={periodExpenses} breakdownNameKey="projectName" />
         <KpiCard icon={Clock3} label="Profit" actual={actualProfit} expected={expectedProfit} tone="#6FA8D8" />
       </div>
 
