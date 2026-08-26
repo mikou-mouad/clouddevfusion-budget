@@ -989,7 +989,7 @@ function ExpensesTab({ expenses, setExpenses, projects }) {
                         <button className="icon-btn" onClick={() => duplicate(e)} aria-label="Duplicate"><Copy size={13} /></button>
                         <button className="icon-btn danger" onClick={() => remove(e.id)} aria-label="Delete"><Trash2 size={13} /></button>
                       </td>
-                      <td className="proj-name">{e.projectId ? e.projectName : e.projectName ? <span className="unlinked-name">{e.projectName}</span> : <em>General / Recurring</em>}</td>
+                      <td className="proj-name">{e.projectId ? e.projectName : e.projectName ? <span className="unlinked-name">{e.projectName}</span> : <em>General / Recurring</em>}{e.category === "Trainer Fee" && e.projectId && (() => { const proj = projects.find((p) => p.id === e.projectId); return proj?.trainer ? <span className="trainer-pill">{proj.trainer}</span> : null; })()}</td>
                       <td><span className="cat-pill">{e.category}</span></td>
                       <td className="date-cell">{fmtDate(e.date)}</td>
                       <td><Badge status={e.status} /></td>
@@ -1022,8 +1022,33 @@ function ExpensesTab({ expenses, setExpenses, projects }) {
 function PlanningTab({ projects }) {
   const [sortDir, setSortDir] = useState("asc");
   const [view, setView] = useState("list"); // "list" | "calendar"
+  const [periodMode, setPeriodMode] = useState("upcoming"); // custom mode: future only
+  const [customYear, setCustomYear] = useState("all");
+  const [customMonth, setCustomMonth] = useState("all");
   const today = new Date().toISOString().slice(0, 10);
-  const upcomingProjects = projects.filter((p) => p.status !== "Paid" && p.status !== "Lost");
+  const years = useMemo(() => availableYears(projects, []), [projects]);
+
+  // "upcoming" = future sessions (not yet Paid/Lost) - the default Planning view.
+  // For the range-based presets, we filter against session dates.
+  // "all" shows every project regardless of date.
+  const range = useMemo(() => {
+    if (periodMode === "upcoming") return null; // handled separately below
+    return getPeriodRange(periodMode, customYear, customMonth);
+  }, [periodMode, customYear, customMonth]);
+
+  const allNonDone = projects.filter((p) => p.status !== "Paid" && p.status !== "Lost");
+
+  const upcomingProjects = useMemo(() => {
+    if (periodMode === "upcoming") {
+      return allNonDone.filter((p) => {
+        const allDates = [p.startDate, ...(p.extraDates || [])].filter(Boolean);
+        // show if any date is today or future, OR if undated (no date yet = still upcoming)
+        return allDates.length === 0 || allDates.some((d) => d >= today);
+      });
+    }
+    if (periodMode === "all") return allNonDone;
+    return allNonDone.filter((p) => projectInRange(p, range));
+  }, [projects, periodMode, range, today]);
 
   // One row per project (never split across its dates) - uses the EARLIEST of its
   // primary + extra dates so a scattered multi-date training still sorts sensibly.
@@ -1043,8 +1068,7 @@ function PlanningTab({ projects }) {
     return out;
   };
 
-  // Priority section: Signed = contract signed but no trainer found yet. Surfaced first, in
-  // red, so it's obvious which deals need a trainer before they can move to Scheduled.
+  // Priority section: Signed = contract signed but no trainer found yet.
   const needsTrainerProjects = upcomingProjects.filter((p) => p.status === "Signed");
   const restProjects = upcomingProjects.filter((p) => p.status !== "Signed");
 
@@ -1052,7 +1076,7 @@ function PlanningTab({ projects }) {
     (a.sessionDate || "9999").localeCompare(b.sessionDate || "9999")
   );
 
-  const allSessions = flattenToSessions(upcomingProjects); // for the calendar, which shows everything together
+  const allSessions = flattenToSessions(upcomingProjects); // for the calendar
 
   const restSessions = restProjects.map(toPlanningEntry).sort((a, b) => {
     const cmp = (a.sessionDate || "9999").localeCompare(b.sessionDate || "9999");
@@ -1087,9 +1111,27 @@ function PlanningTab({ projects }) {
               {sortDir === "asc" ? "Soonest first ↑" : "Furthest first ↓"}
             </button>
           )}
-          <div className="toolbar-total">{upcomingProjects.length} upcoming · <strong>{fmt(totalValue)}</strong> at stake</div>
+          <div className="toolbar-total">{upcomingProjects.length} shown · <strong>{fmt(totalValue)}</strong> at stake</div>
         </div>
       </div>
+
+      <div className="period-presets">
+        <button className={periodMode === "upcoming" ? "active" : ""} onClick={() => { setPeriodMode("upcoming"); setCustomYear("all"); setCustomMonth("all"); }}>Upcoming (future)</button>
+        <button className={periodMode === "thisMonth" ? "active" : ""} onClick={() => { setPeriodMode("thisMonth"); setCustomYear("all"); setCustomMonth("all"); }}>This month</button>
+        <button className={periodMode === "lastMonth" ? "active" : ""} onClick={() => { setPeriodMode("lastMonth"); setCustomYear("all"); setCustomMonth("all"); }}>Last month</button>
+        <button className={periodMode === "last3Months" ? "active" : ""} onClick={() => { setPeriodMode("last3Months"); setCustomYear("all"); setCustomMonth("all"); }}>Last 3 months</button>
+        <button className={periodMode === "thisYear" ? "active" : ""} onClick={() => { setPeriodMode("thisYear"); setCustomYear("all"); setCustomMonth("all"); }}>This year ({new Date().getFullYear()})</button>
+        <button className={periodMode === "all" ? "active" : ""} onClick={() => { setPeriodMode("all"); setCustomYear("all"); setCustomMonth("all"); }}>All</button>
+        <button className={periodMode === "custom" ? "active" : ""} onClick={() => setPeriodMode("custom")}>Custom…</button>
+      </div>
+      {periodMode === "custom" && (
+        <div className="period-picker">
+          <Select value={customYear} onChange={(v) => { setCustomYear(v); setCustomMonth("all"); }} options={["all", ...years]} labelFor={(v) => (v === "all" ? "Pick a year" : v)} />
+          {customYear !== "all" && (
+            <Select value={customMonth} onChange={setCustomMonth} options={["all", ...Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, "0"))]} labelFor={(v) => (v === "all" ? "Whole year" : MONTH_NAMES[parseInt(v, 10) - 1])} />
+          )}
+        </div>
+      )}
 
       {needsTrainerSessions.length > 0 && (
         <div className="needs-trainer-block">
@@ -1789,6 +1831,11 @@ tbody tr:hover { background: #1B1B1F; }
 tbody tr.editing { background: #2B2A1E; }
 .proj-name { font-weight: 600; }
 .unlinked-name { font-weight: 500; font-style: italic; color: #9B9BA3; }
+.trainer-pill {
+  display: inline-block; margin-left: 7px; font-size: 10px; font-weight: 600;
+  color: #D9A24A; background: #D9A24A18; border: 1px solid #D9A24A44;
+  padding: 1px 7px; border-radius: 20px; vertical-align: middle;
+}
 .date-cell { display:flex; gap: 6px; font-size: 12.5px; color: #9B9BA3; align-items:center; flex-wrap: wrap; }
 
 .extra-dates-editor { width: 100%; margin-top: 4px; }
