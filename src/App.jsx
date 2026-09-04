@@ -998,7 +998,7 @@ function ExpensesTab({ expenses, setExpenses, projects }) {
                         <button className="icon-btn danger" onClick={() => remove(e.id)} aria-label="Delete"><Trash2 size={13} /></button>
                       </td>
                       <td className="proj-name">{e.projectId ? e.projectName : e.projectName ? <span className="unlinked-name">{e.projectName}</span> : <em style={{color:"#6B6B75"}}>—</em>}{e.category === "Trainer Fee" && e.projectId && (() => { const proj = projects.find((p) => p.id === e.projectId); return proj?.trainer ? <span className="trainer-pill">{proj.trainer}</span> : null; })()}</td>
-                      <td><span className="cat-pill">{e.category}</span></td>
+                      <td><span className="cat-pill">{(e.category === "Salary" || e.category === "Software" || e.category === "Office") && <span className="recurring-icon">↻</span>}{e.category}</span></td>
                       <td className="date-cell">{fmtDate(e.date)}</td>
                       <td><Badge status={e.status} /></td>
                       <td className="num strong neg">{fmt(e.expectedAmount)}</td>
@@ -1872,7 +1872,8 @@ tbody tr.editing { background: #2B2A1E; }
 .icon-btn:hover { background: #26262B; }
 .icon-btn.danger:hover { color: #E0695A; border-color: #E0695A55; }
 .icon-btn.ok { color: #34A87A; border-color: #34A87A55; }
-.cat-pill { background: #26262B; padding: 3px 9px; border-radius: 6px; font-size: 11.5px; color: #F1F0ED; }
+.cat-pill { background: #26262B; padding: 3px 9px; border-radius: 6px; font-size: 11.5px; color: #F1F0ED; display: inline-flex; align-items: center; gap: 4px; }
+.recurring-icon { font-size: 11px; opacity: 0.7; }
 
 input[type="text"], input[type="number"], input[type="date"], input:not([type]) {
   border: 1px solid #3B3B42; border-radius: 6px; padding: 6px 8px; font-size: 12.5px;
