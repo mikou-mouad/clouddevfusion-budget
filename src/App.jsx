@@ -819,7 +819,7 @@ function ExpensesTab({ expenses, setExpenses, projects }) {
   const years = useMemo(() => availableYears([], expenses), [expenses]);
 
   const EXPENSE_DIFF_FIELDS = [
-    { key: "projectName", label: "Linked project", format: (v) => v || "General / Recurring" },
+    { key: "projectName", label: "Linked project", format: (v) => v || "—" },
     { key: "category", label: "Category" },
     { key: "date", label: "Date", format: (v) => fmtDate(v) },
     { key: "status", label: "Status" },
@@ -866,7 +866,7 @@ function ExpensesTab({ expenses, setExpenses, projects }) {
     .filter((e) => typeView === "all" || expenseScope(e, projects) === typeView)
     .filter((e) => inRange(e.date, range));
   const filtered = inTypeView.filter((e) => {
-    const name = e.projectName || "General / Recurring";
+    const name = e.projectName || "";
     const linkedProject = e.projectId ? projects.find((p) => p.id === e.projectId) : null;
     const client = linkedProject?.client || "";
     if (filters.project) {
@@ -967,15 +967,23 @@ function ExpensesTab({ expenses, setExpenses, projects }) {
                         <Select
                           value={draft.projectId || "none"}
                           onChange={(v) => {
-                            if (v === "none") setDraft((d) => ({ ...d, projectId: null, projectName: "General / Recurring" }));
+                            if (v === "none") setDraft((d) => ({ ...d, projectId: null, projectName: d.projectId ? "" : d.projectName }));
                             else {
                               const proj = projects.find((p) => p.id === v);
                               setDraft((d) => ({ ...d, projectId: v, projectName: proj ? proj.name : "" }));
                             }
                           }}
                           options={["none", ...projects.map((p) => p.id)]}
-                          labelFor={(v) => (v === "none" ? "General / Recurring (not linked)" : (projects.find((p) => p.id === v)?.name || v))}
+                          labelFor={(v) => (v === "none" ? "Not linked to a project" : (projects.find((p) => p.id === v)?.name || v))}
                         />
+                        {!draft.projectId && (
+                          <input
+                            value={draft.projectName || ""}
+                            onChange={(e) => setDraft((d) => ({ ...d, projectName: e.target.value }))}
+                            placeholder="Label (e.g. Teams Sub, IWG office…)"
+                            style={{ marginTop: 4 }}
+                          />
+                        )}
                       </td>
                       <td><Select value={draft.category} onChange={(v) => setDraft((d) => ({ ...d, category: v }))} options={EXPENSE_CATEGORIES} /></td>
                       <td><input type="date" value={draft.date || ""} onChange={(ev) => setDraft((d) => ({ ...d, date: ev.target.value || null }))} /></td>
@@ -989,7 +997,7 @@ function ExpensesTab({ expenses, setExpenses, projects }) {
                         <button className="icon-btn" onClick={() => duplicate(e)} aria-label="Duplicate"><Copy size={13} /></button>
                         <button className="icon-btn danger" onClick={() => remove(e.id)} aria-label="Delete"><Trash2 size={13} /></button>
                       </td>
-                      <td className="proj-name">{e.projectId ? e.projectName : e.projectName ? <span className="unlinked-name">{e.projectName}</span> : <em>General / Recurring</em>}{e.category === "Trainer Fee" && e.projectId && (() => { const proj = projects.find((p) => p.id === e.projectId); return proj?.trainer ? <span className="trainer-pill">{proj.trainer}</span> : null; })()}</td>
+                      <td className="proj-name">{e.projectId ? e.projectName : e.projectName ? <span className="unlinked-name">{e.projectName}</span> : <em style={{color:"#6B6B75"}}>—</em>}{e.category === "Trainer Fee" && e.projectId && (() => { const proj = projects.find((p) => p.id === e.projectId); return proj?.trainer ? <span className="trainer-pill">{proj.trainer}</span> : null; })()}</td>
                       <td><span className="cat-pill">{e.category}</span></td>
                       <td className="date-cell">{fmtDate(e.date)}</td>
                       <td><Badge status={e.status} /></td>

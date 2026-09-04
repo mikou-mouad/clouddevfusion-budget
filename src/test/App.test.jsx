@@ -192,7 +192,10 @@ describe("Expenses tab CRUD", () => {
     await user.click(saveBtn);
 
     expect(screen.getAllByRole("row").length).toBe(before + 1);
-    const savedRow = screen.getByText("General / Recurring").closest("tr");
+    // unlinked expenses now show '—' instead of 'General / Recurring'
+    const rows = screen.getAllByRole("row").slice(2);
+    const savedRow = rows.find((r) => within(r).queryByText("Software") !== null);
+    expect(savedRow).toBeTruthy();
     expect(within(savedRow).getByText("Software")).toBeInTheDocument();
   });
 });
