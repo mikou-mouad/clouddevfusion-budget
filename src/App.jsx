@@ -769,7 +769,8 @@ function RevenueTab({ projects, setProjects }) {
                       <td>{p.contact || "-"}</td>
                       <td>{p.trainer || "-"}</td>
                       <td className="date-cell date-cell-multi">
-                        <div>{fmtDate(p.startDate)}{p.endDate && p.endDate !== p.startDate ? ` → ${fmtDate(p.endDate)}` : ""}</div>
+                        <div>{fmtDate(p.startDate)}</div>
+                        {p.endDate && p.endDate !== p.startDate && <div className="extra-date-line">{fmtDate(p.endDate)}</div>}
                         {(p.extraDates || []).map((d) => (
                           <div key={d} className="extra-date-line">{fmtDate(d)}</div>
                         ))}
