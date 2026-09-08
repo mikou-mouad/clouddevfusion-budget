@@ -33,6 +33,20 @@ const parseAmount = (str) => {
   const n = parseFloat(String(str).replace(",", "."));
   return Number.isNaN(n) ? 0 : n;
 };
+
+/** Ask once for the user's name, store in localStorage, reuse on every save. */
+function getAuthor() {
+  try {
+    const stored = localStorage.getItem("pb_author");
+    if (stored) return stored;
+    const name = (window.prompt("Qui es-tu ? (ton prénom ou initiales, utilisé dans les logs de modification)") || "").trim();
+    const author = name || "Inconnu";
+    localStorage.setItem("pb_author", author);
+    return author;
+  } catch {
+    return "Inconnu";
+  }
+}
 const fmtDate = (d) => {
   if (!d) return "-";
   const dt = new Date(d + "T00:00:00");
@@ -601,7 +615,9 @@ function RevenueTab({ projects, setProjects }) {
   };
   const doSave = () => {
     const { expectedAmountText, ...clean } = draft;
-    setProjects(projects.map((p) => (p.id === editingId ? clean : p)));
+    const author = getAuthor();
+    const stamped = { ...clean, lastModifiedBy: author, lastModifiedAt: new Date().toISOString() };
+    setProjects(projects.map((p) => (p.id === editingId ? stamped : p)));
     setEditingId(null); setDraft(null); setPendingNewId(null); setEditOriginal(null); setReviewChanges(null);
   };
   const save = () => {
@@ -752,16 +768,14 @@ function RevenueTab({ projects, setProjects }) {
                       <td>{p.client}</td>
                       <td>{p.contact || "-"}</td>
                       <td>{p.trainer || "-"}</td>
-                      <td className="date-cell">
-                        {fmtDate(p.startDate)}{p.endDate && p.endDate !== p.startDate ? ` → ${fmtDate(p.endDate)}` : ""}
-                        {p.extraDates && p.extraDates.length > 0 && (
-                          <span className="extra-dates-tag" title={p.extraDates.map(fmtDate).join(", ")}>
-                            +{p.extraDates.length} more date{p.extraDates.length > 1 ? "s" : ""}
-                          </span>
-                        )}
+                      <td className="date-cell date-cell-multi">
+                        <div>{fmtDate(p.startDate)}{p.endDate && p.endDate !== p.startDate ? ` → ${fmtDate(p.endDate)}` : ""}</div>
+                        {(p.extraDates || []).map((d) => (
+                          <div key={d} className="extra-date-line">{fmtDate(d)}</div>
+                        ))}
                       </td>
                       <td><Badge status={p.status} /></td>
-                      <td className="num strong">{fmt(p.expectedAmount)}</td>
+                      <td className="num strong" title={p.lastModifiedBy ? `Last modified by ${p.lastModifiedBy}${p.lastModifiedAt ? " on " + new Date(p.lastModifiedAt).toLocaleDateString("fr-FR") : ""}` : ""}>{fmt(p.expectedAmount)}{p.lastModifiedBy && <span className="modifier-tag">{p.lastModifiedBy}</span>}</td>
                     </>
                   )}
                 </tr>
@@ -839,7 +853,9 @@ function ExpensesTab({ expenses, setExpenses, projects }) {
   };
   const doSave = () => {
     const { expectedAmountText, ...clean } = draft;
-    setExpenses(expenses.map((e) => (e.id === editingId ? clean : e)));
+    const author = getAuthor();
+    const stamped = { ...clean, lastModifiedBy: author, lastModifiedAt: new Date().toISOString() };
+    setExpenses(expenses.map((e) => (e.id === editingId ? stamped : e)));
     setEditingId(null); setDraft(null); setPendingNewId(null); setEditOriginal(null); setReviewChanges(null);
   };
   const save = () => {
@@ -1001,7 +1017,7 @@ function ExpensesTab({ expenses, setExpenses, projects }) {
                       <td><span className="cat-pill">{(e.category === "Salary" || e.category === "Software" || e.category === "Office") && <span className="recurring-icon">↻</span>}{e.category}</span></td>
                       <td className="date-cell">{fmtDate(e.date)}</td>
                       <td><Badge status={e.status} /></td>
-                      <td className="num strong neg">{fmt(e.expectedAmount)}</td>
+                      <td className="num strong neg" title={e.lastModifiedBy ? `Last modified by ${e.lastModifiedBy}${e.lastModifiedAt ? " on " + new Date(e.lastModifiedAt).toLocaleDateString("fr-FR") : ""}` : ""}>{fmt(e.expectedAmount)}{e.lastModifiedBy && <span className="modifier-tag">{e.lastModifiedBy}</span>}</td>
                     </>
                   )}
                 </tr>
@@ -1027,7 +1043,22 @@ function ExpensesTab({ expenses, setExpenses, projects }) {
 /* ---------------------------------------------------------------
    Planning Tab - upcoming projects
 --------------------------------------------------------------- */
-function PlanningTab({ projects }) {
+/** Three key figures shown on each Planning row: gain (revenue), trainer fee, commission. */
+function PlanningFinancials({ project, expenses }) {
+  const linked = expenses.filter((e) => e.projectId === project.id);
+  const trainerFee = linked.filter((e) => e.category === "Trainer Fee").reduce((s, e) => s + (e.expectedAmount || 0), 0);
+  const commission = linked.filter((e) => e.category === "Commission").reduce((s, e) => s + (e.expectedAmount || 0), 0);
+  const gain = (project.expectedAmount || 0) - trainerFee - commission;
+  return (
+    <div className="tl-financials">
+      <span className="tl-fin gain" title="Gain (revenue - trainer - commission)">{fmt(gain)}</span>
+      {trainerFee > 0 && <span className="tl-fin trainer" title="Trainer fee">👤 {fmt(trainerFee)}</span>}
+      {commission > 0 && <span className="tl-fin comm" title="Commission">% {fmt(commission)}</span>}
+    </div>
+  );
+}
+
+function PlanningTab({ projects, expenses }) {
   const [sortDir, setSortDir] = useState("asc");
   const [view, setView] = useState("list"); // "list" | "calendar"
   const [periodMode, setPeriodMode] = useState("upcoming"); // custom mode: future only
@@ -1188,18 +1219,20 @@ function PlanningTab({ projects }) {
                 <div className="timeline-date">
                   <div className="tl-day">{new Date(p.sessionDate + "T00:00:00").getDate()}</div>
                   <div className="tl-month">{new Date(p.sessionDate + "T00:00:00").toLocaleDateString("en-GB", { month: "short", year: "2-digit" })}</div>
+                  {[...(p.extraDates || [])].sort().map((d) => (
+                    <div key={d} className="tl-extra-date">{new Date(d + "T00:00:00").toLocaleDateString("en-GB", { day: "2-digit", month: "short" })}</div>
+                  ))}
                 </div>
                 <div className="timeline-line" />
                 <div className="timeline-content">
                   <div className="tl-top">
                     <span className="tl-name">{p.name}</span>
                     {p.type === "internal" && <span className="type-tag">Internal</span>}
-                    {p.extraCount > 0 && <span className="extra-dates-tag">+{p.extraCount} more date{p.extraCount > 1 ? "s" : ""}</span>}
                     <Badge status={p.status} />
                   </div>
                   <div className="tl-meta">{p.client} · {p.trainer || "trainer TBD"} · {daysUntil(p.sessionDate)}</div>
+                  <PlanningFinancials project={p} expenses={expenses} />
                 </div>
-                <div className="tl-amount">{fmt(p.expectedAmount)}</div>
               </div>
             ))}
           </div>
@@ -1521,7 +1554,7 @@ export default function App() {
         {tab === "dashboard" && <DashboardTab projects={projects} expenses={expenses} />}
         {tab === "revenue" && <RevenueTab projects={projects} setProjects={setProjects} />}
         {tab === "expenses" && <ExpensesTab expenses={expenses} setExpenses={setExpenses} projects={projects} />}
-        {tab === "planning" && <PlanningTab projects={projects} />}
+        {tab === "planning" && <PlanningTab projects={projects} expenses={expenses} />}
       </div>
 
       <style>{baseCss}</style>
@@ -1838,13 +1871,13 @@ tbody tr:last-child td { border-bottom: none; }
 tbody tr:hover { background: #1B1B1F; }
 tbody tr.editing { background: #2B2A1E; }
 .proj-name { font-weight: 600; }
-.unlinked-name { font-weight: 500; font-style: italic; color: #9B9BA3; }
+.unlinked-name { font-weight: 500; font-style: italic; color: #F1F0ED; }
 .trainer-pill {
   display: inline-block; margin-left: 7px; font-size: 10px; font-weight: 600;
   color: #D9A24A; background: #D9A24A18; border: 1px solid #D9A24A44;
   padding: 1px 7px; border-radius: 20px; vertical-align: middle;
 }
-.date-cell { display:flex; gap: 6px; font-size: 12.5px; color: #9B9BA3; align-items:center; flex-wrap: wrap; }
+.date-cell { display:flex; gap: 6px; font-size: 12.5px; color: #C8C6C0; align-items:center; flex-wrap: wrap; }
 
 .extra-dates-editor { width: 100%; margin-top: 4px; }
 .extra-dates-list { display:flex; flex-wrap: wrap; gap: 4px; margin-bottom: 4px; }
@@ -1893,7 +1926,20 @@ input[type="text"], input[type="number"], input[type="date"], input:not([type]) 
 .timeline-content { flex: 1; min-width: 0; }
 .tl-top { display:flex; align-items:center; gap: 10px; margin-bottom: 4px; }
 .tl-name { font-weight: 600; font-size: 13.5px; }
+.tl-extra-date { font-size: 10px; color: #9B9BA3; margin-top: 3px; font-family: 'IBM Plex Mono', monospace; }
 .tl-meta { font-size: 12px; color: #9B9BA3; }
+.modifier-tag {
+  display: inline-block; margin-left: 7px; font-size: 9.5px; font-weight: 700;
+  color: #9B9BA3; background: #26262B; border: 1px solid #3B3B42;
+  padding: 1px 6px; border-radius: 10px; vertical-align: middle; font-family: 'Inter', sans-serif;
+}
+.tl-financials { display:flex; gap: 10px; margin-top: 5px; flex-wrap: wrap; }
+.tl-fin { font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; font-weight: 600; }
+.tl-fin.gain { color: #34A87A; }
+.tl-fin.trainer { color: #D9A24A; }
+.tl-fin.comm { color: #9B85D1; }
+.date-cell-multi { flex-direction: column; align-items: flex-start; gap: 3px; }
+.extra-date-line { font-size: 11px; color: #9B9BA3; }
 .tl-amount { font-family: 'IBM Plex Mono', monospace; font-weight: 500; font-size: 14px; flex-shrink: 0; }
 
 .section-divider {

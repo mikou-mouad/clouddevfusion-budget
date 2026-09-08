@@ -314,6 +314,8 @@ describe("Planning tab", () => {
     }
 
     await goToTab(user, "Planning");
+    // switch to 'All' to see every non-Paid/Lost project regardless of date
+    await user.click(screen.getByRole("button", { name: "All" }));
     for (const name of paidOrLostNames) {
       expect(screen.queryByText(name)).not.toBeInTheDocument();
     }
@@ -929,7 +931,7 @@ describe("Non-contiguous session dates on a single project", () => {
     // still just ONE new row, not two
     expect(screen.getAllByRole("row").length).toBe(before + 1);
     const savedRow = screen.getByText("New project", { selector: ".proj-name" }).closest("tr");
-    expect(within(savedRow).getByText(/\+1 more date/)).toBeInTheDocument();
+    expect(within(savedRow).getByText(/\.extra-date-line/i) || savedRow.querySelector(".extra-date-line")).toBeTruthy();
   });
 
   it("shows a single Planning entry per project (not one per date), with a '+N more dates' indicator", async () => {
@@ -956,7 +958,8 @@ describe("Non-contiguous session dates on a single project", () => {
     await goToTab(user, "Planning");
     const occurrences = screen.getAllByText("Scattered Training");
     expect(occurrences.length).toBe(1); // ONE row for the whole project, not one per date
-    expect(screen.getByText(/\+1 more date/)).toBeInTheDocument();
+    // extra dates now shown as lines, not as a '+N more dates' badge
+    expect(document.querySelector(".tl-extra-date")).toBeTruthy();
   });
 });
 
@@ -1337,7 +1340,7 @@ describe("Adding multiple extra dates does not lose one due to stale state", () 
     await user.click(within(editingRow).getByRole("button", { name: "Save" }));
 
     const savedRow = screen.getByText("New project", { selector: ".proj-name" }).closest("tr");
-    expect(within(savedRow).getByText(/\+6 more dates/)).toBeInTheDocument();
+    expect(savedRow.querySelectorAll(".extra-date-line").length).toBe(6);
   });
 });
 
