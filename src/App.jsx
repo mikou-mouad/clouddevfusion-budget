@@ -631,7 +631,8 @@ function RevenueTab({ projects, setProjects }) {
     startEdit(p);
   };
   const doSave = () => {
-    const { expectedAmountText, ...clean } = draft;
+    // Strip transient input field AND the old date fields so they never override dates[] on re-edit
+    const { expectedAmountText, startDate, endDate, extraDates, ...clean } = draft;
     const author = getAuthor();
     const stamped = { ...clean, lastModifiedBy: author, lastModifiedAt: new Date().toISOString() };
     setProjects(projects.map((p) => (p.id === editingId ? stamped : p)));
@@ -1772,8 +1773,8 @@ html, body, #root { height: 100%; margin: 0; }
 .link-btn:hover { text-decoration: underline; }
 .planning-controls { display:flex; align-items:center; gap: 16px; flex-wrap: wrap; }
 .view-toggle { margin-bottom: 0; }
-.view-toggle button { display:flex; align-items:center; gap: 5px; color: #C8C6C0; }
-.view-toggle button.active { color: #141416; }
+.type-toggle.view-toggle button { display:flex; align-items:center; gap: 5px; color: #D0CEC9 !important; }
+.type-toggle.view-toggle button.active { color: #141416 !important; }
 
 .needs-trainer-block { margin-bottom: 6px; }
 .needs-trainer-banner {
