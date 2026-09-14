@@ -1340,7 +1340,9 @@ describe("Adding multiple extra dates does not lose one due to stale state", () 
     await user.click(within(editingRow).getByRole("button", { name: "Save" }));
 
     const savedRow = screen.getByText("New project", { selector: ".proj-name" }).closest("tr");
-    expect(savedRow.querySelectorAll(".extra-date-line").length).toBe(6);
+    // 6 dates added + 1 primary = 6 total date divs in the date cell
+    const dateCell = savedRow.querySelector(".date-cell-multi");
+    expect(dateCell.querySelectorAll("div").length).toBe(6);
   });
 });
 

@@ -33,6 +33,17 @@ const parseAmount = (str) => {
   const n = parseFloat(String(str).replace(",", "."));
   return Number.isNaN(n) ? 0 : n;
 };
+/** Read a project's dates in either the new format (dates: []) or the legacy
+ *  format (startDate, endDate, extraDates) so live data saved before the migration
+ *  still displays correctly without a forced Restore. */
+function projectDates(p) {
+  if (p.dates) return p.dates;
+  const out = [];
+  if (p.startDate) out.push(p.startDate);
+  if (p.endDate && p.endDate !== p.startDate) out.push(p.endDate);
+  for (const d of (p.extraDates || [])) if (!out.includes(d)) out.push(d);
+  return out.sort();
+}
 
 /** Ask once for the user's name, store in localStorage, reuse on every save. */
 function getAuthor() {
@@ -322,8 +333,13 @@ function DatesEditor({ dates, onChange }) {
   const [draftDate, setDraftDate] = useState("");
   const sorted = [...(dates || [])].sort();
   const add = () => {
-    if (!draftDate || sorted.includes(draftDate)) return;
-    onChange([...sorted, draftDate].sort());
+    if (!draftDate) return;
+    // Use functional-style onChange: receive current list and append, avoiding stale closure
+    onChange((prev) => {
+      const current = [...(prev || [])].sort();
+      if (current.includes(draftDate)) return current;
+      return [...current, draftDate].sort();
+    });
     setDraftDate("");
   };
   const remove = (d) => onChange(sorted.filter((x) => x !== d));
@@ -485,7 +501,7 @@ const toISODate = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.
 
 function availableYears(projects, expenses) {
   const years = new Set();
-  projects.forEach((p) => { if (p.dates && p.dates.length > 0) years.add(p.dates[0].slice(0, 4)); });
+  projects.forEach((p) => { const pd0 = projectDates(p); if (pd0.length > 0) years.add(pd0[0].slice(0, 4)); });
   expenses.forEach((e) => { if (e.date) years.add(e.date.slice(0, 4)); });
   return Array.from(years).sort();
 }
@@ -528,7 +544,7 @@ function inRange(dateStr, range) {
 
 function projectInRange(p, range) {
   if (!range) return true;
-  const dates = (p.dates || []);
+  const dates = projectDates(p);
   if (dates.length === 0) return false;
   return dates.some((d) => d >= range.from && d <= range.to);
 }
@@ -606,7 +622,7 @@ function RevenueTab({ projects, setProjects }) {
     { key: "expectedAmount", label: "Amount", format: (v) => fmt(v) },
   ];
 
-  const startEdit = (p) => { setEditingId(p.id); setDraft({ ...p }); setEditOriginal(p); };
+  const startEdit = (p) => { setEditingId(p.id); setDraft({ ...p, dates: projectDates(p) }); setEditOriginal(p); };
   const startNew = () => {
     const p = { id: uid("p"), type: typeView === "internal" ? "internal" : "revenue", client: "", contact: "", source: "", trainer: "", topic: "Training", name: "New project", dates: [], status: "Signed", expectedAmount: 0, notes: "" };
     setProjects([p, ...projects]);
@@ -636,7 +652,7 @@ function RevenueTab({ projects, setProjects }) {
   };
   const remove = (id) => setProjects(projects.filter((p) => p.id !== id));
   const duplicate = (p) => {
-    const copy = { ...p, id: uid("p"), dates: [...(p.dates || [])] };
+    const copy = { ...p, id: uid("p"), dates: [...projectDates(p)] };
     setProjects([copy, ...projects]);
     setPendingNewId(copy.id);
     startEdit(copy);
@@ -651,8 +667,8 @@ function RevenueTab({ projects, setProjects }) {
     if (filters.contact && !(p.contact || "").toLowerCase().includes(filters.contact.toLowerCase())) return false;
     if (filters.trainer && !(p.trainer || "").toLowerCase().includes(filters.trainer.toLowerCase())) return false;
     if (!filters.statuses.has(p.status)) return false;
-    if (filters.dateFrom && !(p.dates || []).some((d) => d >= filters.dateFrom)) return false;
-    if (filters.dateTo && !(p.dates || []).some((d) => d <= filters.dateTo)) return false;
+    if (filters.dateFrom && !projectDates(p).some((d) => d >= filters.dateFrom)) return false;
+    if (filters.dateTo && !projectDates(p).some((d) => d <= filters.dateTo)) return false;
     if (filters.amountMin !== "" && (p.expectedAmount || 0) < parseFloat(filters.amountMin)) return false;
     if (filters.amountMax !== "" && (p.expectedAmount || 0) > parseFloat(filters.amountMax)) return false;
     return true;
@@ -749,7 +765,7 @@ function RevenueTab({ projects, setProjects }) {
                       <td className="date-cell">
                         <DatesEditor
                           dates={draft.dates || []}
-                          onChange={(next) => setDraft((d) => ({ ...d, dates: next }))}
+                          onChange={(next) => setDraft((d) => ({ ...d, dates: typeof next === 'function' ? next(d.dates) : next }))}
                         />
                       </td>
                       <td><Select value={draft.status} onChange={(v) => setDraft((d) => ({ ...d, status: v }))} options={STATUS_ORDER} /></td>
@@ -767,7 +783,7 @@ function RevenueTab({ projects, setProjects }) {
                       <td>{p.contact || "-"}</td>
                       <td>{p.trainer || "-"}</td>
                       <td className="date-cell date-cell-multi">
-                        {(p.dates && p.dates.length > 0) ? [...p.dates].sort().map((d) => (
+                        {projectDates(p).length > 0 ? projectDates(p).map((d) => (
                           <div key={d}>{fmtDate(d)}</div>
                         )) : <span>—</span>}
                       </td>
@@ -1077,7 +1093,7 @@ function PlanningTab({ projects, expenses }) {
   const upcomingProjects = useMemo(() => {
     if (periodMode === "upcoming") {
       return allNonDone.filter((p) => {
-        const allDates = (p.dates || []);
+        const allDates = projectDates(p);
         // show if any date is today or future, OR if undated (no date yet = still upcoming)
         return allDates.length === 0 || allDates.some((d) => d >= today);
       });
@@ -1089,7 +1105,7 @@ function PlanningTab({ projects, expenses }) {
   // One row per project (never split across its dates) - uses the EARLIEST of its
   // primary + extra dates so a scattered multi-date training still sorts sensibly.
   const toPlanningEntry = (p) => {
-    const allDates = [...(p.dates || [])].sort();
+    const allDates = [...projectDates(p)].sort();
     return { ...p, sessionDate: allDates[0] || null, sessionKey: p.id, extraCount: Math.max(0, allDates.length - 1) };
   };
 
@@ -1097,7 +1113,7 @@ function PlanningTab({ projects, expenses }) {
   const flattenToSessions = (list) => {
     const out = [];
     list.forEach((p) => {
-      const allDates = (p.dates || []);
+      const allDates = projectDates(p);
       if (allDates.length === 0) out.push({ ...p, sessionDate: null, sessionKey: p.id });
       else allDates.forEach((d) => out.push({ ...p, sessionDate: d, sessionKey: `${p.id}-${d}` }));
     });
@@ -1216,7 +1232,7 @@ function PlanningTab({ projects, expenses }) {
                 <div className="timeline-date">
                   <div className="tl-day">{new Date(p.sessionDate + "T00:00:00").getDate()}</div>
                   <div className="tl-month">{new Date(p.sessionDate + "T00:00:00").toLocaleDateString("en-GB", { month: "short", year: "2-digit" })}</div>
-                  {[...(p.dates || [])].sort().slice(1).map((d) => (
+                  {projectDates(p).slice(1).map((d) => (
                     <div key={d} className="tl-extra-date">{new Date(d + "T00:00:00").toLocaleDateString("en-GB", { day: "2-digit", month: "short" })}</div>
                   ))}
                 </div>
@@ -1337,7 +1353,7 @@ function DashboardTab({ projects, expenses }) {
     () => (range === null ? expenses : expenses.filter((e) => inRange(e.date, range))),
     [expenses, range]
   );
-  const excludedUndated = range === null ? 0 : projects.filter((p) => !p.dates || p.dates.length === 0).length;
+  const excludedUndated = range === null ? 0 : projects.filter((p) => projectDates(p).length === 0).length;
 
   const periodLabel = range === null ? "All time" : range.label;
 
