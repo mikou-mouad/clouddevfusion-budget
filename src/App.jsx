@@ -9,7 +9,7 @@ import {
 /* ---------------------------------------------------------------
    SEED DATA - imported from the user's existing tracking sheet
 --------------------------------------------------------------- */
-const SEED_PROJECTS_ALL = [{"id": "p1", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Ahmed Tahri", "topic": "Training", "name": "Efrei - Cloud Intro", "startDate": "2026-03-09", "endDate": "2026-03-13", "status": "Paid", "expectedAmount": 2765, "notes": ""}, {"id": "p2", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Ahmed Tahri", "topic": "Training", "name": "Efrei - DP600 - Aug (1/2)", "startDate": "2026-07-06", "endDate": "2026-07-07", "status": "Scheduled", "expectedAmount": 1176, "notes": ""}, {"id": "p3", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Ahmed Tahri", "topic": "Training", "name": "Efrei - DP600 - Aug (2/2)", "startDate": "2026-08-31", "endDate": "2026-09-02", "status": "Scheduled", "expectedAmount": 1764, "notes": ""}, {"id": "p4", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Monaim Touinsi", "topic": "Training", "name": "Efrei - DP600 - Sep", "startDate": "2026-08-31", "endDate": "2026-09-04", "status": "Scheduled", "expectedAmount": 2940, "notes": ""}, {"id": "p5", "type": "revenue", "client": "Crossthink ", "contact": "Arnaud ", "source": "Ilyes & Alexis", "trainer": "Ahmed Tahri", "topic": "Training", "name": "Crossthink  - Apr - Week 1", "startDate": "2026-03-30", "endDate": "2026-04-03", "status": "Lost", "expectedAmount": 4750, "notes": ""}, {"id": "p6", "type": "revenue", "client": "Crossthink ", "contact": "Arnaud ", "source": "Ilyes & Alexis", "trainer": "Salahedine Bejaoui", "topic": "Training", "name": "Crossthink  - Apr - Week 2 & 3", "startDate": "2026-04-07", "endDate": "2026-04-17", "status": "Lost", "expectedAmount": 8550, "notes": ""}, {"id": "p7", "type": "revenue", "client": "Crossthink ", "contact": "Arnaud ", "source": "Ilyes & Alexis", "trainer": "Mouad MIKOU", "topic": "Training", "name": "Crossthink  - Apr - Week 4", "startDate": "2026-04-20", "endDate": "2026-04-24", "status": "Lost", "expectedAmount": 4750, "notes": ""}, {"id": "p8", "type": "revenue", "client": "FastLane", "contact": "Sarah Medjeber", "source": "N/A", "trainer": "Monaim Touinsi", "topic": "Training", "name": "FastLane - AZ204", "startDate": "2026-05-18", "endDate": "2026-05-22", "status": "Lost", "expectedAmount": 2300, "notes": ""}, {"id": "p9", "type": "revenue", "client": "FastLane", "contact": "Sarah Medjeber", "source": "N/A", "trainer": "Youssef ElGandouli", "topic": "Training", "name": "FastLane - AZ700", "startDate": "2026-04-07", "endDate": "2026-04-10", "status": "Lost", "expectedAmount": 1840, "notes": ""}, {"id": "p10", "type": "revenue", "client": "Cellenza", "contact": "Alain\u00a0GIANSILY", "source": "N/A", "trainer": "Mouad MIKOU", "topic": "Training", "name": "Cellenza - AZ500", "startDate": "2026-03-16", "endDate": "2026-03-19", "status": "Paid", "expectedAmount": 3000, "notes": ""}, {"id": "p11", "type": "internal", "client": "Pearson Vue", "contact": "N/A", "source": "N/A", "trainer": "N/A", "topic": "Certification", "name": "Pearson AZ-500", "startDate": "2026-02-27", "endDate": "2026-02-27", "status": "Paid", "expectedAmount": 0, "notes": ""}, {"id": "p12", "type": "internal", "client": "Pearson Vue", "contact": "N/A", "source": "N/A", "trainer": "N/A", "topic": "Certification", "name": "Pearson AZ-204", "startDate": "2026-03-01", "endDate": "2026-03-01", "status": "Paid", "expectedAmount": 0, "notes": ""}, {"id": "p13", "type": "internal", "client": "Eni Editions", "contact": "Vanessa Dallerac", "source": "N/A", "trainer": "N/A", "topic": "Certification", "name": "Eni - Certification Formateur", "startDate": "2026-03-06", "endDate": "2026-03-06", "status": "Paid", "expectedAmount": 0, "notes": ""}, {"id": "p14", "type": "internal", "client": "Eni Editions", "contact": "Vanessa Dallerac", "source": "N/A", "trainer": "N/A", "topic": "Certification", "name": "Eni - Devis Habilitation (3 certifs)", "startDate": "2026-03-12", "endDate": "2026-03-12", "status": "Paid", "expectedAmount": 0, "notes": ""}, {"id": "p15", "type": "revenue", "client": "IWG", "contact": "N/A", "source": "N/A", "trainer": "N/A", "topic": "Office", "name": "IWG - Office - Retour Caution", "startDate": "2026-03-12", "endDate": "2026-03-12", "status": "Paid", "expectedAmount": 186.9, "notes": ""}, {"id": "p16", "type": "revenue", "client": "Cellenza", "contact": "Alain\u00a0GIANSILY", "source": "N/A", "trainer": "Ahmed Tahri", "topic": "Training", "name": "Cellenza - Custom", "startDate": "2026-05-19", "endDate": "2026-05-20", "status": "Invoiced", "expectedAmount": 4500, "notes": ""}, {"id": "p17", "type": "revenue", "client": "FastLane", "contact": "Sarah Medjeber", "source": "N/A", "trainer": "Youssef ElGandouli", "topic": "Training", "name": "FastLane MD-102", "startDate": "2026-05-18", "endDate": "2026-05-22", "status": "Invoiced", "expectedAmount": 2300, "notes": ""}, {"id": "p18", "type": "revenue", "client": "FastLane", "contact": "Sarah Medjeber", "source": "N/A", "trainer": "Youssef ElGandouli", "topic": "Training", "name": "FastLane MD-102", "startDate": "2026-06-01", "endDate": "2026-06-05", "status": "Scheduled", "expectedAmount": 2300, "notes": ""}, {"id": "p19", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Oussama EDDAI", "topic": "Training", "name": "Efrei - Cloud Intro 2 (1/2)", "startDate": "2027-01-04", "endDate": "2027-01-05", "status": "Scheduled", "expectedAmount": 0, "notes": ""}, {"id": "p20", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Oussama EDDAI", "topic": "Training", "name": "Efrei - Cloud Intro 2 (2/2)", "startDate": "2027-01-12", "endDate": "2027-01-13", "status": "Scheduled", "expectedAmount": 0, "notes": ""}, {"id": "p21", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Oussama EDDAI or Monaim", "topic": "Training", "name": "Efrei - Cloud Intro 3", "startDate": null, "endDate": null, "status": "Scheduled", "expectedAmount": 2212, "notes": ""}, {"id": "p22", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": null, "topic": "Training", "name": "Efrei -  AZ104 - 1", "startDate": null, "endDate": null, "status": "Signed", "expectedAmount": 0, "notes": ""}, {"id": "p23", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": null, "topic": "Training", "name": "Efrei -  AZ104 - 2", "startDate": null, "endDate": null, "status": "Signed", "expectedAmount": 0, "notes": ""}, {"id": "p24", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": null, "topic": "Training", "name": "Efrei - DP700 - 1", "startDate": null, "endDate": null, "status": "Signed", "expectedAmount": 0, "notes": ""}, {"id": "p25", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": null, "topic": "Training", "name": "Efrei - DP700 - 2", "startDate": null, "endDate": null, "status": "Signed", "expectedAmount": 0, "notes": ""}];
+const SEED_PROJECTS_ALL = [{"id": "p1", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Ahmed Tahri", "topic": "Training", "name": "Efrei - Cloud Intro", "status": "Paid", "expectedAmount": 2765, "notes": "", "dates": ["2026-03-09", "2026-03-13"]}, {"id": "p2", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Ahmed Tahri", "topic": "Training", "name": "Efrei - DP600 - Aug (1/2)", "status": "Scheduled", "expectedAmount": 1176, "notes": "", "dates": ["2026-07-06", "2026-07-07"]}, {"id": "p3", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Ahmed Tahri", "topic": "Training", "name": "Efrei - DP600 - Aug (2/2)", "status": "Scheduled", "expectedAmount": 1764, "notes": "", "dates": ["2026-08-31", "2026-09-02"]}, {"id": "p4", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Monaim Touinsi", "topic": "Training", "name": "Efrei - DP600 - Sep", "status": "Scheduled", "expectedAmount": 2940, "notes": "", "dates": ["2026-08-31", "2026-09-04"]}, {"id": "p5", "type": "revenue", "client": "Crossthink ", "contact": "Arnaud ", "source": "Ilyes & Alexis", "trainer": "Ahmed Tahri", "topic": "Training", "name": "Crossthink  - Apr - Week 1", "status": "Lost", "expectedAmount": 4750, "notes": "", "dates": ["2026-03-30", "2026-04-03"]}, {"id": "p6", "type": "revenue", "client": "Crossthink ", "contact": "Arnaud ", "source": "Ilyes & Alexis", "trainer": "Salahedine Bejaoui", "topic": "Training", "name": "Crossthink  - Apr - Week 2 & 3", "status": "Lost", "expectedAmount": 8550, "notes": "", "dates": ["2026-04-07", "2026-04-17"]}, {"id": "p7", "type": "revenue", "client": "Crossthink ", "contact": "Arnaud ", "source": "Ilyes & Alexis", "trainer": "Mouad MIKOU", "topic": "Training", "name": "Crossthink  - Apr - Week 4", "status": "Lost", "expectedAmount": 4750, "notes": "", "dates": ["2026-04-20", "2026-04-24"]}, {"id": "p8", "type": "revenue", "client": "FastLane", "contact": "Sarah Medjeber", "source": "N/A", "trainer": "Monaim Touinsi", "topic": "Training", "name": "FastLane - AZ204", "status": "Lost", "expectedAmount": 2300, "notes": "", "dates": ["2026-05-18", "2026-05-22"]}, {"id": "p9", "type": "revenue", "client": "FastLane", "contact": "Sarah Medjeber", "source": "N/A", "trainer": "Youssef ElGandouli", "topic": "Training", "name": "FastLane - AZ700", "status": "Lost", "expectedAmount": 1840, "notes": "", "dates": ["2026-04-07", "2026-04-10"]}, {"id": "p10", "type": "revenue", "client": "Cellenza", "contact": "Alain\u00a0GIANSILY", "source": "N/A", "trainer": "Mouad MIKOU", "topic": "Training", "name": "Cellenza - AZ500", "status": "Paid", "expectedAmount": 3000, "notes": "", "dates": ["2026-03-16", "2026-03-19"]}, {"id": "p11", "type": "internal", "client": "Pearson Vue", "contact": "N/A", "source": "N/A", "trainer": "N/A", "topic": "Certification", "name": "Pearson AZ-500", "status": "Paid", "expectedAmount": 0, "notes": "", "dates": ["2026-02-27"]}, {"id": "p12", "type": "internal", "client": "Pearson Vue", "contact": "N/A", "source": "N/A", "trainer": "N/A", "topic": "Certification", "name": "Pearson AZ-204", "status": "Paid", "expectedAmount": 0, "notes": "", "dates": ["2026-03-01"]}, {"id": "p13", "type": "internal", "client": "Eni Editions", "contact": "Vanessa Dallerac", "source": "N/A", "trainer": "N/A", "topic": "Certification", "name": "Eni - Certification Formateur", "status": "Paid", "expectedAmount": 0, "notes": "", "dates": ["2026-03-06"]}, {"id": "p14", "type": "internal", "client": "Eni Editions", "contact": "Vanessa Dallerac", "source": "N/A", "trainer": "N/A", "topic": "Certification", "name": "Eni - Devis Habilitation (3 certifs)", "status": "Paid", "expectedAmount": 0, "notes": "", "dates": ["2026-03-12"]}, {"id": "p15", "type": "revenue", "client": "IWG", "contact": "N/A", "source": "N/A", "trainer": "N/A", "topic": "Office", "name": "IWG - Office - Retour Caution", "status": "Paid", "expectedAmount": 186.9, "notes": "", "dates": ["2026-03-12"]}, {"id": "p16", "type": "revenue", "client": "Cellenza", "contact": "Alain\u00a0GIANSILY", "source": "N/A", "trainer": "Ahmed Tahri", "topic": "Training", "name": "Cellenza - Custom", "status": "Invoiced", "expectedAmount": 4500, "notes": "", "dates": ["2026-05-19", "2026-05-20"]}, {"id": "p17", "type": "revenue", "client": "FastLane", "contact": "Sarah Medjeber", "source": "N/A", "trainer": "Youssef ElGandouli", "topic": "Training", "name": "FastLane MD-102", "status": "Invoiced", "expectedAmount": 2300, "notes": "", "dates": ["2026-05-18", "2026-05-22"]}, {"id": "p18", "type": "revenue", "client": "FastLane", "contact": "Sarah Medjeber", "source": "N/A", "trainer": "Youssef ElGandouli", "topic": "Training", "name": "FastLane MD-102", "status": "Scheduled", "expectedAmount": 2300, "notes": "", "dates": ["2026-06-01", "2026-06-05"]}, {"id": "p19", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Oussama EDDAI", "topic": "Training", "name": "Efrei - Cloud Intro 2 (1/2)", "status": "Scheduled", "expectedAmount": 0, "notes": "", "dates": ["2027-01-04", "2027-01-05"]}, {"id": "p20", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Oussama EDDAI", "topic": "Training", "name": "Efrei - Cloud Intro 2 (2/2)", "status": "Scheduled", "expectedAmount": 0, "notes": "", "dates": ["2027-01-12", "2027-01-13"]}, {"id": "p21", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": "Oussama EDDAI or Monaim", "topic": "Training", "name": "Efrei - Cloud Intro 3", "status": "Scheduled", "expectedAmount": 2212, "notes": "", "dates": []}, {"id": "p22", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": null, "topic": "Training", "name": "Efrei -  AZ104 - 1", "status": "Signed", "expectedAmount": 0, "notes": "", "dates": []}, {"id": "p23", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": null, "topic": "Training", "name": "Efrei -  AZ104 - 2", "status": "Signed", "expectedAmount": 0, "notes": "", "dates": []}, {"id": "p24", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": null, "topic": "Training", "name": "Efrei - DP700 - 1", "status": "Signed", "expectedAmount": 0, "notes": "", "dates": []}, {"id": "p25", "type": "revenue", "client": "Efrei", "contact": "Julien", "source": "Ilyes & Alexis", "trainer": null, "topic": "Training", "name": "Efrei - DP700 - 2", "status": "Signed", "expectedAmount": 0, "notes": "", "dates": []}];
 
 const SEED_EXPENSES = [{"id": "e1", "projectId": "p1", "projectName": "Efrei - Cloud Intro", "category": "Trainer Fee", "date": "2026-03-09", "status": "Paid", "expectedAmount": 2150, "notes": ""}, {"id": "e2", "projectId": "p1", "projectName": "Efrei - Cloud Intro", "category": "Commission", "date": "2026-03-09", "status": "Paid", "expectedAmount": 307.5, "notes": ""}, {"id": "e3", "projectId": null, "projectName": "IWG - Office", "category": "Office", "date": "2026-01-01", "status": "Paid", "expectedAmount": 278.58, "notes": ""}, {"id": "e4", "projectId": "p2", "projectName": "Efrei - DP600 - Aug (1/2)", "category": "Trainer Fee", "date": "2026-07-06", "status": "Signed", "expectedAmount": 860, "notes": ""}, {"id": "e5", "projectId": "p2", "projectName": "Efrei - DP600 - Aug (1/2)", "category": "Commission", "date": "2026-07-06", "status": "Signed", "expectedAmount": 158, "notes": ""}, {"id": "e6", "projectId": "p3", "projectName": "Efrei - DP600 - Aug (2/2)", "category": "Trainer Fee", "date": "2026-08-31", "status": "Signed", "expectedAmount": 1290, "notes": ""}, {"id": "e7", "projectId": "p3", "projectName": "Efrei - DP600 - Aug (2/2)", "category": "Commission", "date": "2026-08-31", "status": "Signed", "expectedAmount": 237, "notes": ""}, {"id": "e8", "projectId": "p4", "projectName": "Efrei - DP600 - Sep", "category": "Trainer Fee", "date": "2026-08-31", "status": "Signed", "expectedAmount": 2150, "notes": ""}, {"id": "e9", "projectId": "p4", "projectName": "Efrei - DP600 - Sep", "category": "Commission", "date": "2026-08-31", "status": "Signed", "expectedAmount": 395, "notes": ""}, {"id": "e10", "projectId": "p5", "projectName": "Crossthink  - Apr - Week 1", "category": "Trainer Fee", "date": "2026-03-30", "status": "Signed", "expectedAmount": 4000, "notes": ""}, {"id": "e11", "projectId": "p5", "projectName": "Crossthink  - Apr - Week 1", "category": "Commission", "date": "2026-03-30", "status": "Signed", "expectedAmount": 375, "notes": ""}, {"id": "e12", "projectId": "p6", "projectName": "Crossthink  - Apr - Week 2 & 3", "category": "Trainer Fee", "date": "2026-04-07", "status": "Signed", "expectedAmount": 4950, "notes": ""}, {"id": "e13", "projectId": "p6", "projectName": "Crossthink  - Apr - Week 2 & 3", "category": "Commission", "date": "2026-04-07", "status": "Signed", "expectedAmount": 1800, "notes": ""}, {"id": "e14", "projectId": "p7", "projectName": "Crossthink  - Apr - Week 4", "category": "Trainer Fee", "date": "2026-04-20", "status": "Signed", "expectedAmount": 4000, "notes": ""}, {"id": "e15", "projectId": "p7", "projectName": "Crossthink  - Apr - Week 4", "category": "Commission", "date": "2026-04-20", "status": "Signed", "expectedAmount": 375, "notes": ""}, {"id": "e16", "projectId": "p8", "projectName": "FastLane - AZ204", "category": "Trainer Fee", "date": "2026-05-18", "status": "Signed", "expectedAmount": 1750, "notes": ""}, {"id": "e17", "projectId": "p9", "projectName": "FastLane - AZ700", "category": "Trainer Fee", "date": "2026-04-07", "status": "Signed", "expectedAmount": 1000, "notes": ""}, {"id": "e18", "projectId": "p9", "projectName": "FastLane - AZ700", "category": "Other Cost", "date": "2026-04-07", "status": "Signed", "expectedAmount": 100, "notes": ""}, {"id": "e19", "projectId": "p10", "projectName": "Cellenza - AZ500", "category": "Trainer Fee", "date": "2026-03-16", "status": "Paid", "expectedAmount": 2800, "notes": ""}, {"id": "e20", "projectId": null, "projectName": "Ichrak - Janvier", "category": "Salary", "date": "2026-01-01", "status": "Paid", "expectedAmount": 200, "notes": ""}, {"id": "e21", "projectId": null, "projectName": "Ichrak - Fevrier", "category": "Salary", "date": "2026-02-01", "status": "Paid", "expectedAmount": 300, "notes": ""}, {"id": "e22", "projectId": null, "projectName": "IWG - Office", "category": "Office", "date": "2026-02-01", "status": "Paid", "expectedAmount": 69.2, "notes": ""}, {"id": "e23", "projectId": "p11", "projectName": "Pearson AZ-500", "category": "Certification", "date": "2026-02-27", "status": "Paid", "expectedAmount": 37.8, "notes": ""}, {"id": "e24", "projectId": "p12", "projectName": "Pearson AZ-204", "category": "Certification", "date": "2026-03-01", "status": "Paid", "expectedAmount": 37.8, "notes": ""}, {"id": "e25", "projectId": "p13", "projectName": "Eni - Certification Formateur", "category": "Certification", "date": "2026-03-06", "status": "Paid", "expectedAmount": 420, "notes": ""}, {"id": "e26", "projectId": "p14", "projectName": "Eni - Devis Habilitation (3 certifs)", "category": "Certification", "date": "2026-03-12", "status": "Paid", "expectedAmount": 630, "notes": ""}, {"id": "e27", "projectId": "p16", "projectName": "Cellenza - Custom", "category": "Trainer Fee", "date": "2026-05-19", "status": "Invoiced", "expectedAmount": 3500, "notes": ""}, {"id": "e28", "projectId": "p17", "projectName": "FastLane MD-102", "category": "Trainer Fee", "date": "2026-05-18", "status": "Invoiced", "expectedAmount": 1250, "notes": ""}, {"id": "e29", "projectId": "p17", "projectName": "FastLane MD-102", "category": "Other Cost", "date": "2026-05-18", "status": "Invoiced", "expectedAmount": 100, "notes": ""}, {"id": "e30", "projectId": null, "projectName": "Ichrak - Mars", "category": "Salary", "date": "2026-03-01", "status": "Paid", "expectedAmount": 280, "notes": ""}, {"id": "e31", "projectId": null, "projectName": "FZ - Avril & Mai", "category": "Salary", "date": "2026-04-01", "status": "Invoiced", "expectedAmount": 200, "notes": ""}, {"id": "e32", "projectId": null, "projectName": "Teams Sub", "category": "Software", "date": "2026-04-01", "status": "Paid", "expectedAmount": 6.24, "notes": ""}, {"id": "e33", "projectId": null, "projectName": "WebSite + Intranet Dev ", "category": "Salary", "date": "2026-02-02", "status": "Paid", "expectedAmount": 1200, "notes": ""}, {"id": "e34", "projectId": null, "projectName": "Amine - Avril & Mai", "category": "Salary", "date": "2026-04-01", "status": "Paid", "expectedAmount": 380, "notes": ""}, {"id": "e35", "projectId": "p18", "projectName": "FastLane MD-102", "category": "Trainer Fee", "date": "2026-06-01", "status": "Signed", "expectedAmount": 1250, "notes": ""}, {"id": "e36", "projectId": null, "projectName": "Teams Sub", "category": "Software", "date": "2026-05-01", "status": "Paid", "expectedAmount": 6.24, "notes": ""}, {"id": "e37", "projectId": "p21", "projectName": "Efrei - Cloud Intro 3", "category": "Trainer Fee", "date": null, "status": "Signed", "expectedAmount": 2000, "notes": ""}];
 
@@ -318,21 +318,23 @@ function SaveReviewModal({ changes, onConfirm, onBack }) {
   );
 }
 
-function ExtraDatesEditor({ dates, onChange }) {
+function DatesEditor({ dates, onChange }) {
   const [draftDate, setDraftDate] = useState("");
+  const sorted = [...(dates || [])].sort();
   const add = () => {
-    if (!draftDate || dates.includes(draftDate)) return;
-    onChange([...dates, draftDate].sort());
+    if (!draftDate || sorted.includes(draftDate)) return;
+    onChange([...sorted, draftDate].sort());
     setDraftDate("");
   };
-  const remove = (d) => onChange(dates.filter((x) => x !== d));
+  const remove = (d) => onChange(sorted.filter((x) => x !== d));
 
   return (
     <div className="extra-dates-editor">
-      {dates.length > 0 && (
+      {sorted.length > 0 && (
         <div className="extra-dates-list">
-          {dates.map((d) => (
+          {sorted.map((d, i) => (
             <span className="extra-date-chip" key={d}>
+              {i === 0 && <span style={{fontSize:9,opacity:0.6,marginRight:2}}>①</span>}
               {fmtDate(d)}
               <button type="button" onClick={() => remove(d)} aria-label={`Remove ${d}`}><X size={10} /></button>
             </span>
@@ -483,7 +485,7 @@ const toISODate = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.
 
 function availableYears(projects, expenses) {
   const years = new Set();
-  projects.forEach((p) => { if (p.startDate) years.add(p.startDate.slice(0, 4)); });
+  projects.forEach((p) => { if (p.dates && p.dates.length > 0) years.add(p.dates[0].slice(0, 4)); });
   expenses.forEach((e) => { if (e.date) years.add(e.date.slice(0, 4)); });
   return Array.from(years).sort();
 }
@@ -526,7 +528,7 @@ function inRange(dateStr, range) {
 
 function projectInRange(p, range) {
   if (!range) return true;
-  const dates = [p.startDate, ...(p.extraDates || [])].filter(Boolean);
+  const dates = (p.dates || []);
   if (dates.length === 0) return false;
   return dates.some((d) => d >= range.from && d <= range.to);
 }
@@ -599,16 +601,14 @@ function RevenueTab({ projects, setProjects }) {
     { key: "client", label: "Client" },
     { key: "contact", label: "Contact" },
     { key: "trainer", label: "Trainer" },
-    { key: "startDate", label: "Start date", format: (v) => fmtDate(v) },
-    { key: "endDate", label: "End date", format: (v) => fmtDate(v) },
-    { key: "extraDates", label: "Extra dates", format: (v) => (v && v.length ? v.map(fmtDate).join(", ") : "none") },
+    { key: "dates", label: "Dates", format: (v) => (v && v.length ? v.map(fmtDate).join(", ") : "none") },
     { key: "status", label: "Status" },
     { key: "expectedAmount", label: "Amount", format: (v) => fmt(v) },
   ];
 
   const startEdit = (p) => { setEditingId(p.id); setDraft({ ...p }); setEditOriginal(p); };
   const startNew = () => {
-    const p = { id: uid("p"), type: typeView === "internal" ? "internal" : "revenue", client: "", contact: "", source: "", trainer: "", topic: "Training", name: "New project", startDate: null, endDate: null, extraDates: [], status: "Signed", expectedAmount: 0, notes: "" };
+    const p = { id: uid("p"), type: typeView === "internal" ? "internal" : "revenue", client: "", contact: "", source: "", trainer: "", topic: "Training", name: "New project", dates: [], status: "Signed", expectedAmount: 0, notes: "" };
     setProjects([p, ...projects]);
     setPendingNewId(p.id);
     startEdit(p);
@@ -636,7 +636,7 @@ function RevenueTab({ projects, setProjects }) {
   };
   const remove = (id) => setProjects(projects.filter((p) => p.id !== id));
   const duplicate = (p) => {
-    const copy = { ...p, id: uid("p"), extraDates: [...(p.extraDates || [])] };
+    const copy = { ...p, id: uid("p"), dates: [...(p.dates || [])] };
     setProjects([copy, ...projects]);
     setPendingNewId(copy.id);
     startEdit(copy);
@@ -651,8 +651,8 @@ function RevenueTab({ projects, setProjects }) {
     if (filters.contact && !(p.contact || "").toLowerCase().includes(filters.contact.toLowerCase())) return false;
     if (filters.trainer && !(p.trainer || "").toLowerCase().includes(filters.trainer.toLowerCase())) return false;
     if (!filters.statuses.has(p.status)) return false;
-    if (filters.dateFrom && (!p.startDate || p.startDate < filters.dateFrom)) return false;
-    if (filters.dateTo && (!p.startDate || p.startDate > filters.dateTo)) return false;
+    if (filters.dateFrom && !(p.dates || []).some((d) => d >= filters.dateFrom)) return false;
+    if (filters.dateTo && !(p.dates || []).some((d) => d <= filters.dateTo)) return false;
     if (filters.amountMin !== "" && (p.expectedAmount || 0) < parseFloat(filters.amountMin)) return false;
     if (filters.amountMax !== "" && (p.expectedAmount || 0) > parseFloat(filters.amountMax)) return false;
     return true;
@@ -662,7 +662,7 @@ function RevenueTab({ projects, setProjects }) {
       if (a.id === editingId) return -1;
       if (b.id === editingId) return 1;
     }
-    return (b.startDate || "0000").localeCompare(a.startDate || "0000");
+    return ((b.dates && b.dates[0]) || "0000").localeCompare((a.dates && a.dates[0]) || "0000");
   });
   const total = filtered.reduce((s, p) => s + (p.expectedAmount || 0), 0);
   const isFiltered = JSON.stringify([...filters.statuses].sort()) !== JSON.stringify([...STATUS_ORDER].sort())
@@ -747,11 +747,9 @@ function RevenueTab({ projects, setProjects }) {
                       <td><input value={draft.contact || ""} onChange={(e) => setDraft((d) => ({ ...d, contact: e.target.value }))} /></td>
                       <td><input value={draft.trainer || ""} onChange={(e) => setDraft((d) => ({ ...d, trainer: e.target.value }))} /></td>
                       <td className="date-cell">
-                        <input type="date" value={draft.startDate || ""} onChange={(e) => setDraft((d) => ({ ...d, startDate: e.target.value || null }))} />
-                        <input type="date" value={draft.endDate || ""} onChange={(e) => setDraft((d) => ({ ...d, endDate: e.target.value || null }))} />
-                        <ExtraDatesEditor
-                          dates={draft.extraDates || []}
-                          onChange={(next) => setDraft((d) => ({ ...d, extraDates: next }))}
+                        <DatesEditor
+                          dates={draft.dates || []}
+                          onChange={(next) => setDraft((d) => ({ ...d, dates: next }))}
                         />
                       </td>
                       <td><Select value={draft.status} onChange={(v) => setDraft((d) => ({ ...d, status: v }))} options={STATUS_ORDER} /></td>
@@ -769,11 +767,9 @@ function RevenueTab({ projects, setProjects }) {
                       <td>{p.contact || "-"}</td>
                       <td>{p.trainer || "-"}</td>
                       <td className="date-cell date-cell-multi">
-                        <div>{fmtDate(p.startDate)}</div>
-                        {p.endDate && p.endDate !== p.startDate && <div className="extra-date-line">{fmtDate(p.endDate)}</div>}
-                        {(p.extraDates || []).map((d) => (
-                          <div key={d} className="extra-date-line">{fmtDate(d)}</div>
-                        ))}
+                        {(p.dates && p.dates.length > 0) ? [...p.dates].sort().map((d) => (
+                          <div key={d}>{fmtDate(d)}</div>
+                        )) : <span>—</span>}
                       </td>
                       <td><Badge status={p.status} /></td>
                       <td className="num strong" title={p.lastModifiedBy ? `Last modified by ${p.lastModifiedBy}${p.lastModifiedAt ? " on " + new Date(p.lastModifiedAt).toLocaleDateString("fr-FR") : ""}` : ""}>{fmt(p.expectedAmount)}{p.lastModifiedBy && <span className="modifier-tag">{p.lastModifiedBy}</span>}</td>
@@ -1081,7 +1077,7 @@ function PlanningTab({ projects, expenses }) {
   const upcomingProjects = useMemo(() => {
     if (periodMode === "upcoming") {
       return allNonDone.filter((p) => {
-        const allDates = [p.startDate, ...(p.extraDates || [])].filter(Boolean);
+        const allDates = (p.dates || []);
         // show if any date is today or future, OR if undated (no date yet = still upcoming)
         return allDates.length === 0 || allDates.some((d) => d >= today);
       });
@@ -1093,7 +1089,7 @@ function PlanningTab({ projects, expenses }) {
   // One row per project (never split across its dates) - uses the EARLIEST of its
   // primary + extra dates so a scattered multi-date training still sorts sensibly.
   const toPlanningEntry = (p) => {
-    const allDates = [p.startDate, ...(p.extraDates || [])].filter(Boolean).sort();
+    const allDates = [...(p.dates || [])].sort();
     return { ...p, sessionDate: allDates[0] || null, sessionKey: p.id, extraCount: Math.max(0, allDates.length - 1) };
   };
 
@@ -1101,7 +1097,7 @@ function PlanningTab({ projects, expenses }) {
   const flattenToSessions = (list) => {
     const out = [];
     list.forEach((p) => {
-      const allDates = [p.startDate, ...(p.extraDates || [])].filter(Boolean);
+      const allDates = (p.dates || []);
       if (allDates.length === 0) out.push({ ...p, sessionDate: null, sessionKey: p.id });
       else allDates.forEach((d) => out.push({ ...p, sessionDate: d, sessionKey: `${p.id}-${d}` }));
     });
@@ -1220,7 +1216,7 @@ function PlanningTab({ projects, expenses }) {
                 <div className="timeline-date">
                   <div className="tl-day">{new Date(p.sessionDate + "T00:00:00").getDate()}</div>
                   <div className="tl-month">{new Date(p.sessionDate + "T00:00:00").toLocaleDateString("en-GB", { month: "short", year: "2-digit" })}</div>
-                  {[...(p.extraDates || [])].sort().map((d) => (
+                  {[...(p.dates || [])].sort().slice(1).map((d) => (
                     <div key={d} className="tl-extra-date">{new Date(d + "T00:00:00").toLocaleDateString("en-GB", { day: "2-digit", month: "short" })}</div>
                   ))}
                 </div>
@@ -1341,7 +1337,7 @@ function DashboardTab({ projects, expenses }) {
     () => (range === null ? expenses : expenses.filter((e) => inRange(e.date, range))),
     [expenses, range]
   );
-  const excludedUndated = range === null ? 0 : projects.filter((p) => !p.startDate).length;
+  const excludedUndated = range === null ? 0 : projects.filter((p) => !p.dates || p.dates.length === 0).length;
 
   const periodLabel = range === null ? "All time" : range.label;
 
